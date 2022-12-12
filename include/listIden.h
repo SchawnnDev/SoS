@@ -5,13 +5,13 @@
 #include "variable.h"
 
 typedef struct {
-    char * nom;
-    char * valeur;
-} identificateur_t, *Identificateur;
+    char * name;
+    char * value;
+} identifier_t, *Identifier;
 
 typedef struct {
-    Identificateur lesIdentificateurs[IDEN_MAX];
-    int nombreIden; 
-} listIdentificateur_t, *ListIdentifacteur;
+    Identifier Identifiers[IDEN_MAX];
+    int numbreIden; 
+} listIdentifier_t, *ListIdentifier;
 
 #endif

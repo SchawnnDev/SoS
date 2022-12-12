@@ -6,10 +6,10 @@
 #define TMP_MAX 100
 
 /* Types */
-#define CHAINE 1
-#define ENTIER 2
-#define TABLEAU 3
-#define FONCTION 4
+#define CHAIN 1
+#define INTEGER 2
+#define ARRAY 3
+#define FUNCTION 4
 
 /* Operations */
 
