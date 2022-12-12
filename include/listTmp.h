@@ -5,8 +5,8 @@
 #include "variable.h"
 
 typedef struct{
-    char * valeurs[TMP_MAX];
-    int nombreValeurs;
+    char * values[TMP_MAX];
+    int numbreValues;
 } listTmp_t, *ListTmp;
 
 #endif
