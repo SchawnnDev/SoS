@@ -7,6 +7,7 @@ add_subdirectory(lib)
 
 add_executable(
         sos
+
         main.c
         src/listIden.c
         src/utils.c
