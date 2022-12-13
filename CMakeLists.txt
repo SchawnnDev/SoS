@@ -16,5 +16,11 @@ add_executable(
         include/listRangeVar.h
         include/listTmp.h
         include/utils.h
-        include/variable.h
-)
+        include/variable.h)
+
+
+include(CTest)
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
