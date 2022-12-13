@@ -1,0 +1,9 @@
+[submodule ".\\lib\\greatest"]
+	path = .\\lib\\greatest
+	url = git@github.com:silentbicycle/greatest.git
+[submodule ".\\lib\\logger"]
+	path = .\\lib\\logger
+	url = git@github.com:rxi/log.c.git
+[submodule ".\\lib\\argtable3"]
+	path = .\\lib\\argtable3
+	url = git@github.com:argtable/argtable3.git

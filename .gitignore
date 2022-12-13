@@ -2,6 +2,9 @@
 .idea/
 .vscode/
 
+# CMake
+cmake-build-debug/
+
 /bin
 /obj
 *.log

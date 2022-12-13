@@ -2,6 +2,10 @@
 
 ## Installation
 
+```shell
+git submodule update --init --recursive
+```
+
 ### ...
 
 ### Run
