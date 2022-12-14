@@ -15,4 +15,9 @@ add_library(greatest INTERFACE)
 target_include_directories(greatest INTERFACE "${LIBS_DIR}/greatest/")
 
 # Argtable3
+
+set(ARGTABLE3_ENABLE_CONAN OFF CACHE BOOL "Enable Conan dependency manager")
+set(ARGTABLE3_ENABLE_TESTS OFF CACHE BOOL "Enable unit tests")
+set(ARGTABLE3_ENABLE_EXAMPLES OFF CACHE BOOL "Enable examples")
+
 add_subdirectory(argtable3)
