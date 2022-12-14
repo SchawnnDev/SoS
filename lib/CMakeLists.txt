@@ -13,3 +13,6 @@ endif ()
 # Greatest
 add_library(greatest INTERFACE)
 target_include_directories(greatest INTERFACE "${LIBS_DIR}/greatest/")
+
+# Argtable3
+add_subdirectory(argtable3)

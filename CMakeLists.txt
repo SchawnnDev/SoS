@@ -18,6 +18,9 @@ add_executable(
         include/utils.h
         include/variable.h)
 
+target_link_libraries(sos PRIVATE argtable3::argtable3 logc)
+target_include_directories(sos PRIVATE "${LIBS_DIR}/argtable3/src/")
+
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
 
