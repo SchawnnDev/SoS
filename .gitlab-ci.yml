@@ -1,0 +1,23 @@
+image: stabletec/build-core:ubuntu
+
+stages :
+  - build
+  - test
+
+build-sos:
+  stage : build
+  script:
+    - cmake . && cmake --build . && make
+  only:
+    - merge_requests
+    - main
+
+test-sos:
+  stage: test
+  script:
+    - cmake . && cmake --build . && make
+    - ctest -VV
+  only:
+    - merge_requests
+    - main
+
