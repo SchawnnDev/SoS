@@ -7,6 +7,7 @@ stages :
 build-sos:
   stage : build
   script:
+    - git submodule update --init --recursive
     - cmake . && cmake --build . && make
   only:
     - merge_requests
@@ -15,6 +16,7 @@ build-sos:
 test-sos:
   stage: test
   script:
+    - git submodule update --init --recursive
     - cmake . && cmake --build . && make
     - ctest -VV
   only:
