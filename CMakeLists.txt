@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10.2)
 project(sos C)
 
 set(CMAKE_C_STANDARD 99)
@@ -16,5 +16,17 @@ add_executable(
         include/listRangeVar.h
         include/listTmp.h
         include/utils.h
-        include/variable.h
-)
+        include/variable.h)
+
+target_link_libraries(sos PRIVATE argtable3::argtable3 logc)
+target_include_directories(sos PRIVATE "${LIBS_DIR}/argtable3/src/")
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+
+    if(BUILD_TESTING)
+        add_subdirectory(tests)
+    endif()
+endif()
+
+

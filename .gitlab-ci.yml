@@ -1,0 +1,25 @@
+image: stabletec/build-core:ubuntu
+
+stages :
+  - build
+  - test
+
+build-sos:
+  stage : build
+  script:
+    - git submodule update --init --recursive
+    - cmake . && cmake --build . && make
+  only:
+    - merge_requests
+    - main
+
+test-sos:
+  stage: test
+  script:
+    - git submodule update --init --recursive
+    - cmake . && cmake --build . && make
+    - ctest -VV
+  only:
+    - merge_requests
+    - main
+

@@ -4,6 +4,7 @@
 
 # CMake
 cmake-build-debug/
+Testing/
 
 /bin
 /obj
