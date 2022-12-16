@@ -8,7 +8,7 @@ ListIdentifier initListIdentifier()
 {
     ListIdentifier addr;
     CHECKPOINTER(addr = (ListIdentifier)malloc(sizeof(listIdentifier_t)));
-    addr->numbreIden = 0;
+    addr->numberIdentifiers = 0;
     return addr;
 }
 

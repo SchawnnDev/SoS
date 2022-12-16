@@ -6,7 +6,7 @@
 
 typedef struct{
     char * values[TMP_MAX];
-    int numbreValues;
+    int numberValues;
 } listTmp_t, *ListTmp;
 
 #endif

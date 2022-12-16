@@ -12,7 +12,7 @@ typedef struct {
 
 typedef struct {
     Identifier Identifiers[IDEN_MAX];
-    int numbreIden; 
+    int numberIdentifiers;
 } listIdentifier_t, *ListIdentifier;
 
 /*!
