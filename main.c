@@ -10,6 +10,9 @@ struct arg_end *end;
 
 int handle_args(int argc, char **argv)
 {
+    log_set_level(LOG_DEBUG);
+    log_trace("Hello")
+    log_debug("Hello2")
     /* the global arg_xxx structs are initialised within the argtable */
     void *argtable[] = {
             help    = arg_litn(NULL, "help", 0, 1, "display this help and exit"),
