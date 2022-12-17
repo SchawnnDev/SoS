@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "variable.h"
+#include "listTmp.h"
 
 typedef struct {
     char * name;
@@ -38,9 +39,20 @@ void cleanListIdentifier(ListIdentifier addr);
  *
  * \param name : char *, le nom de l'identificateur
  *
- * \return Identifier, un pointeur de la liste des identificateurs avec le nouvel élément
+ * \return Identifier, un pointeur d'identificateur avec le nom passé en paramètre.
 */
 Identifier initIdentifier(char* name);
+
+/*!
+ * \fn int searchIdentifierPosition(ListIdentifier addr, char* name)
+ * \brief Fonction qui recherche la position de l'Identifier dans la liste des identificateurs
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param name : char *, le nom de l'identificateur
+ *
+ * \return int, la position de l'identificateur (NOTFOUND lorsqu'il n'est pas présent)
+*/
+int searchIdentifierPosition(ListIdentifier addr, char* name);
 
 /*!
  * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
@@ -52,5 +64,29 @@ Identifier initIdentifier(char* name);
  * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouvel élément
 */
 ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name);
+
+/*!
+ * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+ * \brief Fonction qui modifie le type de l'identificateur
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param name : char *, le nom de l'identificateur
+ * \param type : int, le type de l'identificateur
+ *
+ * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouveau type
+*/
+ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type);
+
+/*!
+ * \fn ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, char* name,ListTmp addrTmp)
+ * \brief Fonction remplie le tableau des valeurs de l'identificateur grave à la liste temporaire
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param name : char *, le nom de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return ListIdentifier, un pointeur de la liste des identificateurs avec les valeurs
+*/
+ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, char* name,ListTmp addrTmp);
 
 #endif
