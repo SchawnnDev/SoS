@@ -38,7 +38,7 @@ void cleanListIdentifier(ListIdentifier addr);
  *
  * \param name : char *, le nom de l'identificateur
  *
- * \return Identifier, un pointeur de la liste des identificateurs avec le nouvel élément
+ * \return Identifier, un pointeur d'identificateur avec le nom passé en paramètre.
 */
 Identifier initIdentifier(char* name);
 
@@ -63,5 +63,17 @@ int searchIdentifierPosition(ListIdentifier addr, char* name);
  * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouvel élément
 */
 ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name);
+
+/*!
+ * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+ * \brief Fonction qui modifie le type de l'identificateur
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param name : char *, le nom de l'identificateur
+ * \param type : int, le type de l'identificateur
+ *
+ * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouvel élément
+*/
+ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type);
 
 #endif

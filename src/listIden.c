@@ -100,3 +100,25 @@ ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name)
 
     return addr;
 }
+/*!
+ * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+ * \brief Fonction qui modifie le type de l'identificateur
+*/
+ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+{
+    log_trace("setTypeOfIdentifier (ListIdentifier %p, char* %s,int %d)",addr,name,type)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    int position = searchIdentifierPosition(addr, name);
+
+    if(position == NOTFOUND){
+        log_error("Identifier not found : name : %s, position : %d",name,index)
+        perror("setTypeOfIdentifier : can not set type of non-existent identifier.");
+        exit(EXIT_FAILURE);
+    }
+
+    addr->Identifiers[position]->type = type;
+
+    return addr;
+}
