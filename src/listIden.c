@@ -49,6 +49,31 @@ Identifier initIdentifier(char* name)
 }
 
 /*!
+ * \fn int searchIdentifierPosition(ListIdentifier addr, char* name)
+ * \brief Fonction qui recherche la position de l'Identifier dans la liste des identificateurs
+*/
+int searchIdentifierPosition(ListIdentifier addr, char* name)
+{
+    log_trace("searchIdentifierPosition (ListIdentifier %p, char* %s)",addr,name)
+
+    int position = NOTFOUND;
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+    int size = addr->numberIdentifiers;
+
+    int index;
+    for(index = 0; (index < size) && (position == NOTFOUND); index++)
+    {
+        if(strcmp(name, addr->Identifiers[index]->name) == 0){
+            log_info("Identifier found : name : %s, position : %d",name,index)
+            position = index;
+        }
+    }
+
+    return position;
+}
+
+/*!
  * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
 */
@@ -61,6 +86,12 @@ ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name)
     if(addr->numberIdentifiers == IDEN_MAX){
         log_error("numberIdentifiers : %d, %d",addr->numberIdentifiers,IDEN_MAX)
         perror("addIntoListIdentifier : to many Identifier.");
+        exit(EXIT_FAILURE);
+    }
+
+    if(searchIdentifierPosition(addr, name) != NOTFOUND){
+        log_error("Identifier found : name : %s, position : %d",name,index)
+        perror("addIntoListIdentifier : can not add existing identifier.");
         exit(EXIT_FAILURE);
     }
 

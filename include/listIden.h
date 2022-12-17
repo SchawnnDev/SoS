@@ -43,6 +43,17 @@ void cleanListIdentifier(ListIdentifier addr);
 Identifier initIdentifier(char* name);
 
 /*!
+ * \fn int searchIdentifierPosition(ListIdentifier addr, char* name)
+ * \brief Fonction qui recherche la position de l'Identifier dans la liste des identificateurs
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param name : char *, le nom de l'identificateur
+ *
+ * \return int, la position de l'identificateur (NOTFOUND lorsqu'il n'est pas présent)
+*/
+int searchIdentifierPosition(ListIdentifier addr, char* name);
+
+/*!
  * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
  * 

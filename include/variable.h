@@ -3,7 +3,10 @@
 
 /* Tailles */
 #define IDEN_MAX 100
-#define TMP_MAX 100
+#define TMP_TAB_MAX 100
+
+/* Error */
+#define NOTFOUND -1
 
 /* Types */
 #define UNSET 0
