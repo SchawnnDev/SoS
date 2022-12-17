@@ -6,6 +6,8 @@
 */
 ListIdentifier initListIdentifier()
 {
+    log_trace("initListIdentifier (void)")
+
     ListIdentifier addr;
     CHECKPOINTER(addr = (ListIdentifier)malloc(sizeof(listIdentifier_t)));
     addr->numberIdentifiers = 0;
@@ -18,25 +20,52 @@ ListIdentifier initListIdentifier()
 */
 void cleanListIdentifier(ListIdentifier addr)
 {
+    log_trace("cleanListIdentifier (ListIdentifier %p)",addr)
     free(addr);
+}
+
+/*!
+ * \fn Identifier initIdentifier(char* name)
+ * \brief Fonction qui crée un Identifier
+*/
+Identifier initIdentifier(char* name)
+{
+    log_trace("initIdentifier (char* %s)",name)
+
+    if(strcmp(name, "") == 0){
+        log_error("name : %s, notEmpty",name)
+        perror("initIdentifier : name is Empty or identifier can't be empty.");
+        exit(EXIT_FAILURE);
+    }
+
+    Identifier addr;
+    CHECKPOINTER(addr = (Identifier)malloc(sizeof(identifier_t)));
+    ulong size = strlen( name ) + 1;
+    CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size));
+    CHECKPOINTER(strcpy(addr->name,name));
+    addr->type = UNSET;
+    addr->arraySize = 1;
+    return addr;
 }
 
 /*!
  * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
 */
-ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value, int type)
+ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name)
 {
+    log_trace("addIntoListIdentifier (ListIdentifier %p, char* %s)",addr,name)
     CHECKPOINTER(addr);
+    CHECKPOINTER(name);
 
-    if((type < UNSET ) || (type > MAXTYPEVALUE)){
-        perror("addIntoListIdentifier : Value du type n'est pas admise par le compilateur.");
+    if(addr->numberIdentifiers == IDEN_MAX){
+        log_error("numberIdentifiers : %d, %d",addr->numberIdentifiers,IDEN_MAX)
+        perror("addIntoListIdentifier : to many Identifier.");
         exit(EXIT_FAILURE);
     }
 
-    Identifier identifierAddr;
-    CHECKPOINTER(identifierAddr = (Identifier)malloc(sizeof(identifier_t)));
-    int size = strlen( name ) + 1;
+    addr->Identifiers[addr->numberIdentifiers] = initIdentifier(name);
+    addr->numberIdentifiers++;
 
-    /* To Do*/
+    return addr;
 }

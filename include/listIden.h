@@ -6,8 +6,9 @@
 
 typedef struct {
     char * name;
-    char * value;
+    char ** values;
     int type;
+    int arraySize;
 } identifier_t, *Identifier;
 
 typedef struct {
@@ -32,16 +33,24 @@ ListIdentifier initListIdentifier();
 void cleanListIdentifier(ListIdentifier addr);
 
 /*!
+ * \fn Identifier initIdentifier(char* name)
+ * \brief Fonction qui crée un Identifier
+ *
+ * \param name : char *, le nom de l'identificateur
+ *
+ * \return Identifier, un pointeur de la liste des identificateurs avec le nouvel élément
+*/
+Identifier initIdentifier(char* name);
+
+/*!
  * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
  * 
  * \param addr : ListIdentifier, la liste des identificateurs
  * \param name : char *, le nom de l'identificateur
- * \param value : char *, la valeur de l'identificateur
- * \param type : int, le type de l'identificateur
- * 
+ *
  * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouvel élément
 */
-ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value, int type);
+ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name);
 
 #endif
