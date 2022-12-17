@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <log.h>
+
 /*!
  * \fn CHECK
  * \brief Permet de tester une valeur critique du programme
