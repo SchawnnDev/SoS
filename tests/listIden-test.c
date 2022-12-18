@@ -2,7 +2,7 @@
 // Created by Quentin on 17/12/2022.
 //
 #include <greatest.h>
-#include "../include/listIden.h"
+#include "listIden.h"
 
 TEST initListIdentifierTest(void) {
     ListIdentifier addr = initListIdentifier();
@@ -27,7 +27,7 @@ TEST searchIdentifierPositionWithoutIdentifierTest(void) {
     char* name = "test";
     addr = addIntoListIdentifier(addr, name);
 
-    ASSERT_EQ_FMT(-1, searchIdentifierPosition(addr,name),"%d");
+    ASSERT_EQ_FMT(-1, searchIntoListIdentifier(addr,name),"%d");
     PASS();
 }
 
@@ -35,7 +35,7 @@ TEST searchIdentifierPositionWithIdentifierTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
 
-    ASSERT_EQ_FMT(0, searchIdentifierPosition(addr,name),"%d");
+    ASSERT_EQ_FMT(0, searchIntoListIdentifier(addr,name),"%d");
     PASS();
 }
 
@@ -45,7 +45,7 @@ TEST searchIdentifierPositionWithAnOtherIdentifierTest(void) {
     char* name1 = "test1";
     addr = addIntoListIdentifier(addr, name);
 
-    ASSERT_EQ_FMT(-1, searchIdentifierPosition(addr,name1),"%d");
+    ASSERT_EQ_FMT(-1, searchIntoListIdentifier(addr,name1),"%d");
     PASS();
 }
 

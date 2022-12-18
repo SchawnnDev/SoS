@@ -1,6 +1,6 @@
 set(
         TEST_SRC_LIST
-        "test-test.c"
+        "listIden-test.c"
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -15,7 +15,7 @@ foreach(SRC IN LISTS TEST_SRC_LIST)
     add_executable("${TARGET}" "${SRC}")
     target_link_libraries("${TARGET}" PRIVATE greatest)
     target_link_libraries("${TARGET}" PRIVATE logc)
-    target_include_directories("${TARGET}" PRIVATE ./ ../src)
+    target_include_directories("${TARGET}" PRIVATE ./ ../src ../include)
 
     if(UNIX AND NOT APPLE)
         target_compile_definitions("${TARGET}" PRIVATE _GNU_SOURCE)
