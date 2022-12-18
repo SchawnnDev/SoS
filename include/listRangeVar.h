@@ -46,10 +46,30 @@ ListRangeVariable initListRangeVariable();
 
 /*!
  * \fn void cleanListRangeVariable(ListRangeVariable addr)
- * \brief Fonction qui libère la mémoire d'une list de structure de portée de variable
+ * \brief Fonction qui libère la mémoire d'une liste de structure de portée de variable
  *
- * \param addr : ListRangeVariable, la liste de structure de valeur temporaire
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
 */
 void cleanListRangeVariable(ListRangeVariable addr);
+
+/*!
+ * \fn ListRangeVariable addRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ *
+ * \return ListRangeVariable, un pointeur de la liste de portée de variable avec un niveau de plus
+*/
+ListRangeVariable addRangeVariable(ListRangeVariable addr);
+
+/*!
+ * \fn ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui supprime un niveau de portée à la liste de structure de portée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ *
+ *  \return ListRangeVariable, un pointeur de la liste de portée de variable avec un niveau de moins
+*/
+ListRangeVariable deleteRangeVariable(ListRangeVariable addr);
 
 #endif
