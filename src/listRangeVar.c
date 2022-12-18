@@ -182,3 +182,49 @@ ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
 
     return addr;
 }
+
+/*!
+ * \fn void setType(ListRangeVariable addr, char* name, int type)
+ * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
+*/
+void setType(ListRangeVariable addr, char* name, int type)
+{
+    log_trace("setType (ListRangeVariable %p, char* %s, int %d)", addr, name, type)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    variablePosition->rangePosition->listIdentifier = setTypeOfIdentifier(variablePosition->rangePosition->listIdentifier,
+                                                                          variablePosition->indexIdentifier, type);
+}
+
+/*!
+ * \fn void setArraySize(ListRangeVariable addr, char* name, int arraySize)
+ * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
+*/
+void setArraySize(ListRangeVariable addr, char* name, int arraySize)
+{
+    log_trace("setArraySize (ListRangeVariable %p, char* %s, int %d)", addr, name, arraySize)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    variablePosition->rangePosition->listIdentifier = setArraySizeOfIdentifier(variablePosition->rangePosition->listIdentifier,
+                                                                          variablePosition->indexIdentifier, arraySize);
+}
+
+/*!
+ * \fn void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie le tableau des valeurs de l'identificateur dans la liste des postée de variable depuis à la liste temporaire
+*/
+void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
+{
+    log_trace("setValuesFromListTmp (ListRangeVariable %p, char* %s, ListTmp %p)", addr, name, addrTmp)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+    CHECKPOINTER(addrTmp);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    variablePosition->rangePosition->listIdentifier = setValuesOfIdentifierFromListTmp(variablePosition->rangePosition->listIdentifier,
+                                                                               variablePosition->indexIdentifier, addrTmp);
+}

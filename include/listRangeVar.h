@@ -100,7 +100,7 @@ void cleanVariablePosition(VariablePosition addr);
  * \fn VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
  * \brief Fonction qui cherche la position de l'identificateur dans la liste des postée de variable
  *
- * \param addr : RangeVariable, la structure de position d'identificateur
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
  * \param name : char*, le nom de l'identificateur
  *
  * \return VariablePosition, un pointeur d'une structure de position
@@ -109,13 +109,43 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name);
 
 /*!
  * \fn ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
- * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
+ * \brief Fonction qui ajoute un identificateur dans la liste des postée de variable
  *
- * \param addr : RangeVariable, la structure de position d'identificateur
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
  * \param name : char*, le nom de l'identificateur
  *
  * \return VariablePosition, un pointeur d'une structure de position
 */
 ListRangeVariable addIdentifier(ListRangeVariable addr, char* name);
+
+/*!
+ * \fn void setType(ListRangeVariable addr, char* name, int type)
+ * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param type : int, le type de l'identificateur
+*/
+void setType(ListRangeVariable addr, char* name, int type);
+
+/*!
+ * \fn void setArraySize(ListRangeVariable addr, char* name, int arraySize)
+ * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+*/
+void setArraySize(ListRangeVariable addr, char* name, int arraySize);
+
+/*!
+ * \fn void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie le tableau des valeurs de l'identificateur dans la liste des postée de variable depuis à la liste temporaire
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+*/
+void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp);
 
 #endif
