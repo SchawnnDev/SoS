@@ -13,9 +13,8 @@ foreach(SRC IN LISTS TEST_SRC_LIST)
     get_filename_component(TARGET "${SRC}" NAME_WE)
 
     add_executable("${TARGET}" "${SRC}")
-    target_link_libraries("${TARGET}" PRIVATE greatest)
-    target_link_libraries("${TARGET}" PRIVATE logc)
-    target_include_directories("${TARGET}" PRIVATE ./ ../src ../include)
+    target_link_libraries("${TARGET}" PRIVATE greatest libsos)
+    target_include_directories("${TARGET}" PRIVATE ./)
 
     if(UNIX AND NOT APPLE)
         target_compile_definitions("${TARGET}" PRIVATE _GNU_SOURCE)
