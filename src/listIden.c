@@ -151,7 +151,7 @@ ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position,int type)
 
 /*!
  * \fn ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
- * \brief Fonction remplie le tableau des valeurs de l'identificateur grave à la liste temporaire
+ * \brief Fonction remplie le tableau des valeurs de l'identificateur depuis à la liste temporaire
 */
 ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
 {
