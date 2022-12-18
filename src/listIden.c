@@ -206,3 +206,27 @@ ListIdentifier setArraySizeOfIdentifier(ListIdentifier addr, char* name,int arra
 
     return addr;
 }
+
+/*!
+ * \fn void printListIdentifier(ListIdentifier addr)
+ * \brief Fonction affiche l'état actuelle de la liste des identificateurs
+*/
+void printListIdentifier(ListIdentifier addr)
+{
+    log_trace("printListIdentifier (ListIdentifier %p)",addr)
+    CHECKPOINTER(addr);
+
+    int index,valuesIndex;
+    int size = addr->numberIdentifiers;
+    int numberValues;
+
+    for(index = 0; index < size; index++){
+        printf("index : %d, name %s, values : %s",index,addr->Identifiers[index]->name,addr->Identifiers[index]->values[0]);
+        numberValues = addr->Identifiers[index]->arraySize;
+
+        for(valuesIndex = 1; valuesIndex < numberValues; valuesIndex++){
+            printf(", %s",addr->Identifiers[index]->values[valuesIndex]);
+        }
+        printf("\n");
+    }
+}

@@ -9,4 +9,12 @@ typedef struct{
     int numberValues;
 } listTmp_t, *ListTmp;
 
+/*!
+ * \fn ListTmp initListTmp()
+ * \brief Fonction qui initialise la structure des valeurs temporaire
+ *
+ * \return ListIdentifier, un pointeur d'une liste des valeurs temporaire
+*/
+ListTmp initListTmp();
+
 #endif

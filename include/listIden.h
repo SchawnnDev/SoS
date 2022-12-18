@@ -89,4 +89,12 @@ ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type);
 */
 ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, char* name,ListTmp addrTmp);
 
+/*!
+ * \fn void printListIdentifier(ListIdentifier addr)
+ * \brief Fonction affiche l'état actuelle de la liste des identificateurs
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+*/
+void printListIdentifier(ListIdentifier addr);
+
 #endif
