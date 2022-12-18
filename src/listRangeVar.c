@@ -117,7 +117,7 @@ ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
 */
 VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
 {
-    log_trace("initVariablePosition (RangeVariable %d,int %d)", rangePosition, indexIdentifier)
+    log_trace("initVariablePosition (RangeVariable %p, int %d)", rangePosition, indexIdentifier)
 
     VariablePosition addr;
     CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)));
@@ -135,4 +135,50 @@ void cleanVariablePosition(VariablePosition addr)
 {
     log_trace("cleanVariablePosition (VariablePosition %p)", addr)
     free(addr);
+}
+
+/*!
+ * \fn VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
+ * \brief Fonction qui cherche la position de l'identificateur dans la liste des postée de variable
+*/
+VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
+{
+    log_trace("searchIdentifierPosition (ListRangeVariable %p, char* %s)", addr, name)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    int position = NOTFOUND;
+    RangeVariable tmp = addr->cursor;
+    while(tmp != NULL){
+        position = searchIntoListIdentifier(tmp->listIdentifier,name);
+
+        if(position == NOTFOUND){
+            tmp = tmp->previousLevel;
+        }
+    }
+
+    return initVariablePosition(tmp,position);
+}
+
+/*!
+ * \fn ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
+ * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
+*/
+ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
+{
+    log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+
+    if(variablePosition->indexIdentifier != NOTFOUND){
+        log_error("Identifier found : position : %d",variablePosition->indexIdentifier)
+        perror("addIdentifier : can not set add existing identifier.");
+        exit(EXIT_FAILURE);
+    }
+
+    addr->cursor->listIdentifier = addIntoListIdentifier(addr->cursor->listIdentifier, name);
+
+    return addr;
 }

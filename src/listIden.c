@@ -77,12 +77,12 @@ void cleanIdentifier(Identifier addr)
 }
 
 /*!
- * \fn int searchIdentifierPosition(ListIdentifier addr, char* name)
+ * \fn int searchIntoListIdentifier(ListIdentifier addr, char* name)
  * \brief Fonction qui recherche la position de l'Identifier dans la liste des identificateurs
 */
-int searchIdentifierPosition(ListIdentifier addr, char* name)
+int searchIntoListIdentifier(ListIdentifier addr, char* name)
 {
-    log_trace("searchIdentifierPosition (ListIdentifier %p, char* %s)",addr,name)
+    log_trace("searchIntoListIdentifier (ListIdentifier %p, char* %s)",addr,name)
 
     int position = NOTFOUND;
     CHECKPOINTER(addr);

@@ -52,7 +52,7 @@ Identifier initIdentifier(char* name);
 void cleanIdentifier(Identifier addr);
 
 /*!
- * \fn int searchIdentifierPosition(ListIdentifier addr, char* name)
+ * \fn int searchIntoListIdentifiern(ListIdentifier addr, char* name)
  * \brief Fonction qui recherche la position de l'Identifier dans la liste des identificateurs
  *
  * \param addr : ListIdentifier, la liste des identificateurs
@@ -60,7 +60,7 @@ void cleanIdentifier(Identifier addr);
  *
  * \return int, la position de l'identificateur (NOTFOUND lorsqu'il n'est pas présent)
 */
-int searchIdentifierPosition(ListIdentifier addr, char* name);
+int searchIntoListIdentifier(ListIdentifier addr, char* name);
 
 /*!
  * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)

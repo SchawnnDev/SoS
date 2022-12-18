@@ -24,11 +24,4 @@
 
 void raler (int syserr, const char *msg, ...);
 
-/*!
- * \fn CHECKIDEN
- * \brief Permet de tester la présente d'un id
- */
-#define CHECKIDEN(op,msg,ligne) do { if (((op) == NULL)) msgError (ligne, #msg); } while (0);
-
-void msgError (int ligne, const char *msg, ...);
 #endif
