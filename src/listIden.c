@@ -117,12 +117,6 @@ ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name)
         exit(EXIT_FAILURE);
     }
 
-    if(searchIdentifierPosition(addr, name) != NOTFOUND){
-        log_error("Identifier found : name : %s, position : %d",name,index)
-        perror("addIntoListIdentifier : can not add existing identifier.");
-        exit(EXIT_FAILURE);
-    }
-
     addr->Identifiers[addr->numberIdentifiers] = initIdentifier(name);
     addr->numberIdentifiers++;
 
@@ -130,14 +124,13 @@ ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name)
 }
 
 /*!
- * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+ * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position, int type)
  * \brief Fonction qui modifie le type de l'identificateur
 */
-ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position,int type)
 {
-    log_trace("setTypeOfIdentifier (ListIdentifier %p, char* %s,int %d)",addr,name,type)
+    log_trace("setTypeOfIdentifier (ListIdentifier %p, int %d,int %d)",addr,position,type)
     CHECKPOINTER(addr);
-    CHECKPOINTER(name);
 
     if((type < UNSET ) || (type > MAXTYPEVALUE)){
         log_error("type : %d : %d > type < %d",type,UNSET,MAXTYPEVALUE)
@@ -145,11 +138,8 @@ ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
         exit(EXIT_FAILURE);
     }
 
-
-    int position = searchIdentifierPosition(addr, name);
-
-    if(position == NOTFOUND){
-        log_error("Identifier not found : name : %s, position : %d",name,index)
+    if((position == NOTFOUND) && (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
         perror("setTypeOfIdentifier : can not set type of non-existent identifier.");
         exit(EXIT_FAILURE);
     }
@@ -160,20 +150,17 @@ ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
 }
 
 /*!
- * \fn ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, char* name,ListTmp addrTmp)
+ * \fn ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
  * \brief Fonction remplie le tableau des valeurs de l'identificateur grave à la liste temporaire
 */
-ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, char* name,ListTmp addrTmp)
+ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
 {
-    log_trace("setValuesOfIdentifierFromListTmp (ListIdentifier %p, char* %s, ListTmp %p)",addr,name,addrTmp)
+    log_trace("setValuesOfIdentifierFromListTmp (ListIdentifier %p, int %d, ListTmp %p)",addr,position,addrTmp)
     CHECKPOINTER(addr);
-    CHECKPOINTER(name);
     CHECKPOINTER(addrTmp);
 
-    int position = searchIdentifierPosition(addr, name);
-
-    if(position == NOTFOUND){
-        log_error("Identifier not found : name : %s, position : %d",name,index)
+    if((position == NOTFOUND) && (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
         perror("setValuesOfIdentifierFromListTmp : can not set type of non-existent identifier.");
         exit(EXIT_FAILURE);
     }
@@ -207,14 +194,13 @@ ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, char* name,
 }
 
 /*!
- * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
+ * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position, int type)
  * \brief Fonction qui modifie le type de l'identificateur
 */
-ListIdentifier setArraySizeOfIdentifier(ListIdentifier addr, char* name,int arraySize)
+ListIdentifier setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
 {
-    log_trace("setArraySizeOfIdentifier (ListIdentifier %p, char* %s,int %d)",addr,name,arraySize)
+    log_trace("setArraySizeOfIdentifier (ListIdentifier %p, int %d,int %d)",addr,position,arraySize)
     CHECKPOINTER(addr);
-    CHECKPOINTER(name);
 
     if(arraySize < 1){
         log_error("arraySize : %d : %d",arraySize,1)
@@ -222,11 +208,9 @@ ListIdentifier setArraySizeOfIdentifier(ListIdentifier addr, char* name,int arra
         exit(EXIT_FAILURE);
     }
 
-    int position = searchIdentifierPosition(addr, name);
-
-    if(position == NOTFOUND){
-        log_error("Identifier not found : name : %s, position : %d",name,index)
-        perror("setTypeOfIdentifier : can not set type of non-existent identifier.");
+    if((position == NOTFOUND) && (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
+        perror("setArraySizeOfIdentifier : can not set type of non-existent identifier.");
         exit(EXIT_FAILURE);
     }
 
