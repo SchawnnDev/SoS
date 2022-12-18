@@ -44,6 +44,14 @@ void cleanListIdentifier(ListIdentifier addr);
 Identifier initIdentifier(char* name);
 
 /*!
+ * \fn void cleanIdentifier(Identifier addr)
+ * \brief Fonction qui libère la mémoire de la structure Identificateur
+ *
+ * \param addr : Identifier, un identificateur
+*/
+void cleanIdentifier(Identifier addr);
+
+/*!
  * \fn int searchIdentifierPosition(ListIdentifier addr, char* name)
  * \brief Fonction qui recherche la position de l'Identifier dans la liste des identificateurs
  *

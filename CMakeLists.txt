@@ -10,6 +10,7 @@ add_executable(
 
         main.c
         src/listIden.c
+        src/listRangeVar.c
         src/listTmp.c
         src/utils.c
 

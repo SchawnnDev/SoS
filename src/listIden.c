@@ -21,6 +21,15 @@ ListIdentifier initListIdentifier()
 void cleanListIdentifier(ListIdentifier addr)
 {
     log_trace("cleanListIdentifier (ListIdentifier %p)",addr)
+    CHECKPOINTER(addr);
+
+    int index;
+    int size = addr->numberIdentifiers;
+    for(index = 0; index < size; index++){
+        cleanIdentifier(addr->Identifiers[index]);
+    }
+
+    free(addr->Identifiers);
     free(addr);
 }
 
@@ -46,6 +55,25 @@ Identifier initIdentifier(char* name)
     addr->type = UNSET;
     addr->arraySize = 1;
     return addr;
+}
+
+/*!
+ * \fn void cleanIdentifier(Identifier addr)
+ * \brief Fonction qui libère la mémoire de la structure Identificateur
+*/
+void cleanIdentifier(Identifier addr)
+{
+    log_trace("cleanIdentifier (Identifier %p)",addr)
+    CHECKPOINTER(addr);
+
+    int index;
+    int size = addr->arraySize;
+    for(index = 0; index < size; index++){
+        free(addr->values[index]);
+    }
+
+    free(addr->values);
+    free(addr);
 }
 
 /*!
@@ -113,7 +141,7 @@ ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
 
     if((type < UNSET ) || (type > MAXTYPEVALUE)){
         log_error("type : %d : %d > type < %d",type,UNSET,MAXTYPEVALUE)
-        perror("setTypeOfIdentifier : Value du type n'est pas admise par le compilateur.");
+        perror("setTypeOfIdentifier : this type value doesn't exist.");
         exit(EXIT_FAILURE);
     }
 
