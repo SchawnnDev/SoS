@@ -110,3 +110,29 @@ ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
 
     return addr;
 }
+
+/*!
+ * \fn VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
+ * \brief Fonction qui initialise la structure de position d'identificateur
+*/
+VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
+{
+    log_trace("initVariablePosition (RangeVariable %d,int %d)", rangePosition, indexIdentifier)
+
+    VariablePosition addr;
+    CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)));
+    addr->rangePosition = rangePosition;
+    addr->indexIdentifier = indexIdentifier;
+
+    return addr;
+}
+
+/*!
+ * \fn void cleanVariablePosition(VariablePosition addr)
+ * \brief Fonction qui libère la mémoire d'une structure de position d'identificateur
+*/
+void cleanVariablePosition(VariablePosition addr)
+{
+    log_trace("cleanVariablePosition (VariablePosition %p)", addr)
+    free(addr);
+}
