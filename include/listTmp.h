@@ -36,5 +36,4 @@ void cleanListTmp(ListTmp addr);
 */
 ListTmp addIntoListTmp(ListTmp addr, char* value);
 
-
 #endif

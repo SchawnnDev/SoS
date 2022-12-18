@@ -141,7 +141,7 @@ ListIdentifier setTypeOfIdentifier(ListIdentifier addr, char* name,int type)
 
     if((type < UNSET ) || (type > MAXTYPEVALUE)){
         log_error("type : %d : %d > type < %d",type,UNSET,MAXTYPEVALUE)
-        perror("setTypeOfIdentifier : Value du type n'est pas admise par le compilateur.");
+        perror("setTypeOfIdentifier : this type value doesn't exist.");
         exit(EXIT_FAILURE);
     }
 
