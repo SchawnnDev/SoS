@@ -96,4 +96,26 @@ VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIden
 */
 void cleanVariablePosition(VariablePosition addr);
 
+/*!
+ * \fn VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
+ * \brief Fonction qui cherche la position de l'identificateur dans la liste des postée de variable
+ *
+ * \param addr : RangeVariable, la structure de position d'identificateur
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return VariablePosition, un pointeur d'une structure de position
+*/
+VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name);
+
+/*!
+ * \fn ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
+ * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
+ *
+ * \param addr : RangeVariable, la structure de position d'identificateur
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return VariablePosition, un pointeur d'une structure de position
+*/
+ListRangeVariable addIdentifier(ListRangeVariable addr, char* name);
+
 #endif
