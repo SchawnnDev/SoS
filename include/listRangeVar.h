@@ -17,6 +17,11 @@ typedef struct {
     RangeVariable cursor;
 } listRangeVariable_t, *ListRangeVariable;
 
+typedef struct {
+    RangeVariable rangePosition;
+    int indexIdentifier;
+} variablePosition_t, *VariablePosition;
+
 /*!
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
  * \brief Fonction qui initialise la structure de portée de variable
@@ -46,10 +51,49 @@ ListRangeVariable initListRangeVariable();
 
 /*!
  * \fn void cleanListRangeVariable(ListRangeVariable addr)
- * \brief Fonction qui libère la mémoire d'une list de structure de portée de variable
+ * \brief Fonction qui libère la mémoire d'une liste de structure de portée de variable
  *
- * \param addr : ListRangeVariable, la liste de structure de valeur temporaire
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
 */
 void cleanListRangeVariable(ListRangeVariable addr);
+
+/*!
+ * \fn ListRangeVariable addRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ *
+ * \return ListRangeVariable, un pointeur de la liste de portée de variable avec un niveau de plus
+*/
+ListRangeVariable addRangeVariable(ListRangeVariable addr);
+
+/*!
+ * \fn ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui supprime un niveau de portée à la liste de structure de portée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ *
+ *  \return ListRangeVariable, un pointeur de la liste de portée de variable avec un niveau de moins
+*/
+ListRangeVariable deleteRangeVariable(ListRangeVariable addr);
+
+/*!
+ * \fn VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
+ * \brief Fonction qui initialise la structure de position d'identificateur
+ *
+ * \param rangePosition : RangeVariable, le pointeur du niveau de portée de variable précédant
+ * \param previousLevel : VariablePosition, l'index de l'identificateur de la liste d'identificateur de la structure rangePosition
+ *
+ * \return VariablePosition, un pointeur d'une structure de position
+*/
+VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier);
+
+/*!
+ * \fn void cleanVariablePosition(VariablePosition addr)
+ * \brief Fonction qui libère la mémoire d'une structure de position d'identificateur
+ *
+ * \param addr : RangeVariable, la structure de position d'identificateur
+*/
+void cleanVariablePosition(VariablePosition addr);
 
 #endif

@@ -71,3 +71,68 @@ void cleanListRangeVariable(ListRangeVariable addr)
 
     free(addr);
 }
+
+/*!
+ * \fn ListRangeVariable addRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
+*/
+ListRangeVariable addRangeVariable(ListRangeVariable addr)
+{
+    log_trace("addRangeVariable (ListRangeVariable %p)", addr)
+    CHECKPOINTER(addr);
+
+    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1, addr->cursor);
+    addr->cursor->nextLevel = newCursor;
+    addr->cursor = newCursor;
+
+    return addr;
+}
+
+/*!
+ * \fn ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui supprime un niveau de portée à la liste de structure de portée de variable
+*/
+ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+{
+    log_trace("deleteRangeVariable (ListRangeVariable %p)", addr)
+    CHECKPOINTER(addr);
+
+    if(addr->cursor->rangeLevel == 0){
+        log_error("rangeLevel : %d",addr->cursor->rangeLevel)
+        perror("deleteRangeVariable : there is no negative rangeLevel.");
+        exit(EXIT_FAILURE);
+    }
+
+    RangeVariable tmp = addr->cursor;
+    addr->cursor = tmp->previousLevel;
+    addr->cursor->nextLevel = NULL;
+    cleanRangeVariable(tmp);
+
+    return addr;
+}
+
+/*!
+ * \fn VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
+ * \brief Fonction qui initialise la structure de position d'identificateur
+*/
+VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
+{
+    log_trace("initVariablePosition (RangeVariable %d,int %d)", rangePosition, indexIdentifier)
+
+    VariablePosition addr;
+    CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)));
+    addr->rangePosition = rangePosition;
+    addr->indexIdentifier = indexIdentifier;
+
+    return addr;
+}
+
+/*!
+ * \fn void cleanVariablePosition(VariablePosition addr)
+ * \brief Fonction qui libère la mémoire d'une structure de position d'identificateur
+*/
+void cleanVariablePosition(VariablePosition addr)
+{
+    log_trace("cleanVariablePosition (VariablePosition %p)", addr)
+    free(addr);
+}
