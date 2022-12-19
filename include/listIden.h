@@ -63,51 +63,51 @@ void cleanIdentifier(Identifier addr);
 int searchIntoListIdentifier(ListIdentifier addr, char* name);
 
 /*!
- * \fn ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
+ * \fn int addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
  * 
  * \param addr : ListIdentifier, la liste des identificateurs
  * \param name : char *, le nom de l'identificateur
  *
- * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouvel élément
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListIdentifier addIntoListIdentifier(ListIdentifier addr, char* name);
+int addIntoListIdentifier(ListIdentifier addr, char* name);
 
 /*!
- * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position,int type)
+ * \fn int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
  * \brief Fonction qui modifie le type de l'identificateur
  *
  * \param addr : ListIdentifier, la liste des identificateurs
  * \param position : int, la position de l'identificateur
  * \param type : int, le type de l'identificateur
  *
- * \return ListIdentifier, un pointeur de la liste des identificateurs avec le nouveau type
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position,int type);
+int setTypeOfIdentifier(ListIdentifier addr, int position,int type);
 
 /*!
- * \fn ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
+ * \fn int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
  * \brief Fonction remplie le tableau des valeurs de l'identificateur depuis à la liste temporaire
  *
  * \param addr : ListIdentifier, la liste des identificateurs
  * \param position : int, la position de l'identificateur
  * \param ListTmp : addrTmp, la liste des valeurs temporaire
  *
- * \return ListIdentifier, un pointeur de la liste des identificateurs avec les valeurs
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListIdentifier setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp);
+int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp);
 
 /*!
- * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position, int type)
+ * \fn int setTypeOfIdentifier(ListIdentifier addr, int position, int type)
  * \brief Fonction qui modifie le type de l'identificateur
  *
  * \param addr : ListIdentifier, la liste des identificateurs
  * \param position : int, la position de l'identificateur
  * \param ListTmp : addrTmp, la liste des valeurs temporaire
  *
- * \return ListIdentifier, un pointeur de la liste des identificateurs avec les valeurs
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListIdentifier setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
+int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
 
 /*!
  * \fn void printListIdentifier(ListIdentifier addr)
