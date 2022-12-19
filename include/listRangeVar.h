@@ -58,24 +58,24 @@ ListRangeVariable initListRangeVariable();
 void cleanListRangeVariable(ListRangeVariable addr);
 
 /*!
- * \fn ListRangeVariable addRangeVariable(ListRangeVariable addr)
+ * \fn int addRangeVariable(ListRangeVariable addr)
  * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  *
- * \return ListRangeVariable, un pointeur de la liste de portée de variable avec un niveau de plus
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListRangeVariable addRangeVariable(ListRangeVariable addr);
+int addRangeVariable(ListRangeVariable addr);
 
 /*!
- * \fn ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+ * \fn int deleteRangeVariable(ListRangeVariable addr)
  * \brief Fonction qui supprime un niveau de portée à la liste de structure de portée de variable
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  *
- *  \return ListRangeVariable, un pointeur de la liste de portée de variable avec un niveau de moins
+ *  \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListRangeVariable deleteRangeVariable(ListRangeVariable addr);
+int deleteRangeVariable(ListRangeVariable addr);
 
 /*!
  * \fn VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIdentifier)
@@ -108,44 +108,50 @@ void cleanVariablePosition(VariablePosition addr);
 VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name);
 
 /*!
- * \fn ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
+ * \fn int addIdentifier(ListRangeVariable addr, char* name)
  * \brief Fonction qui ajoute un identificateur dans la liste des postée de variable
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  * \param name : char*, le nom de l'identificateur
  *
- * \return VariablePosition, un pointeur d'une structure de position
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListRangeVariable addIdentifier(ListRangeVariable addr, char* name);
+int addIdentifier(ListRangeVariable addr, char* name);
 
 /*!
- * \fn void setType(ListRangeVariable addr, char* name, int type)
+ * \fn int setType(ListRangeVariable addr, char* name, int type)
  * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  * \param name : char*, le nom de l'identificateur
  * \param type : int, le type de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-void setType(ListRangeVariable addr, char* name, int type);
+int setType(ListRangeVariable addr, char* name, int type);
 
 /*!
- * \fn void setArraySize(ListRangeVariable addr, char* name, int arraySize)
+ * \fn int setArraySize(ListRangeVariable addr, char* name, int arraySize)
  * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  * \param name : char*, le nom de l'identificateur
  * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-void setArraySize(ListRangeVariable addr, char* name, int arraySize);
+int setArraySize(ListRangeVariable addr, char* name, int arraySize);
 
 /*!
- * \fn void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \fn int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
  * \brief Fonction remplie le tableau des valeurs de l'identificateur dans la liste des postée de variable depuis à la liste temporaire
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  * \param name : char*, le nom de l'identificateur
  * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp);
+int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp);
 
 #endif

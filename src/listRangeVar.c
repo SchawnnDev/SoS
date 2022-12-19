@@ -11,7 +11,7 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     if(rangeLevel < 0){
         log_error("rangeLevel : %d : %d",rangeLevel,0)
         perror("initListTmp : rangeLevel must be more than 0.");
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     RangeVariable addr;
@@ -73,10 +73,10 @@ void cleanListRangeVariable(ListRangeVariable addr)
 }
 
 /*!
- * \fn ListRangeVariable addRangeVariable(ListRangeVariable addr)
+ * \fn int addRangeVariable(ListRangeVariable addr)
  * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
 */
-ListRangeVariable addRangeVariable(ListRangeVariable addr)
+int addRangeVariable(ListRangeVariable addr)
 {
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
@@ -85,14 +85,14 @@ ListRangeVariable addRangeVariable(ListRangeVariable addr)
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
-    return addr;
+    return RETURN_SUCCESS;
 }
 
 /*!
- * \fn ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+ * \fn int deleteRangeVariable(ListRangeVariable addr)
  * \brief Fonction qui supprime un niveau de portée à la liste de structure de portée de variable
 */
-ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
+int deleteRangeVariable(ListRangeVariable addr)
 {
     log_trace("deleteRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
@@ -100,7 +100,7 @@ ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
     if(addr->cursor->rangeLevel == 0){
         log_error("rangeLevel : %d",addr->cursor->rangeLevel)
         perror("deleteRangeVariable : there is no negative rangeLevel.");
-        exit(EXIT_FAILURE);
+        return RETURN_FAILURE;
     }
 
     RangeVariable tmp = addr->cursor;
@@ -108,7 +108,7 @@ ListRangeVariable deleteRangeVariable(ListRangeVariable addr)
     addr->cursor->nextLevel = NULL;
     cleanRangeVariable(tmp);
 
-    return addr;
+    return RETURN_SUCCESS;
 }
 
 /*!
@@ -161,10 +161,10 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
 }
 
 /*!
- * \fn ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
+ * \fn int addIdentifier(ListRangeVariable addr, char* name)
  * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
 */
-ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
+int addIdentifier(ListRangeVariable addr, char* name)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
     CHECKPOINTER(addr);
@@ -175,49 +175,47 @@ ListRangeVariable addIdentifier(ListRangeVariable addr, char* name)
     if(variablePosition->indexIdentifier != NOTFOUND){
         log_error("Identifier found : position : %d",variablePosition->indexIdentifier)
         perror("addIdentifier : can not set add existing identifier.");
-        exit(EXIT_FAILURE);
+        return RETURN_FAILURE;
     }
 
-    addr->cursor->listIdentifier = addIntoListIdentifier(addr->cursor->listIdentifier, name);
-
-    return addr;
+    return addIntoListIdentifier(addr->cursor->listIdentifier, name);
 }
 
 /*!
- * \fn void setType(ListRangeVariable addr, char* name, int type)
+ * \fn int setType(ListRangeVariable addr, char* name, int type)
  * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
 */
-void setType(ListRangeVariable addr, char* name, int type)
+int setType(ListRangeVariable addr, char* name, int type)
 {
     log_trace("setType (ListRangeVariable %p, char* %s, int %d)", addr, name, type)
     CHECKPOINTER(addr);
     CHECKPOINTER(name);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
-    variablePosition->rangePosition->listIdentifier = setTypeOfIdentifier(variablePosition->rangePosition->listIdentifier,
+    return setTypeOfIdentifier(variablePosition->rangePosition->listIdentifier,
                                                                           variablePosition->indexIdentifier, type);
 }
 
 /*!
- * \fn void setArraySize(ListRangeVariable addr, char* name, int arraySize)
+ * \fn int setArraySize(ListRangeVariable addr, char* name, int arraySize)
  * \brief Fonction qui modifie le type de l'identificateur dans la liste des postée de variable
 */
-void setArraySize(ListRangeVariable addr, char* name, int arraySize)
+int setArraySize(ListRangeVariable addr, char* name, int arraySize)
 {
     log_trace("setArraySize (ListRangeVariable %p, char* %s, int %d)", addr, name, arraySize)
     CHECKPOINTER(addr);
     CHECKPOINTER(name);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
-    variablePosition->rangePosition->listIdentifier = setArraySizeOfIdentifier(variablePosition->rangePosition->listIdentifier,
+    return setArraySizeOfIdentifier(variablePosition->rangePosition->listIdentifier,
                                                                           variablePosition->indexIdentifier, arraySize);
 }
 
 /*!
- * \fn void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \fn int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
  * \brief Fonction remplie le tableau des valeurs de l'identificateur dans la liste des postée de variable depuis à la liste temporaire
 */
-void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
+int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
 {
     log_trace("setValuesFromListTmp (ListRangeVariable %p, char* %s, ListTmp %p)", addr, name, addrTmp)
     CHECKPOINTER(addr);
@@ -225,6 +223,6 @@ void setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
     CHECKPOINTER(addrTmp);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
-    variablePosition->rangePosition->listIdentifier = setValuesOfIdentifierFromListTmp(variablePosition->rangePosition->listIdentifier,
+    return setValuesOfIdentifierFromListTmp(variablePosition->rangePosition->listIdentifier,
                                                                                variablePosition->indexIdentifier, addrTmp);
 }
