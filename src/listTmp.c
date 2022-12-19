@@ -34,10 +34,10 @@ void cleanListTmp(ListTmp addr)
 }
 
 /*!
- * \fn ListTmp addIntoListTmp(ListTmp addr, char* value)
+ * \fn int addIntoListTmp(ListTmp addr, char* value)
  * \brief Fonction qui permet d'ajoute en fin de la liste des valeurs temporaires
 */
-ListTmp addIntoListTmp(ListTmp addr, char* value)
+int addIntoListTmp(ListTmp addr, char* value)
 {
     log_trace("addIntoListTmp (ListTmp %p, char* %s)",addr,value)
     CHECKPOINTER(addr);
@@ -46,7 +46,7 @@ ListTmp addIntoListTmp(ListTmp addr, char* value)
     if(addr->numberValues == TMP_TAB_MAX){
         log_error("numberValues : %d, %d",addr->numberValues,TMP_TAB_MAX)
         perror("addIntoListTmp : to many values.");
-        exit(EXIT_FAILURE);
+        return RETURN_FAILURE;
     }
 
     ulong size = strlen( value ) + 1;
@@ -55,5 +55,5 @@ ListTmp addIntoListTmp(ListTmp addr, char* value)
 
     addr->numberValues++;
 
-    return addr;
+    return RETURN_SUCCESS;
 }

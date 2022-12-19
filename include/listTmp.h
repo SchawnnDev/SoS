@@ -26,14 +26,14 @@ ListTmp initListTmp();
 void cleanListTmp(ListTmp addr);
 
 /*!
- * \fn ListTmp addIntoListTmp(ListTmp addr, char* value)
+ * \fn int addIntoListTmp(ListTmp addr, char* value)
  * \brief Fonction qui permet d'ajoute en fin de la liste des valeurs temporaires
  *
  * \param addr : ListTmp, la liste des valeurs temporaires
  * \param value : char *, la valeur à ajouter
  *
- * \return ListTmp, un pointeur de la liste des valeurs temporaires avec le nouvel élément
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-ListTmp addIntoListTmp(ListTmp addr, char* value);
+int addIntoListTmp(ListTmp addr, char* value);
 
 #endif

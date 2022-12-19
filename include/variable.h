@@ -7,6 +7,8 @@
 
 /* Error */
 #define NOTFOUND -1
+#define RETURN_FAILURE -1
+#define RETURN_SUCCESS 0
 
 /* Types */
 #define UNSET 0
@@ -14,7 +16,7 @@
 #define INTEGER 2
 #define ARRAY 3
 #define FUNCTION 4
-#define MAXTYPEVALUE 4 /* /!\  A modifier lors de l'ajout ou suppression d'un type */
+#define MAXTYPEVALUE 5 /* /!\  A modifier lors de l'ajout ou suppression d'un type */
 
 /* Operations */
 
