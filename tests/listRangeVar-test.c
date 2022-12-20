@@ -27,6 +27,36 @@ TEST initRangeVariableLvlNTest(void) {
     PASS();
 }
 
+//----------------------//
+// initVariablePosition //
+//----------------------//
+TEST initVariablePositionWithoutIdentifierFoundTest(void) {
+    VariablePosition addr = initVariablePosition(NULL,NOTFOUND);
+
+    ASSERT_NEQ(NULL, addr);
+    ASSERT_EQ_FMT(NOTFOUND, addr->indexIdentifier,"%d");
+    ASSERT_EQ(NULL, addr->rangePosition);
+    PASS();
+}
+
+TEST initVariablePositionWithIdentifierFoundTest(void) {
+    RangeVariable rangeVariable = initRangeVariable(0,NULL);
+    VariablePosition addr = initVariablePosition(rangeVariable,10);
+
+    ASSERT_NEQ(NULL, addr);
+    ASSERT_EQ_FMT(10, addr->indexIdentifier,"%d");
+    ASSERT_EQ(rangeVariable, addr->rangePosition);
+    PASS();
+}
+//-----------------------//
+// cleanVariablePosition //
+//-----------------------//
+TEST cleanVariablePositionTest(void) {
+    cleanVariablePosition(initVariablePosition(NULL,UNSET));
+    PASS();
+}
+
+
 //-----------------------//
 // initListRangeVariable //
 //-----------------------//
@@ -35,6 +65,15 @@ TEST initListRangeVariableTest(void) {
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_NEQ(NULL, addr->cursor);
+    PASS();
+}
+
+//------------------------//
+// cleanListRangeVariable //
+//------------------------//
+TEST cleanListRangeVariableTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -110,7 +149,12 @@ int main(int argc, char **argv) {
     RUN_TEST(initRangeVariableLvlZeroTest);
     RUN_TEST(initRangeVariableLvlNTest);
 
+    RUN_TEST(initVariablePositionWithoutIdentifierFoundTest);
+    RUN_TEST(initVariablePositionWithIdentifierFoundTest);
+    RUN_TEST(cleanVariablePositionTest);
+
     RUN_TEST(initListRangeVariableTest);
+    RUN_TEST(cleanListRangeVariableTest);
 
     RUN_TEST(addRangeVariableTest);
 
