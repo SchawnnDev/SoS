@@ -140,6 +140,27 @@ TEST deleteRangeVariableWithNextLvlWithValuesTest(void) {
     PASS();
 }
 
+//--------------------------//
+// searchIdentifierPosition //
+//--------------------------//
+TEST searchIdentifierPositionWithoutIdentifierInRangeListTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
+
+    ASSERT_EQ(NOTFOUND, variablePosition->indexIdentifier);
+    ASSERT_EQ(NULL, variablePosition->rangePosition);
+    PASS();
+}
+
+TEST searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    addIdentifier(addr,"test");
+    VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
+
+    ASSERT_EQ(0, variablePosition->indexIdentifier);
+    ASSERT_EQ(addr->cursor, variablePosition->rangePosition);
+    PASS();
+}
 
 GREATEST_MAIN_DEFS();
 
@@ -161,6 +182,9 @@ int main(int argc, char **argv) {
     RUN_TEST(deleteRangeVariableWithoutPreviousLvlTest);
     RUN_TEST(deleteRangeVariableWithNextLvlTest);
     RUN_TEST(deleteRangeVariableWithNextLvlWithValuesTest);
+
+    RUN_TEST(searchIdentifierPositionWithoutIdentifierInRangeListTest);
+    RUN_TEST(searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest);
 
     GREATEST_MAIN_END();
 }

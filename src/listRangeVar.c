@@ -149,7 +149,7 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
 
     int position = NOTFOUND;
     RangeVariable tmp = addr->cursor;
-    while(tmp != NULL){
+    while((tmp != NULL) && (position == NOTFOUND)){
         position = searchIntoListIdentifier(tmp->listIdentifier,name);
 
         if(position == NOTFOUND){
