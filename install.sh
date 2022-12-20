@@ -1,13 +1,21 @@
 #!/bin/bash
 
-echo "Cloning submodules..."
+LIB_DIR=lib/
+CMAKE_BUILD_FOLDER=cmake-build-debug/
+MARS_BIN_NAME=Mars4_5.jar
+
+echo "Updating submodules..."
 git submodule update --init --recursive
 
-echo "Downloading mars to lib folder"
-wget -P lib/ http://courses.missouristate.edu/KenVollmar/MARS/MARS_4_5_Aug2014/Mars4_5.jar
+if [ -f $MARS_BIN_NAME ]; then
+  echo "Downloading mars to lib folder"
+  wget -P $LIB_DIR http://courses.missouristate.edu/KenVollmar/MARS/MARS_4_5_Aug2014/$MARS_BIN_NAME
+else
+  echo "Mars already downloaded! Skipping to next step."
+fi;
 
 echo "Init CMake"
-cmake . cmake-build-debug/
+cmake . $CMAKE_BUILD_FOLDER
 
 echo "Building CMake"
-cmake --build cmake-build-debug/
+cmake --build $CMAKE_BUILD_FOLDER
