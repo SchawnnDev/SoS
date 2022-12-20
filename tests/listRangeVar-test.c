@@ -162,6 +162,46 @@ TEST searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest(void) {
     PASS();
 }
 
+TEST searchIdentifierPositionWithIdentifierInRangeListWithMayLvlTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    addRangeVariable(addr);
+    addRangeVariable(addr);
+    addIdentifier(addr,"test");
+    VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
+
+    ASSERT_EQ(0, variablePosition->indexIdentifier);
+    ASSERT_EQ(addr->cursor, variablePosition->rangePosition);
+    PASS();
+}
+
+TEST searchIdentifierPositionWithIdentifierOnFirstLvlInRangeListWithMayLvlTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    RangeVariable firstRange = addr->cursor;
+    addIdentifier(addr,"test");
+    addRangeVariable(addr);
+    addRangeVariable(addr);
+    VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
+
+    ASSERT_EQ(0, variablePosition->indexIdentifier);
+    ASSERT_EQ(firstRange, variablePosition->rangePosition);
+    PASS();
+}
+
+TEST searchIdentifierPositionWithIdentifierOnNLvlInRangeListWithMayLvlAndNotFirstIdentifierTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    addRangeVariable(addr);
+    RangeVariable firstRange = addr->cursor;
+    addIdentifier(addr,"hello");
+    addIdentifier(addr,"test");
+    addRangeVariable(addr);
+    VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
+
+    ASSERT_EQ(1, variablePosition->indexIdentifier);
+    ASSERT_EQ(firstRange, variablePosition->rangePosition);
+    PASS();
+}
+
+
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
@@ -185,6 +225,9 @@ int main(int argc, char **argv) {
 
     RUN_TEST(searchIdentifierPositionWithoutIdentifierInRangeListTest);
     RUN_TEST(searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest);
+    RUN_TEST(searchIdentifierPositionWithIdentifierInRangeListWithMayLvlTest);
+    RUN_TEST(searchIdentifierPositionWithIdentifierOnFirstLvlInRangeListWithMayLvlTest);
+    RUN_TEST(searchIdentifierPositionWithIdentifierOnNLvlInRangeListWithMayLvlAndNotFirstIdentifierTest);
 
     GREATEST_MAIN_END();
 }
