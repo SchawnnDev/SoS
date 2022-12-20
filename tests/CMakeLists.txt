@@ -1,6 +1,8 @@
 set(
         TEST_SRC_LIST
         "listIden-test.c"
+        "listTmp-test.c"
+        "listRangeVar-test.c"
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")

@@ -29,7 +29,6 @@ void cleanListIdentifier(ListIdentifier addr)
         cleanIdentifier(addr->Identifiers[index]);
     }
 
-    free(addr->Identifiers);
     free(addr);
 }
 
@@ -67,10 +66,12 @@ void cleanIdentifier(Identifier addr)
     log_trace("cleanIdentifier (Identifier %p)",addr)
     CHECKPOINTER(addr);
 
-    int index;
-    int size = addr->arraySize;
-    for(index = 0; index < size; index++){
-        free(addr->values[index]);
+    if(addr->values != NULL){
+        int index;
+        int size = addr->arraySize;
+        for(index = 0; index < size; index++){
+            free(addr->values[index]);
+        }
     }
 
     free(addr->values);

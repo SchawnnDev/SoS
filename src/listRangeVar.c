@@ -6,11 +6,11 @@
 */
 RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
 {
-    log_trace("initListTmp (int %d)", rangeLevel)
+    log_trace("initRangeVariable (int %d, RangeVariable %p)", rangeLevel,previousLevel)
 
     if(rangeLevel < 0){
         log_error("rangeLevel : %d : %d",rangeLevel,0)
-        perror("initListTmp : rangeLevel must be more than 0.");
+        perror("initRangeVariable : rangeLevel must be more than 0.");
         return NULL;
     }
 
