@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 LIB_DIR=lib/
 CMAKE_BUILD_FOLDER=cmake-build-debug/
