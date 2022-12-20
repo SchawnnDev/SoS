@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <argtable3.h>
 #include <log.h>
+#include "parser.h"
 
 /* global arg_xxx structs */
 struct arg_lit *verb, *help, *version;
@@ -29,6 +30,13 @@ int handle_args(int argc, char **argv)
 
     int nerrors;
     nerrors = arg_parse(argc,argv,argtable);
+
+    if(version->count >= 0)
+    {
+        log_info("Version: version->count > 0")
+        yyparse();
+        goto exit;
+    }
 
     /* special case: '--help' takes precedence over error reporting */
     if (help->count > 0)

@@ -5,6 +5,24 @@ set(CMAKE_C_STANDARD 99)
 
 add_subdirectory(lib)
 
+find_package(FLEX 2.6 REQUIRED)
+find_package(BISON 3.0 REQUIRED)
+
+set(SRC_DIR src)
+set(BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/bin")
+set(PARSER_DIR gen)
+set(LEXER_OUT "${BIN_DIR}/lexer.c")
+set(PARSER_OUT "${BIN_DIR}/parser.c")
+
+
+# Create bin folder if not exists
+add_custom_target(build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${BIN_DIR})
+file(MAKE_DIRECTORY ${BIN_DIR})
+
+flex_target(LEXER "${PARSER_DIR}/lexer.lex" "${LEXER_OUT}" DEFINES_FILE "${BIN_DIR}/lexer.h")
+bison_target(PARSER "${PARSER_DIR}/parser.y" "${PARSER_OUT}" DEFINES_FILE "${BIN_DIR}/parser.h")
+add_flex_bison_dependency(LEXER PARSER)
+
 add_library(
         libsos
 
@@ -14,6 +32,8 @@ add_library(
         src/listRangeVar.c
         src/listTmp.c
         src/utils.c
+        "${LEXER_OUT}"
+        "${PARSER_OUT}"
 
         include/listIden.h
         include/listRangeVar.h
@@ -22,7 +42,7 @@ add_library(
         include/variable.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
-target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include)
+target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include "${BIN_DIR}")
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
