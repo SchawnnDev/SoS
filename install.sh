@@ -10,11 +10,6 @@ YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-if [ "$EUID" -ne 0 ]
-  then echo -e "${RED}Please run this script as root${NC}"
-  exit
-fi
-
 echo -e "${GREEN}Starting installation!${NC}"
 echo ""
 
@@ -28,37 +23,42 @@ else
   echo -e "${YELLOW}Mars already downloaded! Skipping to next step.${NC}"
 fi
 
-if [ $(dpkg-query -W -f='${Status}' flex 2>/dev/null | grep -c "install ok installed") -eq 0 ];
-then
-  echo -e "${YELLOW}Installing flex using apt...${NC}"
-  apt-get -y install flex
+if [ "$EUID" -ne 0 ]; then
+  echo -e "${RED}Skipping flex & bison installation... Script must be run as root.${NC}"
+  echo -e "${RED}If flex or bison is missing, the CMake build will probably crash.${NC}"
+  echo -e "${RED}You can cancel this installation and rerun the script with root permissions. Waiting 2 seconds.${NC}"
+  sleep 2
 else
-  echo -e "${YELLOW}Flex is installed... skipping to next step.${NC}"
-fi
+  if [ $(dpkg-query -W -f='${Status}' flex 2>/dev/null | grep -c "install ok installed") -eq 0 ]; then
+    echo -e "${YELLOW}Installing flex using apt...${NC}"
+    apt-get -y install flex
+  else
+    echo -e "${YELLOW}Flex is installed... skipping to next step.${NC}"
+  fi
 
-if [ $(dpkg-query -W -f='${Status}' bison 2>/dev/null | grep -c "install ok installed") -eq 0 ];
-then
-  echo -e "${YELLOW}Installing bison using apt...${NC}"
-  apt-get -y install bison
-else
-  echo -e "${YELLOW}Bison is installed... skipping to next step.${NC}"
+  if [ $(dpkg-query -W -f='${Status}' bison 2>/dev/null | grep -c "install ok installed") -eq 0 ]; then
+    echo -e "${YELLOW}Installing bison using apt...${NC}"
+    apt-get -y install bison
+  else
+    echo -e "${YELLOW}Bison is installed... skipping to next step.${NC}"
+  fi
 fi
 
 if [ ! -d $CMAKE_BUILD_FOLDER ]; then
-	echo -e "${YELLOW}Creating folder ${CMAKE_BUILD_FOLDER}...${NC}"
-	mkdir $CMAKE_BUILD_FOLDER
-	cd $CMAKE_BUILD_FOLDER
-	
-	echo -e "${YELLOW}Starting CMake init...${NC}"
-	cmake ..
-	
-	echo -e "${YELLOW}Building CMake...${NC}"
-	cmake --build .
-	
-	echo -e "${YELLOW}Building using makefile...${NC}"
-	make
+  echo -e "${YELLOW}Creating folder ${CMAKE_BUILD_FOLDER}...${NC}"
+  mkdir $CMAKE_BUILD_FOLDER
+  cd $CMAKE_BUILD_FOLDER || (echo "${RED}Can't create folder ${CMAKE_BUILD_FOLDER}, exiting...${NC}" && exit)
+
+  echo -e "${YELLOW}Starting CMake init...${NC}"
+  cmake ..
+
+  echo -e "${YELLOW}Building CMake...${NC}"
+  cmake --build .
+
+  echo -e "${YELLOW}Building using makefile...${NC}"
+  make
 else
-	echo -e "${YELLOW}Folder ${CMAKE_BUILD_FOLDER} already exists... skipping CMake init!${NC}"
+  echo -e "${YELLOW}Folder ${CMAKE_BUILD_FOLDER} already exists... skipping CMake init!${NC}"
 fi
 
 echo ""
