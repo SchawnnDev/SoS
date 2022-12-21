@@ -7,6 +7,7 @@ stages :
 build-sos:
   stage : build
   script:
+    - apt-get -y install flex bison
     - git submodule update --init --recursive
     - cmake . && cmake --build . && make
   only:
@@ -16,6 +17,7 @@ build-sos:
 test-sos:
   stage: test
   script:
+    - apt-get -y install flex bison
     - git submodule update --init --recursive
     - cmake . && cmake --build . && make
     - ctest -VV

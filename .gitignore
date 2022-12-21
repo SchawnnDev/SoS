@@ -6,6 +6,9 @@
 cmake-build-debug/
 Testing/
 
+# MIPS
+lib/Mars4_5.jar
+
 /bin
 /obj
 *.log
