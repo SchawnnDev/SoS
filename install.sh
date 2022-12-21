@@ -4,41 +4,62 @@ LIB_DIR=lib/
 CMAKE_BUILD_FOLDER=cmake-build-debug/
 MARS_BIN_NAME=Mars4_5.jar
 
-echo "Updating submodules..."
+# Colors
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+if [ "$EUID" -ne 0 ]
+  then echo -e "${RED}Please run this script as root${NC}"
+  exit
+fi
+
+echo -e "${GREEN}Starting installation!${NC}"
+echo ""
+
+echo -e "${YELLOW}Updating submodules...${NC}"
 git submodule update --init --recursive
 
 if [ ! -f $LIB_DIR$MARS_BIN_NAME ]; then
-  echo "Downloading mars to lib folder"
+  echo -e "${YELLOW}Downloading mars to lib folder${NC}"
   wget -P $LIB_DIR http://courses.missouristate.edu/KenVollmar/MARS/MARS_4_5_Aug2014/$MARS_BIN_NAME
 else
-  echo "Mars already downloaded! Skipping to next step."
-fi;
-
-if [ $(dpkg-query -W -f='${Status}' flex 2>/dev/null | grep -c "Flex is installed... skipping to next step.") -eq 0 ];
-then
-  echo "Installing flex using apt..."
-  apt-get -y install flex;
+  echo -e "${YELLOW}Mars already downloaded! Skipping to next step.${NC}"
 fi
 
-if [ $(dpkg-query -W -f='${Status}' bison 2>/dev/null | grep -c "Bison is installed... skipping to next step.") -eq 0 ];
+if [ $(dpkg-query -W -f='${Status}' flex 2>/dev/null | grep -c "install ok installed") -eq 0 ];
 then
-  echo "Installing bison using apt..."
-  apt-get -y install bison;
+  echo -e "${YELLOW}Installing flex using apt...${NC}"
+  apt-get -y install flex
+else
+  echo -e "${YELLOW}Flex is installed... skipping to next step.${NC}"
 fi
 
-if [ ! -f $CMAKE_BUILD_FOLDER ]; then
-	echo "Creating folder ${CMAKE_BUILD_FOLDER}..."
+if [ $(dpkg-query -W -f='${Status}' bison 2>/dev/null | grep -c "install ok installed") -eq 0 ];
+then
+  echo -e "${YELLOW}Installing bison using apt...${NC}"
+  apt-get -y install bison
+else
+  echo -e "${YELLOW}Bison is installed... skipping to next step.${NC}"
+fi
+
+if [ ! -d $CMAKE_BUILD_FOLDER ]; then
+	echo -e "${YELLOW}Creating folder ${CMAKE_BUILD_FOLDER}...${NC}"
 	mkdir $CMAKE_BUILD_FOLDER
 	cd $CMAKE_BUILD_FOLDER
 	
-	echo "Starting CMake init..."
+	echo -e "${YELLOW}Starting CMake init...${NC}"
 	cmake ..
 	
-	echo "Building CMake..."
+	echo -e "${YELLOW}Building CMake...${NC}"
 	cmake --build .
 	
-	echo "Building using makefile..."
+	echo -e "${YELLOW}Building using makefile...${NC}"
 	make
 else
-	echo "Folder ${CMAKE_BUILD_FOLDER} already exists... skipping CMake init!"
-fi;
+	echo -e "${YELLOW}Folder ${CMAKE_BUILD_FOLDER} already exists... skipping CMake init!${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}Installation finished!${NC}"
