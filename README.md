@@ -2,9 +2,12 @@
 
 ## Installation
 
+Please execute the following script as root:
 ```shell
-git submodule update --init --recursive
+./install.sh
 ```
+
+SoS binary will be build into cmake-build-debug/ folder.
 
 ### ...
 

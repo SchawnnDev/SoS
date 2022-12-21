@@ -4,34 +4,58 @@
 #include "parser.h"
 
 /* global arg_xxx structs */
-struct arg_lit *verb, *help, *version;
-struct arg_int *level;
-struct arg_file *o, *file;
+struct arg_lit *help, *version, *tos;
+struct arg_int *verb, *level;
+struct arg_file *o;
 struct arg_end *end;
 
 int handle_args(int argc, char **argv)
 {
-    log_set_level(LOG_DEBUG);
-    log_trace("Hello")
-    log_debug("Hello2")
     /* the global arg_xxx structs are initialised within the argtable */
     void *argtable[] = {
             help    = arg_litn(NULL, "help", 0, 1, "display this help and exit"),
-            version = arg_litn(NULL, "version", 0, 1, "display version info and exit"),
+            version = arg_litn(NULL, "version", 0, 1, "display team members"),
+            tos     = arg_litn("tos", "tos", 0, 1, "display table of symbols"),
             level   = arg_intn(NULL, "level", "<n>", 0, 1, "foo value"),
-            verb    = arg_litn("v", "verbose", 0, 1, "verbose output"),
-            o       = arg_filen("o", NULL, "myfile", 0, 1, "output file"),
-            file    = arg_filen(NULL, NULL, "<file>", 1, 100, "input files"),
+            verb    = arg_intn("v", "verbose", "<n>",0, 1, "verbose output"),
+            o       = arg_filen("o", NULL, "<file>", 0, 1, "output file"),
             end     = arg_end(20),
     };
 
     int exitcode = 0;
-    const char* progname = argv[0];
+    const char* progname = "sos";
 
     int nerrors;
-    nerrors = arg_parse(argc,argv,argtable);
+    nerrors = arg_parse(argc, argv, argtable);
 
-    if(version->count >= 0)
+    switch (verb->count)
+    {
+        case 0:
+            log_set_level(LOG_TRACE);
+            break;
+        case 1:
+            log_set_level(LOG_DEBUG);
+            break;
+        case 2:
+            log_set_level(LOG_INFO);
+            break;
+        case 3:
+            log_set_level(LOG_WARN);
+            break;
+        case 4:
+            log_set_level(LOG_ERROR);
+            break;
+        case 5:
+            log_set_level(LOG_FATAL);
+            break;
+        default:
+            // If no verbose given, set log to quiet by default
+            log_set_quiet(true);
+            break;
+    }
+    log_debug("Verbose was set to level %d.", verb->count)
+
+    if(version->count > 0)
     {
         log_info("Version: version->count > 0")
         yyparse();

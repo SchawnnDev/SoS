@@ -26,8 +26,8 @@ fi
 if [ "$EUID" -ne 0 ]; then
   echo -e "${RED}Skipping flex & bison installation... Script must be run as root.${NC}"
   echo -e "${RED}If flex or bison is missing, the CMake build will probably crash.${NC}"
-  echo -e "${RED}You can cancel this installation and rerun the script with root permissions. Waiting 2 seconds.${NC}"
-  sleep 2
+  echo -e "${RED}You can cancel this installation and rerun the script with root permissions. Waiting 3 seconds.${NC}"
+  sleep 3
 else
   if [ $(dpkg-query -W -f='${Status}' flex 2>/dev/null | grep -c "install ok installed") -eq 0 ]; then
     echo -e "${YELLOW}Installing flex using apt...${NC}"
@@ -47,7 +47,7 @@ fi
 if [ ! -d $CMAKE_BUILD_FOLDER ]; then
   echo -e "${YELLOW}Creating folder ${CMAKE_BUILD_FOLDER}...${NC}"
   mkdir $CMAKE_BUILD_FOLDER
-  cd $CMAKE_BUILD_FOLDER || (echo "${RED}Can't create folder ${CMAKE_BUILD_FOLDER}, exiting...${NC}" && exit)
+  cd $CMAKE_BUILD_FOLDER || (echo "${RED}Can't access to folder ${CMAKE_BUILD_FOLDER}, exiting...${NC}" && exit)
 
   echo -e "${YELLOW}Starting CMake init...${NC}"
   cmake ..
