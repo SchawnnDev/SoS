@@ -8,70 +8,113 @@
 //test expr
 %}
 
-NEWLINE [\n]
-DIGIT [0-9]
-LBRACKET "["
-RBRACKET "]"
-QUOTE 'COMMA ('["]"
-       "APOSTROPHE '[']"]
 
 COMMENT ([#].+NEWLINE)
+NEWLINE [\n]
 
-INTEGER
+DIGIT [0-9]
+INTEGER {DIGIT}{DIGIT}*
 STRING
 WORD
-ID
-DECLARE
-LOCAL
-RETURN
-EXIT
-ECHO
-READ
-FOR
-WHILE
-UNTIL
-DO
-DONE
-IN
-IF
-ELIF
-ELSE
-TEST
-THEN
-FI
-DONE
-CASE
-ESAC
-LBRACKET
-RBRACKET
-LPAREN
-RPAREN
-LBRACE
-RBRACE
-QUOTE
-APOSTROPHE
-ASSIGN
-COMMA
-EXCL
-DOLLAR
-PLUS
-MINUS
-MULT
-DIV
-MOD
-QMARK
-NEQ
-BOR
+ID [[:alpha:]][[:alnum:]]*
+
+DECLARE "declare"
+LOCAL "local"
+RETURN "return"
+EXIT "exit"
+ECHO "echo"
+READ "read"
+FOR "for"
+WHILE "while"
+UNTIL "until"
+DO "do"
+DONE "done"
+IN "in"
+IF "if"
+ELIF "elif"
+ELSE "else"
+TEST "test"
+THEN "then"
+FI "fi"
+DONE "done"
+CASE "case"
+ESAC "esac"
+LBRACKET "["
+RBRACKET "]"
+LPAREN "("
+RPAREN ")"
+LBRACE "{"
+RBRACE "}"
+QUOTE /"
+APOSTROPHE '
+ASSIGN "="
+COMMA ";"
+EXCL "!"
+DOLLAR "$"
+PLUS "+"
+MINUS "-"
+MULT "*"
+DIV "/"
+MOD "%"
+QMARK "?"
+NEQ "!="
+BOR "|"
 
 %%
-"+"|"-"|"*"|"/"|"("|")" {return yytext[0];}
-{DIGIT}+ {yylval=atoi(yytext); return INTEGER;}
+"-o" { return ARG_O; }
+"-n" { return ARG_N; }
+"-z" { return ARG_Z; }
+"-eq" { return ARG_EQ; }
+"-ne" { return ARG_NE; }
+"-gt" { return ARG_Gt; }
+"-ge" { return ARG_GE; }
+"-lt" { return ARG_LT; }
+"-le" { return ARG_LE; }
 
-ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
+{DECLARE} { return DECLARE; }
+{LOCAL} { return LOCAL; }
+{RETURN} { return RETURN; }
+{EXIT} { return EXIT; }
+{ECHO} { return ECHO; }
+{READ} { return READ; }
+{FOR} { return FOR; }
+{WHILE} { return WHILE; }
+{UNTIL} { return UNTIL; }
+{DO} { return DO; }
+{DONE} { return DONE; }
+{IN} { return IN; }
+{IF} { return IF; }
+{ELIF} { return ELIF; }
+{ELSE} { return ELSE; }
+{TEST} { return TEST; }
+{THEN} { return THEN; }
+{FI} { return FI; }
+{DONE} { return DONE; }
+{CASE} { return CASE; }
+{ESAC} { return ESAC; }
+{LBRACKET} { return LBRACKET; }
+{RBRACKET} { return RBRACKET; }
+{LPAREN} { return LPAREN; }
+{RPAREN} { return RPAREN; }
+{LBRACE} { return LBRACE; }
+{RBRACE} { return RBRACE; }
+{QUOTE} { return QUOTE; }
+{APOSTROPHE} { return APOSTROPHE; }
+{ASSIGN} { return ASSIGN; }
+{COMMA} { return COMMA; }
+{EXCL} { return EXCL; }
+{DOLLAR} { return DOLLAR; }
+{PLUS} { return PLUS; }
+{MINUS} { return MINUS; }
+{MULT} { return MULT; }
+{DIV} { return DIV; }
+{MOD} { return MOD; }
+{QMARK} { return QMARK; }
+{NEQ} { return NEQ; }
+{BOR} { return BOR; }
 
-
-
-
-"\n" {return yytext[0];}
+[ ] { return SPACE; }
+{NEWLINE} { return NEWLINE; }
+. { return UNKNOWN; }
 
 %%
