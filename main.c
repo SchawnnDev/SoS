@@ -3,11 +3,24 @@
 #include <log.h>
 #include "parser.h"
 
+#include "listRangeVar.h"
+
 /* global arg_xxx structs */
 struct arg_lit *help, *version, *tos;
 struct arg_int *verb, *level;
 struct arg_file *o;
 struct arg_end *end;
+
+/* global values */
+FILE* outputFile;
+ListRangeVariable listRangeVariable;
+ListTmp listTmp;
+
+int initStruct()
+{
+    listRangeVariable = initListRangeVariable();
+    listTmp = initListTmp();
+}
 
 int handle_args(int argc, char **argv)
 {
@@ -58,6 +71,7 @@ int handle_args(int argc, char **argv)
     if(version->count > 0)
     {
         log_info("Version: version->count > 0")
+        initStruct();
         yyparse();
         goto exit;
     }
