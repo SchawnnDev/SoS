@@ -47,6 +47,7 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
+    log_set_quiet(true); // No logs in tests
 
     RUN_TEST(initListTmpTest);
     RUN_TEST(addIntoListTmpTest);
