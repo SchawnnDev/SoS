@@ -59,7 +59,14 @@ if [ "$1" == "file" ]; then
   temp_asm_file=$(mktemp)
 
   $EXEC_FILE "$2" -v 0 -o "$temp_asm_file"
-  java -jar $MARS_BIN_FILE "$temp_asm_file"
+
+  if [ ! $? == 0 ]; then
+    echo -e "${RED}Compiler failure (exit code $?).${NC}"
+    rm "${temp_asm_file}"
+    exit 1
+  fi
+
+  # temp : java -jar $MARS_BIN_FILE "$temp_asm_file"
 
   # Clean
   rm "${temp_asm_file}"

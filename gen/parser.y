@@ -1,12 +1,16 @@
+%define parse.trace
+
 %{
 #include "lexer.h"
-extern int emit(char* code);
+#include "compilation.h"
 %}
+
+%union { char *strval; }
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
-%token INTEGER STRING WORD EXPR
-%token ID DECLARE LOCAL
+%token INT STRING WORD EXPR
+%token DECLARE LOCAL
 %token RETURN EXIT ECHO_CALL READ
 %token FOR WHILE UNTIL DO DONE IN
 %token IF ELIF ELSE TEST THEN FI
@@ -15,35 +19,36 @@ extern int emit(char* code);
 %token ASSIGN
 %token COMMA EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
-%token NEWLINE UNKNOWN
+
+%type <strval> WORD
 %start program
 
 %%
-program : list_instructions
+program : {log_trace("program : list_instructions")} list_instructions {log_trace("program : list_instructions")}
     ;
 
-list_instructions : list_instructions COMMA instructions
-    | instructions
+list_instructions : list_instructions COMMA instructions {log_trace("program : list_instructions COMMA instructions")}
+    | instructions {log_trace("program : list_instructions -> instructions")}
     ;
 
-instructions : ID ASSIGN concatenation
-    | ID LBRACKET operand_integer RBRACKET ASSIGN concatenation
-    | DECLARE ID LBRACKET INTEGER RBRACKET
+instructions : id ASSIGN concatenation {log_trace("program : instructions -> ID assign concatenation")}
+    | id LBRACKET operand_int RBRACKET ASSIGN concatenation
+    | DECLARE id LBRACKET int RBRACKET
     | IF test_block THEN list_instructions else_part FI
-    | FOR ID DO list_instructions DONE
-    | FOR ID IN list_instructions DO list_instructions DONE
+    | FOR id DO list_instructions DONE
+    | FOR id IN list_instructions DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand
-    | READ ID
-    | READ ID LBRACKET operand_integer RBRACKET
+    | READ id
+    | READ id LBRACKET operand_int RBRACKET
     | declare_fct
     | function_call
     | RETURN
-    | RETURN operand_integer
-    | EXIT
-    | EXIT operand_integer
+    | RETURN operand_int
+    | EXIT { log_trace("exit") YYACCEPT; }
+    | EXIT operand_int { YYACCEPT; }
     ;
 
 else_part : ELIF test_block THEN list_instructions else_part
@@ -66,11 +71,11 @@ filter : WORD
 
 list_operand : list_operand operand
     | operand
-    | DOLLAR LBRACE ID LBRACKET MULT RBRACKET RBRACE
+    | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
 concatenation : concatenation operand
-    | operand { emit("test"); }
+    | operand { log_trace("concatenation"); }
     ;
 
 test_block : TEST test_expr
@@ -96,15 +101,15 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand
     ;
 
-operand : DOLLAR LBRACE ID RBRACE
-	| DOLLAR LBRACE ID LBRACKET operand_integer RBRACKET RBRACE
-    | WORD
-    | DOLLAR INTEGER
+operand : DOLLAR LBRACE id RBRACE
+	| DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | WORD {log_trace("program : WORD");}
+    | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
     | QUOTE STRING QUOTE
     | APOSTROPHE STRING APOSTROPHE
-    | DOLLAR LPAREN EXPR sum_integer RPAREN
+    | DOLLAR LPAREN EXPR sum_int RPAREN
     | DOLLAR LPAREN function_call RPAREN
     ;
 
@@ -120,23 +125,23 @@ operator2 : ARG_EQ
     | ARG_LE
     ;
 
-sum_integer : sum_integer plus_or_minus mult_integer
-    | mult_integer
+sum_int : sum_int plus_or_minus mult_int
+    | mult_int
     ;
 
-mult_integer : mult_integer mult_div_mod operand_integer
-    | operand_integer
+mult_int : mult_int mult_div_mod operand_int
+    | operand_int
     ;
 
-operand_integer : DOLLAR LBRACE ID RBRACE
-	| DOLLAR LBRACE ID LBRACKET operand_integer RBRACKET RBRACE
-	| DOLLAR INTEGER
-    | plus_or_minus DOLLAR LBRACE ID RBRACE
-    | plus_or_minus DOLLAR RBRACE ID LBRACKET operand_integer RBRACKET RBRACE
-    | plus_or_minus DOLLAR  INTEGER
-    | INTEGER
-    | plus_or_minus INTEGER
-    | LPAREN sum_integer RPAREN
+operand_int : DOLLAR LBRACE id RBRACE
+	| DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+	| DOLLAR int
+    | plus_or_minus DOLLAR LBRACE id RBRACE
+    | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | plus_or_minus DOLLAR  int
+    | int
+    | plus_or_minus int
+    | LPAREN sum_int RPAREN
     ;
 
 plus_or_minus : PLUS
@@ -148,20 +153,27 @@ mult_div_mod : MULT
      | MOD
      ;
 
-declare_fct : ID LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
+declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
     ;
 
-declare_loc : declare_loc LOCAL ID ASSIGN concatenation COMMA
+declare_loc : declare_loc LOCAL id ASSIGN concatenation COMMA
     |
     ;
 
-function_call : ID list_operand
-    | ID
+function_call : id list_operand
+    | id
     ;
+
+id : WORD { log_trace("id: WORD"); CHECK_TYPE(checkWordIsId($1)) }
+    ;
+
+int : WORD { log_trace("int: WORD"); CHECK_TYPE(checkWordIsInt($1)) }
+    ;
+
 %%
 
 int yyerror (char * s)
 {
-    printf("error : %s\n",s);
+    fprintf(stderr, "%s at line %d, column\n", s, yylineno);
     return 0;
 }

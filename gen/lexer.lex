@@ -1,23 +1,23 @@
-%option noyywrap
+%option noyywrap yylineno
 
 %{
-    #include "parser.h"
-    #include "string.h"
-    extern int yylval;
+#include "parser.h"
+#include "string.h"
+
+#include "log.h"
 //if then for do done in while until case esac echo read return exit local elif else  declare
 //test expr
 %}
-
-
+/*
 COMMENT ([#].+NEWLINE)
-NEWLINE [\n]
 
 DIGIT [0-9]
 INTEGER {DIGIT}{DIGIT}*
 STRING "string"
-WORD "word"
-ID [[:alpha:]][[:alnum:]]*
+WORD "10"
+ID [[:alpha:]][[:alnum:]] *[a-z]*  [[:alpha:]][[:alnum:]]* */
 
+NEWLINE [\n]
 DECLARE "declare"
 LOCAL "local"
 RETURN "return"
@@ -59,6 +59,7 @@ QMARK "?"
 NEQ "!="
 BOR "|"
 SPACE [ ]
+WORD .|([^(NEWLINE]|[^DECLARE]|[^LOCAL]|[^RETURN]|[^EXIT]|[^ECHO_CALL]|[^READ]|[^FOR]|[^WHILE]|[^UNTIL]|[^DO]|[^DONE]|[^IN]|[^IF]|[^ELIF]|[^ELSE]|[^TEST]|[^THEN]|[^FI]|[^CASE]|[^ESAC]|[^LBRACKET]|[^RBRACKET]|[^LPAREN]|[^RPAREN]|[^LBRACE]|[^RBRACE]|[^QUOTE]|[^APOSTROPHE]|[^ASSIGN]|[^COMMA]|[^EXCL]|[^DOLLAR]|[^PLUS]|[^MINUS]|[^MULT]|[^DIV]|[^MOD]|[^QMARK]|[^NEQ]|[^BOR]|[^SPACE])
 
 %%
 "-o" { return ARG_O; }
@@ -71,10 +72,10 @@ SPACE [ ]
 "-lt" { return ARG_LT; }
 "-le" { return ARG_LE; }
 
+{EXIT} {log_trace("EXIT : %s",yytext); return EXIT; }
 {DECLARE} { return DECLARE; }
 {LOCAL} { return LOCAL; }
 {RETURN} { return RETURN; }
-{EXIT} { return EXIT; }
 {ECHO_CALL} { return ECHO_CALL; }
 {READ} { return READ; }
 {FOR} { return FOR; }
@@ -99,8 +100,8 @@ SPACE [ ]
 {RBRACE} { return RBRACE; }
 {QUOTE} { return QUOTE; }
 {APOSTROPHE} { return APOSTROPHE; }
-{ASSIGN} { return ASSIGN; }
-{COMMA} { return COMMA; }
+{ASSIGN} { log_trace("ASSIGN"); return ASSIGN; }
+{COMMA} {log_trace("COMMA : %s",yytext); return COMMA; }
 {EXCL} { return EXCL; }
 {DOLLAR} { return DOLLAR; }
 {PLUS} { return PLUS; }
@@ -112,8 +113,9 @@ SPACE [ ]
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
 
-[ ] { }
-{NEWLINE} { return NEWLINE; }
-. { return UNKNOWN; }
+
+[ ] { log_trace("space"); }
+{NEWLINE} { log_trace("NEWLINE"); }
+{WORD} { yylval.strval = yytext; log_trace("WORD: %s", yytext); return WORD; }
 
 %%

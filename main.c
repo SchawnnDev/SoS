@@ -2,10 +2,8 @@
 #include <argtable3.h>
 #include <log.h>
 #include <errno.h>
-#include "parser.h"
-
 #include "listRangeVar.h"
-#include "lexer.h"
+#include "compilation.h"
 
 /* global arg_xxx structs */
 struct arg_file *file;
@@ -13,30 +11,6 @@ struct arg_lit *help, *version, *tos;
 struct arg_int *verb;
 struct arg_file *o;
 struct arg_end *end;
-
-/* global values */
-ListRangeVariable listRangeVariable;
-ListTmp listTmp;
-
-int emit(char* code) {
-    return 0;
-}
-
-int initStruct()
-{
-    log_trace("Started initStruct")
-    listRangeVariable = initListRangeVariable();
-    listTmp = initListTmp();
-    return 0;
-}
-
-int compile(FILE *inputFile, FILE *outputFile)
-{
-    log_trace("Started compile (%d, %d)", inputFile, outputFile)
-    if (initStruct() != 0) return -1;
-    yyin = inputFile;
-    return yyparse();
-}
 
 int handle_args(int argc, char **argv)
 {
@@ -146,8 +120,8 @@ int handle_args(int argc, char **argv)
     {
         const char *fileName = o->filename[0];
         log_debug("Output file was specified (%s)", fileName)
-        inputFile = fopen(fileName, "w");
-        if (inputFile == NULL)
+        outputFile = fopen(fileName, "w");
+        if (outputFile == NULL)
         {
             log_error(
                     "Cannot open file %s (%s). Defaulting to output to stdout.",
