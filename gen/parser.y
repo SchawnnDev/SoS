@@ -158,16 +158,9 @@ function_call : ID list_operand
     | ID
     ;
 %%
-/*
-int main (voID)
-{
-    yyparse();
-    return 0;
-}
-*/
 
 int yyerror (char * s)
 {
-    printf(" Erreur : %s\n",s);
+    printf("error : %s\n",s);
     return 0;
 }
