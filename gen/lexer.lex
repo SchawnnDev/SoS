@@ -14,15 +14,15 @@ NEWLINE [\n]
 
 DIGIT [0-9]
 INTEGER {DIGIT}{DIGIT}*
-STRING
-WORD
+STRING "string"
+WORD "word"
 ID [[:alpha:]][[:alnum:]]*
 
 DECLARE "declare"
 LOCAL "local"
 RETURN "return"
 EXIT "exit"
-ECHO "echo"
+ECHO_CALL "echo"
 READ "read"
 FOR "for"
 WHILE "while"
@@ -36,7 +36,6 @@ ELSE "else"
 TEST "test"
 THEN "then"
 FI "fi"
-DONE "done"
 CASE "case"
 ESAC "esac"
 LBRACKET "["
@@ -45,7 +44,7 @@ LPAREN "("
 RPAREN ")"
 LBRACE "{"
 RBRACE "}"
-QUOTE /"
+QUOTE ["]
 APOSTROPHE '
 ASSIGN "="
 COMMA ";"
@@ -59,6 +58,7 @@ MOD "%"
 QMARK "?"
 NEQ "!="
 BOR "|"
+SPACE [ ]
 
 %%
 "-o" { return ARG_O; }
@@ -66,7 +66,7 @@ BOR "|"
 "-z" { return ARG_Z; }
 "-eq" { return ARG_EQ; }
 "-ne" { return ARG_NE; }
-"-gt" { return ARG_Gt; }
+"-gt" { return ARG_GT; }
 "-ge" { return ARG_GE; }
 "-lt" { return ARG_LT; }
 "-le" { return ARG_LE; }
@@ -75,13 +75,12 @@ BOR "|"
 {LOCAL} { return LOCAL; }
 {RETURN} { return RETURN; }
 {EXIT} { return EXIT; }
-{ECHO} { return ECHO; }
+{ECHO_CALL} { return ECHO_CALL; }
 {READ} { return READ; }
 {FOR} { return FOR; }
 {WHILE} { return WHILE; }
 {UNTIL} { return UNTIL; }
 {DO} { return DO; }
-{DONE} { return DONE; }
 {IN} { return IN; }
 {IF} { return IF; }
 {ELIF} { return ELIF; }
@@ -113,7 +112,7 @@ BOR "|"
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
 
-[ ] { return SPACE; }
+[ ] { }
 {NEWLINE} { return NEWLINE; }
 . { return UNKNOWN; }
 

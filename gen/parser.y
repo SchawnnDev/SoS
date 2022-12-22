@@ -2,26 +2,26 @@
 #include "lexer.h"
 %}
 %right ASSIGN
-%left ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
+%left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
-%token INTEGER STRING WORD
+%token INTEGER STRING WORD EXPR
 %token ID DECLARE LOCAL
-%token RETURN EXIT ECHO READ
+%token RETURN EXIT ECHO_CALL READ
 %token FOR WHILE UNTIL DO DONE IN
-%token IF ELIF ELSE TEST THEN FI DONE
+%token IF ELIF ELSE TEST THEN FI
 %token CASE ESAC
 %token LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %token ASSIGN
 %token COMMA EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
-%token NEQ BOR
-%token ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
+%token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
+%token NEWLINE UNKNOWN
 %start program
 
 %%
 program : list_instructions
     ;
 
-list_instructions : list_instructions ; instructions
+list_instructions : list_instructions COMMA instructions
     | instructions
     ;
 
@@ -34,7 +34,7 @@ instructions : ID ASSIGN concatenation
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO list_operand
+    | ECHO_CALL list_operand
     | READ ID
     | READ ID LBRACKET operand_integer RBRACKET
     | declare_fct
@@ -65,7 +65,7 @@ filter : WORD
 
 list_operand : list_operand operand
     | operand
-    | DOLLARLBRACE ID LBRACKET MULT RBRACKET RBRACE
+    | DOLLAR LBRACE ID LBRACKET MULT RBRACKET RBRACE
     ;
 
 concatenation : concatenation operand
@@ -75,11 +75,11 @@ concatenation : concatenation operand
 test_block : TEST test_expr
     ;
 
-test_expr : test_expr ARGS_O test_expr2
+test_expr : test_expr ARG_O test_expr2
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARGS_A test_expr3
+test_expr2 : test_expr2 ARG_A test_expr3
     | test_expr3
     ;
 
@@ -96,15 +96,15 @@ test_instruction : concatenation ASSIGN concatenation
     ;
 
 operand : DOLLAR LBRACE ID RBRACE
-	| DOLLAR LBRACEID LBRACKET operand_integer RBRACKET RBRACE
+	| DOLLAR LBRACE ID LBRACKET operand_integer RBRACKET RBRACE
     | WORD
-    | DOLLARINTEGER
+    | DOLLAR INTEGER
     | DOLLAR MULT
     | DOLLAR QMARK
     | QUOTE STRING QUOTE
     | APOSTROPHE STRING APOSTROPHE
-    | DOLLARLPAREN EXPR sum_integer RPAREN
-    | DOLLARLPAREN function_call RPAREN
+    | DOLLAR LPAREN EXPR sum_integer RPAREN
+    | DOLLAR LPAREN function_call RPAREN
     ;
 
 operator1 : ARG_N
@@ -119,8 +119,8 @@ operator2 : ARG_EQ
     | ARG_LE
     ;
 
-sum_integer : sum_integer plus_or_minus sum_mult
-    | sum_mult
+sum_integer : sum_integer plus_or_minus mult_integer
+    | mult_integer
     ;
 
 mult_integer : mult_integer mult_div_mod operand_integer
@@ -128,7 +128,7 @@ mult_integer : mult_integer mult_div_mod operand_integer
     ;
 
 operand_integer : DOLLAR LBRACE ID RBRACE
-	| DOLLAR LBRACE ID LBRACKET operand_int RBRACKET RBRACE
+	| DOLLAR LBRACE ID LBRACKET operand_integer RBRACKET RBRACE
 	| DOLLAR INTEGER
     | plus_or_minus DOLLAR LBRACE ID RBRACE
     | plus_or_minus DOLLAR RBRACE ID LBRACKET operand_integer RBRACKET RBRACE
@@ -154,7 +154,7 @@ declare_loc : declare_loc LOCAL ID ASSIGN concatenation COMMA
     |
     ;
 
-function_call : ID operand_list
+function_call : ID list_operand
     | ID
     ;
 %%
