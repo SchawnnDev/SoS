@@ -18,6 +18,10 @@ struct arg_end *end;
 ListRangeVariable listRangeVariable;
 ListTmp listTmp;
 
+int emit(char* code) {
+    return 0;
+}
+
 int initStruct()
 {
     log_trace("Started initStruct")
@@ -25,7 +29,6 @@ int initStruct()
     listTmp = initListTmp();
     return 0;
 }
-
 
 int compile(FILE *inputFile, FILE *outputFile)
 {

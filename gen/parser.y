@@ -1,5 +1,6 @@
 %{
 #include "lexer.h"
+extern int emit(char* code);
 %}
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
@@ -69,7 +70,7 @@ list_operand : list_operand operand
     ;
 
 concatenation : concatenation operand
-    | operand
+    | operand { emit("test"); }
     ;
 
 test_block : TEST test_expr
