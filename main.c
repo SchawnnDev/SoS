@@ -56,7 +56,6 @@ int handle_args(int argc, char **argv)
 
     if (verb->count > 0)
     {
-
         switch (*verb->ival)
         {
             case 0:
@@ -82,9 +81,10 @@ int handle_args(int argc, char **argv)
                 log_set_quiet(true);
                 break;
         }
+
         log_debug("Verbose was set to level %d.", *verb->ival)
-    } else
-    {
+
+    } else {
         log_set_quiet(true);
     }
 
