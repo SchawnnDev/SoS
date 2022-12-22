@@ -28,6 +28,7 @@ add_library(
 
         STATIC
 
+        src/compilation.c
         src/listIden.c
         src/listRangeVar.c
         src/listTmp.c
@@ -35,6 +36,7 @@ add_library(
         "${LEXER_OUT}"
         "${PARSER_OUT}"
 
+        include/compilation.h
         include/listIden.h
         include/listRangeVar.h
         include/listTmp.h

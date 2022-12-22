@@ -1,5 +1,6 @@
 %{
 #include "lexer.h"
+#include "compilation.h"
 %}
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
@@ -25,7 +26,7 @@ list_instructions : list_instructions COMMA instructions
     | instructions
     ;
 
-instructions : ID ASSIGN concatenation
+instructions : ID ASSIGN concatenation {SetValuesFromListTmp($1)}
     | ID LBRACKET operand_integer RBRACKET ASSIGN concatenation
     | DECLARE ID LBRACKET INTEGER RBRACKET
     | IF test_block THEN list_instructions else_part FI
@@ -97,7 +98,7 @@ test_instruction : concatenation ASSIGN concatenation
 
 operand : DOLLAR LBRACE ID RBRACE
 	| DOLLAR LBRACE ID LBRACKET operand_integer RBRACKET RBRACE
-    | WORD
+    | WORD {AddIntoListTmp($1);}
     | DOLLAR INTEGER
     | DOLLAR MULT
     | DOLLAR QMARK

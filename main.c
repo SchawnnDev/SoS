@@ -15,17 +15,6 @@ struct arg_file *o;
 struct arg_end *end;
 
 /* global values */
-ListRangeVariable listRangeVariable;
-ListTmp listTmp;
-
-int initStruct()
-{
-    log_trace("Started initStruct")
-    listRangeVariable = initListRangeVariable();
-    listTmp = initListTmp();
-    return 0;
-}
-
 
 int compile(FILE *inputFile, FILE *outputFile)
 {
