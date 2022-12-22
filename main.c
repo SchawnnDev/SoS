@@ -27,7 +27,8 @@ int initStruct()
 }
 
 
-int compile(FILE *inputFile, FILE *outputFile) {
+int compile(FILE *inputFile, FILE *outputFile)
+{
     log_trace("Started compile (%d, %d)", inputFile, outputFile)
     if (initStruct() != 0) return -1;
     yyin = inputFile;
@@ -53,32 +54,39 @@ int handle_args(int argc, char **argv)
     int nerrors;
     nerrors = arg_parse(argc, argv, argtable);
 
-    switch (verb->count)
+    if (verb->count > 0)
     {
-        case 0:
-            log_set_level(LOG_TRACE);
-            break;
-        case 1:
-            log_set_level(LOG_DEBUG);
-            break;
-        case 2:
-            log_set_level(LOG_INFO);
-            break;
-        case 3:
-            log_set_level(LOG_WARN);
-            break;
-        case 4:
-            log_set_level(LOG_ERROR);
-            break;
-        case 5:
-            log_set_level(LOG_FATAL);
-            break;
-        default:
-            // If no verbose given, set log to quiet by default
-            log_set_quiet(true);
-            break;
+
+        switch (*verb->ival)
+        {
+            case 0:
+                log_set_level(LOG_TRACE);
+                break;
+            case 1:
+                log_set_level(LOG_DEBUG);
+                break;
+            case 2:
+                log_set_level(LOG_INFO);
+                break;
+            case 3:
+                log_set_level(LOG_WARN);
+                break;
+            case 4:
+                log_set_level(LOG_ERROR);
+                break;
+            case 5:
+                log_set_level(LOG_FATAL);
+                break;
+            default:
+                // If no verbose given, set log to quiet by default
+                log_set_quiet(true);
+                break;
+        }
+        log_debug("Verbose was set to level %d.", *verb->ival)
+    } else
+    {
+        log_set_quiet(true);
     }
-    log_debug("Verbose was set to level %d.", verb->count)
 
     /* special case: '--help' takes precedence over error reporting */
     if (help->count > 0)
@@ -112,19 +120,20 @@ int handle_args(int argc, char **argv)
         goto exit;
     }
 
-    FILE* inputFile = NULL;
-    FILE* outputFile = NULL;
+    FILE *inputFile = NULL;
+    FILE *outputFile = NULL;
 
     if (file->count > 0)
     {
-        const char* fileName = file->filename[0];
+        const char *fileName = file->filename[0];
         log_debug("File was specified (%s)", fileName)
         inputFile = fopen(fileName, "r");
         if (inputFile == NULL)
         {
             log_error("Cannot open file %s (%s)\n", fileName, strerror(errno))
             goto exit;
-        } else {
+        } else
+        {
             log_debug("File was loaded (%s)", fileName)
         }
 
@@ -132,16 +141,20 @@ int handle_args(int argc, char **argv)
 
     if (o->count > 0)
     {
-        const char* fileName = o->filename[0];
+        const char *fileName = o->filename[0];
         log_debug("Output file was specified (%s)", fileName)
         inputFile = fopen(fileName, "w");
         if (inputFile == NULL)
         {
-            log_error("Cannot open file %s (%s). Defaulting to output to stdout.", fileName, strerror(errno))
-        } else {
+            log_error(
+                    "Cannot open file %s (%s). Defaulting to output to stdout.",
+                    fileName, strerror(errno))
+        } else
+        {
             log_debug("File was loaded (%s)", fileName)
         }
-    } else {
+    } else
+    {
         log_debug("No output file : defaulting output to stdout")
     }
 
@@ -150,10 +163,10 @@ int handle_args(int argc, char **argv)
         printf("An error occured.\n");
     }
 
-    if(inputFile != NULL)
+    if (inputFile != NULL)
         fclose(inputFile);
 
-    if(outputFile != NULL)
+    if (outputFile != NULL)
         fclose(outputFile);
 
     exit:
