@@ -5,7 +5,7 @@
 
 #include "listRangeVar.h"
 
-#define CHECK_TYPE(op) do { if (((op) != 1)) {yyerror ("not good type."); return EXIT_FAILURE; } } while (0);
+#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
 // Global variables
 
 ListRangeVariable listRangeVariable;
