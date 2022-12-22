@@ -24,8 +24,8 @@ else
 fi
 
 if [ "$EUID" -ne 0 ]; then
-  echo -e "${RED}Skipping flex & bison installation... Script must be run as root.${NC}"
-  echo -e "${RED}If flex or bison is missing, the CMake build will probably crash.${NC}"
+  echo -e "${RED}Skipping cmake, flex, bison & java installation... Script must be run as root.${NC}"
+  echo -e "${RED}If cmake, flex, bison or java are missing, the CMake build will probably crash.${NC}"
   echo -e "${RED}You can cancel this installation and rerun the script with root permissions. Waiting 3 seconds.${NC}"
   sleep 3
 else
@@ -41,6 +41,20 @@ else
     apt-get -y install bison
   else
     echo -e "${YELLOW}Bison is installed... skipping to next step.${NC}"
+  fi
+
+  if [ $(dpkg-query -W -f='${Status}' java 2>/dev/null | grep -c "install ok installed") -eq 0 ]; then
+    echo -e "${YELLOW}Installing java using apt...${NC}"
+    apt-get -y install openjdk-8-jre-headless
+  else
+    echo -e "${YELLOW}Java is installed... skipping to next step.${NC}"
+  fi
+
+  if [ $(dpkg-query -W -f='${Status}' cmake 2>/dev/null | grep -c "install ok installed") -eq 0 ]; then
+    echo -e "${YELLOW}Installing cmake using apt...${NC}"
+    apt-get -y install cmake
+  else
+    echo -e "${YELLOW}CMake is installed... skipping to next step.${NC}"
   fi
 fi
 

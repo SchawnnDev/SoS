@@ -1,20 +1,58 @@
 # SoS
-
 ## Installation
 
-Please execute the following script as root:
+Dependencies:
+- Git
+- CMake & Make
+- Flex
+- Bison
+
+Test dependencies:
+- Java
+- Mars IDE
+
+You can install all those dependencies & build the project using the following script :
+
+If you're missing some packages listed above, please execute the following script as root.
+
 ```shell
 ./install.sh
 ```
 
+Submodules will be cloned to lib/ directory
+
+Mars will be downloaded to lib/ directory.
+
 SoS binary will be build into cmake-build-debug/ folder.
 
-### ...
+## Usage
+
+If you used install.sh script, please enter the cmake-build-debug/ folder.
+```shell
+cd cmake-build-debug/
+```
+
+To start the program, use:
+```shell
+./sos <args>
+```
+
+To show the help, use:
+```shell
+./sos --help
+```
+
 
 ### Run
+
+To compile a file, please give it as an argument, 
+if no output file is given, it will print MIPS on stdout.
+
 ```shell
-make
+./sos <file> [-o=<file_path>]
 ```
+
+
 
 ## Code style
 
