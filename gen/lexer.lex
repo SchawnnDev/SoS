@@ -49,7 +49,7 @@ RBRACE "}"
 QUOTE ["]
 APOSTROPHE '
 ASSIGN "="
-COMMA ";"
+SEMICOLON ";"
 EXCL "!"
 DOLLAR "$"
 PLUS "+"
@@ -62,7 +62,7 @@ NEQ "!="
 BOR "|"
 SPACE [ ]
 COMMENT #.*
-WORD [^\n=]*
+WORD [^\n=;+-]*
 /* ([^NEWLINE]|[^COMMENT]|[^ASSIGN])* */
 
 %%
@@ -107,7 +107,7 @@ WORD [^\n=]*
 {QUOTE} { return QUOTE; }
 {APOSTROPHE} { return APOSTROPHE; }
 {ASSIGN} { log_trace("ASSIGN"); return ASSIGN; }
-{COMMA} {log_trace("COMMA : %s",yytext); return COMMA; }
+{SEMICOLON} {log_trace("SEMICOLON : %s",yytext); return SEMICOLON; }
 {EXCL} { return EXCL; }
 {DOLLAR} { return DOLLAR; }
 {PLUS} { return PLUS; }
@@ -119,7 +119,6 @@ WORD [^\n=]*
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
 
-<<EOF>> { log_trace("end of file"); }
 [ ] { log_trace("space '%s'", yytext); }
 {NEWLINE} { log_trace("NEWLINE"); }
 {WORD} { yylval.strval = yytext; log_trace("WORD: %s", yytext); return WORD; }

@@ -17,7 +17,7 @@
 %token CASE ESAC
 %token LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %token ASSIGN
-%token COMMA EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
+%token SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
 %type <strval> WORD
@@ -27,7 +27,7 @@
 program : {log_trace("program : list_instructions")} list_instructions {log_trace("program : list_instructions")}
     ;
 
-list_instructions : list_instructions COMMA instructions {log_trace("program : list_instructions COMMA instructions")}
+list_instructions : list_instructions SEMICOLON instructions {log_trace("program : list_instructions SEMICOLON instructions")}
     | instructions {log_trace("program : list_instructions -> instructions")}
     ;
 
@@ -56,8 +56,8 @@ else_part : ELIF test_block THEN list_instructions else_part
     |
     ;
 
-list_case : list_case filter RPAREN list_instructions COMMA COMMA
-    | filter RPAREN list_instructions COMMA COMMA
+list_case : list_case filter RPAREN list_instructions SEMICOLON SEMICOLON
+    | filter RPAREN list_instructions SEMICOLON SEMICOLON
     ;
 
 filter : WORD
@@ -156,7 +156,7 @@ mult_div_mod : MULT
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
     ;
 
-declare_loc : declare_loc LOCAL id ASSIGN concatenation COMMA
+declare_loc : declare_loc LOCAL id ASSIGN concatenation SEMICOLON
     |
     ;
 
