@@ -59,9 +59,9 @@ if [ "$1" == "file" ]; then
   temp_asm_file=$(mktemp)
 
   $EXEC_FILE "$2" -v 0 -o "$temp_asm_file"
-
-  if [ ! $? == 0 ]; then
-    echo -e "${RED}Compiler failure (exit code $?).${NC}"
+  rcode=$?
+  if [ ! $rcode == 0 ]; then
+    echo -e "${RED}Compiler failure (exit code $rcode).${NC}"
     rm "${temp_asm_file}"
     exit 1
   fi

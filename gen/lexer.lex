@@ -15,7 +15,11 @@ STRING "string"
 WORD "10"
 ID [[:alpha:]][[:alnum:]] *[a-z]*  [[:alpha:]][[:alnum:]]* */
 
-NEWLINE [\n]
+DIGIT [0-9]
+INTEGER {DIGIT}{DIGIT}*
+ID [a-zA-Z]([a-zA-Z]|[0-9])*
+
+NEWLINE \n
 DECLARE "declare"
 LOCAL "local"
 RETURN "return"
@@ -57,9 +61,9 @@ QMARK "?"
 NEQ "!="
 BOR "|"
 SPACE [ ]
-WORD .|([^(NEWLINE]|[^DECLARE]|[^LOCAL]|[^RETURN]|[^EXIT]|[^ECHO_CALL]|[^READ]|[^FOR]|[^WHILE]|[^UNTIL]|[^DO]|[^DONE]|[^IN]|[^IF]|[^ELIF]|[^ELSE]|[^TEST]|[^THEN]|[^FI]|[^CASE]|[^ESAC]|[^LBRACKET]|[^RBRACKET]|[^LPAREN]|[^RPAREN]|[^LBRACE]|[^RBRACE]|[^QUOTE]|[^APOSTROPHE]|[^ASSIGN]|[^COMMA]|[^EXCL]|[^DOLLAR]|[^PLUS]|[^MINUS]|[^MULT]|[^DIV]|[^MOD]|[^QMARK]|[^NEQ]|[^BOR]|[^SPACE])
-
 COMMENT #.*
+WORD [^\n=]*
+/* ([^NEWLINE]|[^COMMENT]|[^ASSIGN])* */
 
 %%
 {COMMENT} { log_trace("comment; ignoring"); }
@@ -115,7 +119,9 @@ COMMENT #.*
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
 
+<<EOF>> { log_trace("end of file"); }
 [ ] { log_trace("space '%s'", yytext); }
 {NEWLINE} { log_trace("NEWLINE"); }
+{WORD} { yylval.strval = yytext; log_trace("WORD: %s", yytext); return WORD; }
 
 %%
