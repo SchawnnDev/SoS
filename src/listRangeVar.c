@@ -192,6 +192,9 @@ int setType(ListRangeVariable addr, char* name, int type)
     CHECKPOINTER(name);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
     return setTypeOfIdentifier(variablePosition->rangePosition->listIdentifier,
                                                                           variablePosition->indexIdentifier, type);
 }
@@ -207,6 +210,9 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize)
     CHECKPOINTER(name);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
     return setArraySizeOfIdentifier(variablePosition->rangePosition->listIdentifier,
                                                                           variablePosition->indexIdentifier, arraySize);
 }
@@ -223,6 +229,9 @@ int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
     CHECKPOINTER(addrTmp);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
     return setValuesOfIdentifierFromListTmp(variablePosition->rangePosition->listIdentifier,
                                                                                variablePosition->indexIdentifier, addrTmp);
 }
