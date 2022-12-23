@@ -5,11 +5,9 @@
 #include "string.h"
 
 #include "log.h"
-//if then for do done in while until case esac echo read return exit local elif else  declare
-//test expr
 %}
 /*
-COMMENT ([#].+NEWLINE)
+COMMENT [#].*
 
 DIGIT [0-9]
 INTEGER {DIGIT}{DIGIT}*
@@ -61,7 +59,11 @@ BOR "|"
 SPACE [ ]
 WORD .|([^(NEWLINE]|[^DECLARE]|[^LOCAL]|[^RETURN]|[^EXIT]|[^ECHO_CALL]|[^READ]|[^FOR]|[^WHILE]|[^UNTIL]|[^DO]|[^DONE]|[^IN]|[^IF]|[^ELIF]|[^ELSE]|[^TEST]|[^THEN]|[^FI]|[^CASE]|[^ESAC]|[^LBRACKET]|[^RBRACKET]|[^LPAREN]|[^RPAREN]|[^LBRACE]|[^RBRACE]|[^QUOTE]|[^APOSTROPHE]|[^ASSIGN]|[^COMMA]|[^EXCL]|[^DOLLAR]|[^PLUS]|[^MINUS]|[^MULT]|[^DIV]|[^MOD]|[^QMARK]|[^NEQ]|[^BOR]|[^SPACE])
 
+COMMENT #.*
+
 %%
+{COMMENT} { log_trace("comment; ignoring"); }
+
 "-o" { return ARG_O; }
 "-n" { return ARG_N; }
 "-z" { return ARG_Z; }
@@ -113,9 +115,7 @@ WORD .|([^(NEWLINE]|[^DECLARE]|[^LOCAL]|[^RETURN]|[^EXIT]|[^ECHO_CALL]|[^READ]|[
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
 
-
-[ ] { log_trace("space"); }
+[ ] { log_trace("space '%s'", yytext); }
 {NEWLINE} { log_trace("NEWLINE"); }
-{WORD} { yylval.strval = yytext; log_trace("WORD: %s", yytext); return WORD; }
 
 %%
