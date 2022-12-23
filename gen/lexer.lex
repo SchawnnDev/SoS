@@ -3,21 +3,8 @@
 %{
 #include "parser.h"
 #include "string.h"
-
 #include "log.h"
 %}
-/*
-COMMENT [#].*
-
-DIGIT [0-9]
-INTEGER {DIGIT}{DIGIT}*
-STRING "string"
-WORD "10"
-ID [[:alpha:]][[:alnum:]] *[a-z]*  [[:alpha:]][[:alnum:]]* */
-
-DIGIT [0-9]
-INTEGER {DIGIT}{DIGIT}*
-ID [a-zA-Z]([a-zA-Z]|[0-9])*
 
 NEWLINE \n
 DECLARE "declare"
@@ -62,8 +49,8 @@ NEQ "!="
 BOR "|"
 SPACE [ ]
 COMMENT #.*
-WORD [^\n=;+-]*
-/* ([^NEWLINE]|[^COMMENT]|[^ASSIGN])* */
+
+WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9]*
 
 %%
 {COMMENT} { log_trace("comment; ignoring"); }
@@ -119,7 +106,7 @@ WORD [^\n=;+-]*
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
 
-[ ] { log_trace("space '%s'", yytext); }
+{SPACE} { log_trace("space '%s'", yytext); }
 {NEWLINE} { log_trace("NEWLINE"); }
 {WORD} { yylval.strval = yytext; log_trace("WORD: %s", yytext); return WORD; }
 
