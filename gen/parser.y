@@ -20,7 +20,7 @@
 %token SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
-%type <strval> WORD
+%type <strval> WORD id concatenation operand DOLLAR LBRACE RBRACE QUOTE STRING APOSTROPHE
 %start program
 
 %%
@@ -31,7 +31,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_trace("program
     | instructions {log_trace("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN concatenation {log_trace("program : instructions -> ID assign concatenation")}
+instructions : id ASSIGN concatenation {log_trace("instructions: %s = concatenation", $1); SetValuesFromListTmp($1); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation
     | DECLARE id LBRACKET int RBRACKET
     | IF test_block THEN list_instructions else_part FI
@@ -74,7 +74,7 @@ list_operand : list_operand operand
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
-concatenation : concatenation operand
+concatenation : concatenation operand { log_trace("concat : %s %s", $1, $2); }
     | operand { log_trace("concatenation"); }
     ;
 
@@ -103,7 +103,7 @@ test_instruction : concatenation ASSIGN concatenation
 
 operand : DOLLAR LBRACE id RBRACE
 	| DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD {log_trace("program : WORD");}
+    | WORD {log_trace("operand : WORD (%s)", $1);}
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
@@ -164,10 +164,10 @@ function_call : id list_operand
     | id
     ;
 
-id : WORD { log_trace("id: WORD"); CHECK_TYPE(checkWordIsId($1)) }
+id : WORD { log_trace("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) AddIdentifier($1); }
     ;
 
-int : WORD { log_trace("int: WORD"); CHECK_TYPE(checkWordIsInt($1)) }
+int : WORD { log_trace("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); AddIntoListTmp($1); }
     ;
 
 %%
