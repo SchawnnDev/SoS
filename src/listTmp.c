@@ -29,7 +29,6 @@ void cleanListTmp(ListTmp addr)
         free(addr->values[index]);
     }
 
-    free(addr->values);
     free(addr);
 }
 
