@@ -16,25 +16,30 @@
 %token IF ELIF ELSE TEST THEN FI
 %token CASE ESAC
 %token LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
-%token ASSIGN
+%token ASSIGN QUOTED_STRING APOSTROPHED_STRING
 %token SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
-%type <strval> WORD id concatenation operand DOLLAR LBRACE RBRACE QUOTE STRING APOSTROPHE ASSIGN operand_int
+%type <strval> NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ASSIGN CASE ESAC
+%type <strval> SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK IF ELIF ELSE TEST THEN FI
+%type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
+%type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
+%type <strval> QUOTED_STRING APOSTROPHED_STRING
+%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1
 %start program
 
 %%
-program : {log_trace("program : list_instructions")} list_instructions {log_trace("program : list_instructions")}
+program : {log_debug("program : list_instructions")} list_instructions {log_debug("program : list_instructions")}
     ;
 
-list_instructions : list_instructions SEMICOLON instructions {log_trace("program : list_instructions SEMICOLON instructions")}
-    | instructions {log_trace("program : list_instructions -> instructions")}
+list_instructions : list_instructions SEMICOLON instructions {log_debug("program : list_instructions SEMICOLON instructions")}
+    | instructions {log_debug("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN concatenation {log_trace("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
-    | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_trace("tab: (%s, %s, %s)", $1,$3,$6); }
+instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
+    | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET int RBRACKET
-    | IF test_block THEN list_instructions else_part FI
+    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { ""
     | FOR id DO list_instructions DONE
     | FOR id IN list_instructions DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
@@ -74,11 +79,11 @@ list_operand : list_operand operand
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
-concatenation : concatenation operand { log_trace("concat : %s %s", $1, $2); }
-    | operand { log_trace("concatenation"); }
+concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
+    | operand { log_debug("concatenation"); }
     ;
 
-test_block : TEST test_expr
+test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
 test_expr : test_expr ARG_O test_expr2
@@ -101,14 +106,14 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand
     ;
 
-operand : DOLLAR LBRACE id RBRACE
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
 	| DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD {log_trace("operand : WORD (%s)", $1);}
+    | WORD {log_debug("operand : WORD (%s)", $1);}
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTE STRING QUOTE
-    | APOSTROPHE STRING APOSTROPHE
+    | QUOTED_STRING
+    | APOSTROPHED_STRING
     | DOLLAR LPAREN EXPR sum_int RPAREN
     | DOLLAR LPAREN function_call RPAREN
     ;
@@ -164,10 +169,10 @@ function_call : id list_operand
     | id
     ;
 
-id : WORD { log_trace("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
+id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
     ;
 
-int : WORD { log_trace("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER);}
+int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER);}
     ;
 
 %%
