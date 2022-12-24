@@ -20,7 +20,7 @@
 %token SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
-%type <strval> WORD id concatenation operand DOLLAR LBRACE RBRACE QUOTE STRING APOSTROPHE ASSIGN
+%type <strval> WORD id concatenation operand DOLLAR LBRACE RBRACE QUOTE STRING APOSTROPHE ASSIGN operand_int
 %start program
 
 %%
@@ -32,7 +32,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_trace("program
     ;
 
 instructions : id ASSIGN concatenation {log_trace("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
-    | id LBRACKET operand_int RBRACKET ASSIGN concatenation
+    | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_trace("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET int RBRACKET
     | IF test_block THEN list_instructions else_part FI
     | FOR id DO list_instructions DONE

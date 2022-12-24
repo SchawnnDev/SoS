@@ -257,6 +257,7 @@ IdentifierOrder initIdentifierOrder(IdentifierOrder previousIdentifier, char* na
     CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size));
     CHECKPOINTER(strcpy(addr->name,name));
     addr->type = UNSET;
+    addr->index = -1;
 
     return addr;
 }
@@ -336,6 +337,27 @@ int setTypeIdentifierOrder(ListIdentifierOrder addr, int type)
     }
 
     addr->cursor->type = type;
+
+    return RETURN_SUCCESS;
+}
+
+
+/*!
+ * \fn int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
+ * \brief Fonction qui modifie l'index pour l'affectation d'un tableau du dernier identificateur de la liste de structure d'ordre d'apparition des identificateurs
+*/
+int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
+{
+    log_trace("setIndexIdentifierOrder(ListIdentifierOrder %p, int %d)", addr,index)
+    CHECKPOINTER(addr);
+
+    if(index <= UNSET){
+        log_error("index : %d : %d > index",index,UNSET)
+        perror("setIndexIdentifierOrder : this index isn't accept.");
+        return RETURN_FAILURE;
+    }
+
+    addr->cursor->index = index;
 
     return RETURN_SUCCESS;
 }

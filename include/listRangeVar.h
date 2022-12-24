@@ -25,6 +25,7 @@ typedef struct {
 typedef struct identifierOrder_t {
     char* name;
     int type;
+    int index;
     struct identifierOrder_t* previousIdentifier;
 } *IdentifierOrder;
 
@@ -220,6 +221,17 @@ void addIdentifierOrder(ListIdentifierOrder addr, char * name);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int setTypeIdentifierOrder(ListIdentifierOrder addr, int type);
+
+/*!
+ * \fn int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
+ * \brief Fonction qui modifie l'index pour l'affectation d'un tableau du dernier identificateur de la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ * \param index : int, l'index de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int setIndexIdentifierOrder(ListIdentifierOrder addr, int index);
 
 /*!
  * \fn int deleteIdentifierOrder(ListIdentifierOrder addr)
