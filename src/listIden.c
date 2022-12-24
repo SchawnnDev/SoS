@@ -203,6 +203,49 @@ int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp 
 }
 
 /*!
+ * \fn int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int index, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire depuis le tableau des valeurs de l'identificateur
+*/
+int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int index, ListTmp addrTmp)
+{
+    log_trace("getValuesFromIdentifierToListTmp (ListIdentifier %p, int %d, int %d, ListTmp %p)", addr, position, index, addrTmp)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(addrTmp);
+    CHECKPOINTER(addrTmp->cursor);
+
+    if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
+        perror("setValuesOfIdentifierFromListTmp : can not set type of non-existent identifier.");
+        return RETURN_FAILURE;
+    }
+
+    ulong sizeStr;
+    if (index == -1){
+        int size = addr->numberIdentifiers;
+        for(index = 0; index < size; index ++){
+            sizeStr = strlen( addrTmp->cursor->values[index]) + 1;
+            CHECKPOINTER(addrTmp->cursor->values[index] = (char*)malloc(sizeof(char) * sizeStr));
+            CHECKPOINTER(addr->Identifiers[position]->values[index]);
+            CHECKPOINTER(strcpy(addrTmp->cursor->values[index],addr->Identifiers[position]->values[index]));
+        }
+    } else {
+
+        if(index >= addr->Identifiers[position]->arraySize){
+            log_error("Index out of range : index : %d",index)
+            perror("setValuesOfIdentifierFromListTmp : can not copy a out of range value.");
+            return RETURN_FAILURE;
+        }
+
+        sizeStr = strlen( addrTmp->cursor->values[index]) + 1;
+        CHECKPOINTER(addrTmp->cursor->values[index] = (char*)malloc(sizeof(char) * sizeStr));
+        CHECKPOINTER(addr->Identifiers[position]->values[index]);
+        CHECKPOINTER(strcpy(addrTmp->cursor->values[index],addr->Identifiers[position]->values[index]));
+    }
+
+    return RETURN_SUCCESS;
+}
+
+/*!
  * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position, int type)
  * \brief Fonction qui modifie le type de l'identificateur
 */
