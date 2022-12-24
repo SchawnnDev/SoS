@@ -12,6 +12,7 @@ int errorType(const char *msg, ...) {
 void initStruct() {
     log_trace("Started initStruct")
     listRangeVariable = initListRangeVariable();
+    listIdentifierOrder = initListIdentifierOrder();
     listTmp = initListTmp();
 }
 
@@ -23,8 +24,14 @@ int compile(FILE *inputFile, FILE *outputFile) {
     return yyparse();
 }
 
-void AddIdentifier(char *name) {
-    addIdentifier(listRangeVariable, name);
+void assign() {
+    addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
+    setType(listRangeVariable,listIdentifierOrder->cursor->name,listIdentifierOrder->cursor->type);
+    setValuesFromListTmp(listRangeVariable,listIdentifierOrder->cursor->name,listTmp);
+}
+
+void assignArray() {
+
 }
 
 void AddIntoListTmp(char *value) {

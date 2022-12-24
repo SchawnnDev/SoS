@@ -31,7 +31,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_trace("program
     | instructions {log_trace("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN concatenation {log_trace("instructions: (%s, %s, %s)", $1,$2,$3); SetValuesFromListTmp($1); }
+instructions : id ASSIGN concatenation {log_trace("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation
     | DECLARE id LBRACKET int RBRACKET
     | IF test_block THEN list_instructions else_part FI

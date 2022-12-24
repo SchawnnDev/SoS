@@ -9,6 +9,7 @@
 // Global variables
 
 ListRangeVariable listRangeVariable;
+ListIdentifierOrder listIdentifierOrder;
 ListTmp listTmp;
 FILE *outFile;
 
