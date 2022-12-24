@@ -61,12 +61,13 @@ void cleanListTmp(ListTmp addr);
 int addIntoListTmp(ListTmp addr, char* value);
 
 /*!
- * \fn void addIntoListTmp(ListTmp addr, char* value)
+ * \fn void addListTmp(ListTmp addr,TmpValues addrTmpValues)
  * \brief Fonction qui permet d'ajoute une structure de valeur temporaire
  *
  * \param addr : ListTmp, la liste des valeurs temporaires
+ * \param addrTmpValues : TmpValues, la structure des valeurs temporaires
 */
-void addListTmp(ListTmp addr);
+void addListTmp(ListTmp addr,TmpValues addrTmpValues);
 
 /*!
  * \fn int deleteListTmp(ListTmp addr)

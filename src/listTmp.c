@@ -94,15 +94,16 @@ int addIntoListTmp(ListTmp addr, char* value)
 }
 
 /*!
- * \fn void addIntoListTmp(ListTmp addr, char* value)
+ * \fn void addListTmp(ListTmp addr,TmpValues addrTmpValues)
  * \brief Fonction qui permet d'ajoute une structure de valeur temporaire
 */
-void addListTmp(ListTmp addr)
+void addListTmp(ListTmp addr,TmpValues addrTmpValues)
 {
     log_trace("addListTmp (ListTmp %p)",addr)
     CHECKPOINTER(addr);
+    CHECKPOINTER(addrTmpValues);
 
-    addr->cursor = initTmpValues(addr->cursor);
+    addr->cursor = addrTmpValues;
 }
 
 /*!
