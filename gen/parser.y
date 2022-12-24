@@ -39,7 +39,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET int RBRACKET
-    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { ""; }
+    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
     | FOR id IN list_instructions DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
@@ -58,7 +58,7 @@ instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", 
 
 else_part : ELIF test_block THEN list_instructions else_part
     | ELSE list_instructions
-    |
+    | { log_debug("else_part empty"); }
     ;
 
 list_case : list_case filter RPAREN list_instructions SEMICOLON SEMICOLON
@@ -131,7 +131,7 @@ operator2 : ARG_EQ
     ;
 
 sum_int : sum_int plus_or_minus mult_int
-    | mult_int
+    | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
 mult_int : mult_int mult_div_mod operand_int
@@ -145,7 +145,7 @@ operand_int : DOLLAR LBRACE id RBRACE
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
     | plus_or_minus DOLLAR  int
     | int
-    | plus_or_minus int
+    | plus_or_minus int { log_debug("leaving %s %s", $1, $2); }
     | LPAREN sum_int RPAREN
     ;
 
