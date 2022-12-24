@@ -15,6 +15,7 @@
     } while (0);
 
 ListRangeVariable listRangeVariable;
+ListIdentifierOrder listIdentifierOrder;
 ListTmp listTmp;
 FILE *outFile;
 
