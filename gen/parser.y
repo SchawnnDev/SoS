@@ -164,7 +164,7 @@ function_call : id list_operand
     | id
     ;
 
-id : WORD { log_trace("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) AddIdentifier($1); }
+id : WORD { log_trace("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
     ;
 
 int : WORD { log_trace("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); AddIntoListTmp($1); }

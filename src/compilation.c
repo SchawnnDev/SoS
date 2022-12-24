@@ -34,6 +34,16 @@ void assignArray() {
 
 }
 
+void addIdOrder(char * name)
+{
+    addIdentifierOrder(listIdentifierOrder,name);
+}
+
+void setTypeOrder(int type)
+{
+
+}
+
 void AddIntoListTmp(char *value) {
     addIntoListTmp(listTmp, value);
 }

@@ -21,7 +21,9 @@ FILE *outFile;
 
 void initStruct();
 
-void AddIdentifier(char *name);
+void addIdOrder(char *name);
+
+void assign();
 
 void AddIntoListTmp(char *value);
 
