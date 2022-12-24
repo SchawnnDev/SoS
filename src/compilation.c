@@ -72,7 +72,7 @@ int checkWordIsId(const char *word) {
 }
 
 int checkWordIsInt(const char *word) {
-    return checkRegex("[+-]?\\d+", word);
+    return checkRegex("^[+-]?[0-9]+", word);
 }
 
 int parseInt32(const char *word) {
@@ -91,4 +91,15 @@ int parseInt32(const char *word) {
     }
 
     return (int) parsed;
+}
+
+/**
+*  MIPS CODE GENERATION
+*/
+
+int asm_syscall(syscall_t type) {
+    log_trace("asm_syscall of type %s", stringFromSyscall(type))
+    asm_fprintf("li $v0, %d\n", type)
+    asm_fprintf("syscall\n")
+    return RETURN_SUCCESS;
 }

@@ -40,7 +40,7 @@ add_library(
         include/listRangeVar.h
         include/listTmp.h
         include/utils.h
-        include/variable.h)
+        include/variable.h include/bool_expr.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include "${BIN_DIR}")
