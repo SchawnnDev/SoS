@@ -166,6 +166,7 @@ int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp 
     log_trace("setValuesOfIdentifierFromListTmp (ListIdentifier %p, int %d, ListTmp %p)",addr,position,addrTmp)
     CHECKPOINTER(addr);
     CHECKPOINTER(addrTmp);
+    CHECKPOINTER(addrTmp->cursor);
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
@@ -186,14 +187,14 @@ int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp 
 
     char** newAddr;
     CHECKPOINTER(newAddr = (char**)malloc(sizeof(char*) * (addr->Identifiers[position]->arraySize)));
-    size = addrTmp->numberValues;
+    size = addrTmp->cursor->numberValues;
     ulong sizeStr;
 
     for(index = 0; index < size; index ++){
-        sizeStr = strlen( addrTmp->values[index]) + 1;
+        sizeStr = strlen( addrTmp->cursor->values[index]) + 1;
         CHECKPOINTER(newAddr[index] = (char*)malloc(sizeof(char) * sizeStr));
-        CHECKPOINTER(addrTmp->values[index]);
-        CHECKPOINTER(strcpy(newAddr[index],addrTmp->values[index]));
+        CHECKPOINTER(addrTmp->cursor->values[index]);
+        CHECKPOINTER(strcpy(newAddr[index],addrTmp->cursor->values[index]));
     }
 
     addr->Identifiers[position]->values = newAddr;
