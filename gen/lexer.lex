@@ -27,6 +27,7 @@ THEN "then"
 FI "fi"
 CASE "case"
 ESAC "esac"
+EXPR "expr"
 LBRACKET "["
 RBRACKET "]"
 LPAREN "("
@@ -49,10 +50,10 @@ NEQ "!="
 BOR "|"
 SPACE [ ]
 COMMENT #.*
-QUOTED_STRING \"(\\.|[^'\\])*\"
-APOSTROPHED_STRING \"(\\.|[^'\\])*\"
+QUOTED_STRING \"(\\.|[^"\\])*\"
+APOSTROPHED_STRING \'(\\.|[^'\\])*\'
 
-WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9]*
+WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 
 %%
 {COMMENT} { log_debug("comment; ignoring"); }
@@ -73,24 +74,25 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9]*
 {RETURN} { return RETURN; }
 {ECHO_CALL} { return ECHO_CALL; }
 {READ} { return READ; }
-{FOR} { return FOR; }
+{FOR} { log_debug("FOR"); return FOR; }
 {WHILE} { return WHILE; }
 {UNTIL} { return UNTIL; }
-{DO} { return DO; }
-{IN} { return IN; }
+{DO} { log_debug("DO"); return DO; }
+{IN} { log_debug("IN"); return IN; }
 {IF} { return IF; }
 {ELIF} { return ELIF; }
 {ELSE} { return ELSE; }
 {TEST} { return TEST; }
 {THEN} { return THEN; }
 {FI} { return FI; }
-{DONE} { return DONE; }
+{DONE} { log_debug("DONE"); return DONE; }
 {CASE} { return CASE; }
 {ESAC} { return ESAC; }
+{EXPR} { return EXPR; }
 {LBRACKET} { return LBRACKET; }
 {RBRACKET} { return RBRACKET; }
 {LPAREN} { return LPAREN; }
-{RPAREN} { return RPAREN; }
+{RPAREN} { log_debug("RPAREN"); return RPAREN; }
 {LBRACE} { log_debug("LBRACE"); return LBRACE; }
 {RBRACE} { log_debug("RBRACE"); return RBRACE; }
 {QUOTE} { return QUOTE; }
@@ -99,7 +101,7 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9]*
 {SEMICOLON} {log_debug("SEMICOLON : %s",yytext); return SEMICOLON; }
 {EXCL} { return EXCL; }
 {DOLLAR} { return DOLLAR; }
-{PLUS} { return PLUS; }
+{PLUS} { log_debug("PLUS"); return PLUS; }
 {MINUS} { return MINUS; }
 {MULT} { return MULT; }
 {DIV} { return DIV; }
