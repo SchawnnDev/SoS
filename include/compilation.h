@@ -23,11 +23,11 @@ void initStruct();
 
 void addIdOrder(char *name);
 
+void setTypeOrder(int type);
+
 void assign();
 
-void AddIntoListTmp(char *value);
-
-void SetValuesFromListTmp(char *name);
+void addValueIntoListTmp(char *value);
 
 int compile(FILE *inputFile, FILE *outputFile);
 

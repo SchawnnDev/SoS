@@ -9,6 +9,10 @@ int errorType(const char *msg, ...) {
     return (EXIT_FAILURE);
 }
 
+/*!
+ * \fn void initStruct()
+ * \brief Fonction qui initialise les structures
+*/
 void initStruct() {
     log_trace("Started initStruct")
     listRangeVariable = initListRangeVariable();
@@ -16,6 +20,15 @@ void initStruct() {
     listTmp = initListTmp();
 }
 
+/*!
+ * \fn int compile(FILE *inputFile, FILE *outputFile)
+ * \brief Fonction qui démarre la compilation
+ *
+ * \param inputFile : FILE*, le file descriptor du fichier à compiler
+ * \param outputFile : FILE*, le file descriptor du fichier de sortie
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
 int compile(FILE *inputFile, FILE *outputFile) {
     log_trace("Started compile (%d, %d)", inputFile, outputFile)
     initStruct();
@@ -24,34 +37,52 @@ int compile(FILE *inputFile, FILE *outputFile) {
     return yyparse();
 }
 
+/*!
+ * \fn void assign()
+ * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
+*/
 void assign() {
     addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
     setType(listRangeVariable,listIdentifierOrder->cursor->name,listIdentifierOrder->cursor->type);
     setValuesFromListTmp(listRangeVariable,listIdentifierOrder->cursor->name,listTmp);
+    cleanListTmp(listTmp);
+    listTmp = initListTmp();
 }
 
 void assignArray() {
 
 }
 
+/*!
+ * \fn void addIdOrder(char * name)
+ * \brief Fonction qui ajoute l'identifiant à la liste des ordes d'appartion des identificateurs
+ *
+ * \param name : char*, le nom de l'identificateur
+*/
 void addIdOrder(char * name)
 {
     addIdentifierOrder(listIdentifierOrder,name);
 }
 
+/*!
+ * \fn void setTypeOrder(int type)
+ * \brief Fonction qui modfifie le type de l'identifiant contenu dans la liste des ordes d'appartion des identificateurs
+ *
+ * \param name : char*, le nom de l'identificateur
+*/
 void setTypeOrder(int type)
 {
-
+    setTypeIdentifierOrder(listIdentifierOrder,type);
 }
 
-void AddIntoListTmp(char *value) {
+/*!
+ * \fn void setTypeOrder(int type)
+ * \brief Fonction qui remplie la liste temporaire
+ *
+ * \param value : char*, le contenue
+*/
+void addValueIntoListTmp(char *value) {
     addIntoListTmp(listTmp, value);
-}
-
-void SetValuesFromListTmp(char *name) {
-    setValuesFromListTmp(listRangeVariable, name, listTmp);
-    cleanListTmp(listTmp);
-    listTmp = initListTmp();
 }
 
 int checkRegex(const char *pattern, const char *string) {
