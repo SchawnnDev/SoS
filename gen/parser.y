@@ -41,7 +41,7 @@ instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", 
     | DECLARE id LBRACKET int RBRACKET
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
-    | FOR id IN list_instructions DO list_instructions DONE
+    | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
@@ -172,7 +172,7 @@ function_call : id list_operand
 id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
     ;
 
-int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER);}
+int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER); }
     ;
 
 %%

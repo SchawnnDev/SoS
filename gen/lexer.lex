@@ -74,11 +74,11 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {RETURN} { return RETURN; }
 {ECHO_CALL} { return ECHO_CALL; }
 {READ} { return READ; }
-{FOR} { return FOR; }
+{FOR} { log_debug("FOR"); return FOR; }
 {WHILE} { return WHILE; }
 {UNTIL} { return UNTIL; }
-{DO} { return DO; }
-{IN} { return IN; }
+{DO} { log_debug("DO"); return DO; }
+{IN} { log_debug("IN"); return IN; }
 {IF} { return IF; }
 {ELIF} { return ELIF; }
 {ELSE} { return ELSE; }
