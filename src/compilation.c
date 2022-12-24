@@ -43,7 +43,6 @@ int compile(FILE *inputFile, FILE *outputFile) {
 */
 void assign() {
     addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
-    setType(listRangeVariable,listIdentifierOrder->cursor->name,listIdentifierOrder->cursor->type);
     setValuesFromListTmp(listRangeVariable,listIdentifierOrder->cursor->name,listTmp);
     cleanListTmp(listTmp);
     listTmp = initListTmp();
@@ -72,6 +71,7 @@ void addIdOrder(char * name)
 */
 void setTypeOrder(int type)
 {
+    log_trace("setTypeOrder (int %d)", type);
     setTypeIdentifierOrder(listIdentifierOrder,type);
 }
 

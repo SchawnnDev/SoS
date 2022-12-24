@@ -39,7 +39,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET int RBRACKET
-    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { ""
+    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { ""; }
     | FOR id DO list_instructions DONE
     | FOR id IN list_instructions DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
