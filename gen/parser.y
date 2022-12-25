@@ -181,3 +181,10 @@ int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueInt
     ;
 
 %%
+
+int yyerror (char * s)
+{
+    int i; char c;
+    fprintf(stderr, "syntax error: %s\n", s);
+    fprintf(stderr, "    at line %d, character '%s'\n", yylineno, yytext);
+}
