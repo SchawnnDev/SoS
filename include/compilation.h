@@ -89,7 +89,28 @@ static const char *syscallStrings[] = {
 };
 
 static inline const char *stringFromSyscall(syscall_t syscall) {
-    return syscallStrings[syscall];
+    switch (syscall) {
+        case PRINT_INT:
+            return "print_int";
+        case PRINT_STRING:
+            return "print_string";
+        case READ_INT:
+            return "read_int";
+        case READ_STRING:
+            return "read_string";
+        case SBRK:
+            return "sbrk";
+        case SYS_EXIT:
+            return "exit";
+        case PRINT_CHAR:
+            return "print_char";
+        case READ_CHAR:
+            return "read_char";
+        case SYS_EXIT2:
+            return "exit2";
+        default:
+            return "unknown";
+    }
 }
 
 // Boolean expression
