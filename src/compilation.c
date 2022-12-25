@@ -18,6 +18,7 @@ void initStruct() {
     listRangeVariable = initListRangeVariable();
     listIdentifierOrder = initListIdentifierOrder();
     listTmp = initListTmp();
+    currentOperation = UNSET;
 }
 
 /*!
@@ -100,9 +101,10 @@ void echo(){
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-void multiply()
+void doOperation()
 {
-
+    operationListTmp(listTmp, currentOperation);
+    currentOperation = UNSET;
 }
 
 int checkRegex(const char *pattern, const char *string) {

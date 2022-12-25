@@ -146,19 +146,19 @@ int operationListTmp(ListTmp addr, int operation)
     char* res = (char*)malloc(sizeof(char) * SIZE_INT_STR);
 
     switch (operation) {
-        case PLUS:
+        case PLUS_OPE:
             sprintf(res,"%d", (val1 + val2));
             addIntoListTmp(addr, res);
             break;
-        case MINUS:
+        case MINUS_OPE:
             sprintf(res,"%d", (val1 - val2));
             addIntoListTmp(addr, res);
             break;
-        case MULT:
+        case MULT_OPE:
             sprintf(res,"%d", (val1 * val2));
             addIntoListTmp(addr, res);
             break;
-        case DIV:
+        case DIV_OPE:
             if(val2 == 0){
                 log_error("denominator : %p",val2)
                 perror("operationListTmp : you can't divide by zero.");
@@ -167,7 +167,7 @@ int operationListTmp(ListTmp addr, int operation)
             sprintf(res,"%d", (val1 / val2));
             addIntoListTmp(addr, res);
             break;
-        case MOD:
+        case MOD_OPE:
             sprintf(res,"%d", (val1 % val2));
             addIntoListTmp(addr, res);
             break;
