@@ -1,3 +1,6 @@
-i = $(expr 5 / 0 * 7);
+b = 7;
+i = $(expr 25 / 5 * 7);
+
 echo ${i};
+echo ${b};
 exit

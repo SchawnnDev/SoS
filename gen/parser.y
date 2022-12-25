@@ -25,7 +25,7 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 concatenations addTmpValuesListTmp
+%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp
 %start program
 
 %%
@@ -36,7 +36,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
     | instructions {log_debug("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
+instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET int RBRACKET
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
@@ -79,12 +79,7 @@ list_operand : list_operand operand
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
-concatenation : addTmpValuesListTmp concatenations
-    ;
-
-addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
-
-concatenations : concatenations operand { log_debug("concat : %s %s", $1, $2); }
+concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
     | operand { log_debug("concatenation"); }
     ;
 
@@ -113,7 +108,7 @@ test_instruction : concatenation ASSIGN concatenation
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD {log_debug("operand : WORD (%s)", $1);}
+    | WORD {log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1);}
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
@@ -179,6 +174,8 @@ id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdO
 
 int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER); }
     ;
+
+addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
 
 %%
 
