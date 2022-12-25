@@ -176,9 +176,3 @@ int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueInt
     ;
 
 %%
-
-int yyerror (char * s)
-{
-    fprintf(stderr, "%s at line %d, column\n", s, yylineno);
-    return 0;
-}

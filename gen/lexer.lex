@@ -117,3 +117,16 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {WORD} { yylval.strval = yytext; log_debug("WORD: %s", yytext); return WORD; }
 
 %%
+
+int yyerror (char * s)
+{
+    int i;
+    fprintf(stderr, "syntax error: %s\n", s);
+    fprintf(stderr, "    at line %d, character '%s'\n", yylloc.first_line, yytext);
+    fprintf(stderr, "    %s\n", yyinput);
+    fprintf(stderr, "    ");
+    for (i = 1; i < yylloc.first_column; i++) {
+        fprintf(stderr, " ");
+    }
+    fprintf(stderr, "^\n");
+}
