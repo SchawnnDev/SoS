@@ -100,7 +100,7 @@ void echo(){
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-void multiplyFromTmp()
+void multiply()
 {
 
 }

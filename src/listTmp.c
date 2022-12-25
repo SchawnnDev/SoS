@@ -129,3 +129,53 @@ int deleteListTmp(ListTmp addr)
 
     return RETURN_SUCCESS;
 }
+
+/*!
+ * \fn int operationListTmp(ListTmp addr, int operation)
+ * \brief Fonction qui de faire une opération sur les deux derniers éléments de la liste temporaire
+*/
+int operationListTmp(ListTmp addr, int operation)
+{
+    log_trace("operationListTmp (ListTmp %p, int %d)", addr, operation)
+    CHECKPOINTER(addr);
+
+    int val1 = atoi(addr->cursor->values[addr->cursor->numberValues]);
+    deleteListTmp(addr);
+    int val2 = atoi(addr->cursor->values[addr->cursor->numberValues]);
+    deleteListTmp(addr);
+    char* res = (char*)malloc(sizeof(char) * SIZE_INT_STR);
+
+    switch (operation) {
+        case PLUS:
+            sprintf(res,"%d", (val1 + val2));
+            addIntoListTmp(addr, res);
+            break;
+        case MINUS:
+            sprintf(res,"%d", (val1 - val2));
+            addIntoListTmp(addr, res);
+            break;
+        case MULT:
+            sprintf(res,"%d", (val1 * val2));
+            addIntoListTmp(addr, res);
+            break;
+        case DIV:
+            if(val2 == 0){
+                log_error("denominator : %p",val2)
+                perror("operationListTmp : you can't divide by zero.");
+                return RETURN_FAILURE;
+            }
+            sprintf(res,"%d", (val1 / val2));
+            addIntoListTmp(addr, res);
+            break;
+        case MOD:
+            sprintf(res,"%d", (val1 % val2));
+            addIntoListTmp(addr, res);
+            break;
+        default:
+            log_error("cursor : %p",addr->cursor)
+            perror("deleteListTmp : there is no TmpValues to delete.");
+            return RETURN_FAILURE;
+    }
+
+    return RETURN_SUCCESS;
+}

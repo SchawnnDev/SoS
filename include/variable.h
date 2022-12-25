@@ -19,5 +19,11 @@
 #define MAXTYPEVALUE 5 /* /!\  A modifier lors de l'ajout ou suppression d'un type */
 
 /* Operations */
+#define PLUS 0
+#define MINUS 1
+#define MULT 2
+#define DIV 3
+#define MOD 4
+#define SIZE_INT_STR 12
 
 #endif

@@ -37,7 +37,7 @@ void addValueIntoListTmp(char *value);
 
 void echo();
 
-void multiplyFromTmp();
+void multiply();
 
 int compile(FILE *inputFile, FILE *outputFile);
 
