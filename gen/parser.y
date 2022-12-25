@@ -135,11 +135,11 @@ operator2 : ARG_EQ
     | ARG_LE
     ;
 
-sum_int : sum_int plus_or_minus mult_int
+sum_int : sum_int plus_or_minus mult_int {doOperation();}
     | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
-mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); }
+mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); doOperation(); }
     | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
