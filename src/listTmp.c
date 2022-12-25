@@ -39,7 +39,7 @@ void cleanTmpValues(TmpValues addr)
 */
 ListTmp initListTmp()
 {
-    log_trace("initListRangeVariable (void)")
+    log_trace("initListTmp (void)")
 
     ListTmp addr;
     CHECKPOINTER(addr = (ListTmp)malloc(sizeof(listTmp_t)));

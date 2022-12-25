@@ -42,10 +42,10 @@ int compile(FILE *inputFile, FILE *outputFile) {
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
 void assign() {
+    log_trace("assign (void)")
     addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
     setValuesFromListTmp(listRangeVariable,listIdentifierOrder->cursor->name,listTmp);
-    cleanListTmp(listTmp);
-    listTmp = initListTmp();
+    deleteListTmp(listTmp);
 }
 
 void assignArray() {
@@ -73,6 +73,14 @@ void setTypeOrder(int type)
 {
     log_trace("setTypeOrder (int %d)", type);
     setTypeIdentifierOrder(listIdentifierOrder,type);
+}
+
+/*!
+ * \fn void addTmpValuesListTmp
+ * \brief Fonction qui ajoute une structure de valeur temporaire
+*/
+void addTmpValuesListTmp() {
+    addListTmp( listTmp, initTmpValues(listTmp->cursor) );
 }
 
 /*!

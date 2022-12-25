@@ -25,6 +25,12 @@ void addIdOrder(char *name);
 
 void setTypeOrder(int type);
 
+/*!
+ * \fn void addTmpValuesListTmp
+ * \brief Fonction qui ajoute une structure de valeur temporaire
+*/
+void addTmpValuesListTmp();
+
 void assign();
 
 void addValueIntoListTmp(char *value);
