@@ -45,7 +45,7 @@ instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", 
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO_CALL list_operand
+    | ECHO_CALL list_operand {echo();}
     | READ id
     | READ id LBRACKET operand_int RBRACKET
     | declare_fct
@@ -112,7 +112,7 @@ test_instruction : concatenation ASSIGN concatenation
     ;
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
-	| DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | WORD {log_debug("operand : WORD (%s)", $1);}
     | DOLLAR int
     | DOLLAR MULT
@@ -139,13 +139,13 @@ sum_int : sum_int plus_or_minus mult_int
     | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
-mult_int : mult_int mult_div_mod operand_int
-    | operand_int
+mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); }
+    | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
 operand_int : DOLLAR LBRACE id RBRACE
-	| DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-	| DOLLAR int
+    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | DOLLAR int
     | plus_or_minus DOLLAR LBRACE id RBRACE
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
     | plus_or_minus DOLLAR  int

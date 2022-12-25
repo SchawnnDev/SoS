@@ -35,6 +35,10 @@ void assign();
 
 void addValueIntoListTmp(char *value);
 
+void echo();
+
+void multiplyFromTmp();
+
 int compile(FILE *inputFile, FILE *outputFile);
 
 /**

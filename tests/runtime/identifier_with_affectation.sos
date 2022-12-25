@@ -1,4 +1,3 @@
-# hello
-index=10;
-tab[5]=10;
+i = $(expr 5 * 10 * 7);
+echo ${i};
 exit

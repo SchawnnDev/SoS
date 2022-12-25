@@ -383,3 +383,20 @@ int deleteIdentifierOrder(ListIdentifierOrder addr)
 
     return RETURN_SUCCESS;
 }
+
+/*!
+ * \fn int printIdentifierFromListRange(ListRangeVariable addr,char* name)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+*/
+int printIdentifierFromListRange(ListRangeVariable addr,char* name)
+{
+    log_trace("printIdentifierFromListRange (ListRangeVariable %p, char* %s)", addr, name)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+    return printIdentifier(variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier);
+}
