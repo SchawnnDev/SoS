@@ -181,6 +181,7 @@ addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
 
 int yyerror (char * s)
 {
-    fprintf(stderr, "%s at line %d, column\n", s, yylineno);
-    return 0;
+    int i; char c;
+    fprintf(stderr, "syntax error: %s\n", s);
+    fprintf(stderr, "    at line %d, character '%s'\n", yylineno, yytext);
 }

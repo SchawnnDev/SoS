@@ -1,6 +1,8 @@
 %option noyywrap yylineno
 
 %{
+#define YYERROR_VERBOSE 1
+
 #include "parser.h"
 #include "string.h"
 #include "log.h"
@@ -100,7 +102,7 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {ASSIGN} { log_debug("ASSIGN"); return ASSIGN; }
 {SEMICOLON} {log_debug("SEMICOLON : %s",yytext); return SEMICOLON; }
 {EXCL} { return EXCL; }
-{DOLLAR} { return DOLLAR; }
+{DOLLAR} { log_debug("DOLLAR"); return DOLLAR; }
 {PLUS} { log_debug("PLUS"); return PLUS; }
 {MINUS} { return MINUS; }
 {MULT} { return MULT; }
