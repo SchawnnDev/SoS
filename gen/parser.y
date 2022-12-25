@@ -25,7 +25,7 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1
+%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 concatenations addTmpValuesListTmp
 %start program
 
 %%
@@ -79,7 +79,12 @@ list_operand : list_operand operand
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
-concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
+concatenation : addTmpValuesListTmp concatenations
+    ;
+
+addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
+
+concatenations : concatenations operand { log_debug("concat : %s %s", $1, $2); }
     | operand { log_debug("concatenation"); }
     ;
 

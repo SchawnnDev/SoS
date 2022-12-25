@@ -179,9 +179,11 @@ int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp 
     if(addr->Identifiers[position]->values != NULL){
         log_info("Identifier will be freed.")
 
+        /* ToDo
         for(index = 0; index < size; index++){
             free(addr->Identifiers[position]->values[index]);
-        }
+
+         }*/
         free(addr->Identifiers[position]->values);
     }
 
