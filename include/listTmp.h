@@ -79,4 +79,15 @@ void addListTmp(ListTmp addr,TmpValues addrTmpValues);
 */
 int deleteListTmp(ListTmp addr);
 
+/*!
+ * \fn int operationListTmp(ListTmp addr, int operation)
+ * \brief Fonction qui de faire une opération sur les deux derniers éléments de la liste temporaire
+ *
+ * \param addr : ListTmp, la liste des valeurs temporaires
+ * \param operation : int, l'opération que l'on souhaite faire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int operationListTmp(ListTmp addr, int operation);
+
 #endif

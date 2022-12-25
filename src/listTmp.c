@@ -129,3 +129,63 @@ int deleteListTmp(ListTmp addr)
 
     return RETURN_SUCCESS;
 }
+
+/*!
+ * \fn int operationListTmp(ListTmp addr, int operation)
+ * \brief Fonction qui de faire une opération sur les deux derniers éléments de la liste temporaire
+*/
+int operationListTmp(ListTmp addr, int operation)
+{
+    log_trace("operationListTmp (ListTmp %p, int %d)", addr, operation)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(addr->cursor);
+
+    if(addr->cursor->numberValues < 2){
+        log_error("numberValues : %d",addr->cursor->numberValues)
+        perror("operationListTmp : you must have two values.");
+        return RETURN_FAILURE;
+    }
+
+    int val1 = atoi(addr->cursor->values[addr->cursor->numberValues-2]);
+    int val2 = atoi(addr->cursor->values[addr->cursor->numberValues-1]);
+    deleteListTmp(addr);
+    addListTmp(addr, initTmpValues(addr->cursor));
+
+    char* res;
+    CHECKPOINTER(res = (char*)malloc(sizeof(char) * SIZE_INT_STR));
+    int returnValue;
+
+    switch (operation) {
+        case PLUS_OPE:
+            CHECK(sprintf(res,"%d", (val1 + val2)));
+            returnValue = addIntoListTmp(addr, res);
+            break;
+        case MINUS_OPE:
+            CHECK(sprintf(res,"%d", (val1 - val2)));
+            returnValue = addIntoListTmp(addr, res);
+            break;
+        case MULT_OPE:
+            CHECK(sprintf(res,"%d", (val1 * val2)));
+            returnValue = addIntoListTmp(addr, res);
+            break;
+        case DIV_OPE:
+            if(val2 == 0){
+                log_error("denominator : %d",val2)
+                perror("operationListTmp : you can't divide by zero.");
+                return RETURN_FAILURE;
+            }
+            CHECK(sprintf(res,"%d", (val1 / val2)));
+            returnValue = addIntoListTmp(addr, res);
+            break;
+        case MOD_OPE:
+            CHECK(sprintf(res,"%d", (val1 % val2)));
+            returnValue = addIntoListTmp(addr, res);
+            break;
+        default:
+            log_error("cursor : %p",addr->cursor)
+            perror("deleteListTmp : there is no TmpValues to delete.");
+            returnValue =  RETURN_FAILURE;
+    }
+
+    return returnValue;
+}

@@ -123,6 +123,17 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
 int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
 
 /*!
+ * \fn int printIdentifier(ListIdentifier addr,int position)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param position : int, la position de l'identificateur dans la liste des identificateurs
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int printIdentifier(ListIdentifier addr,int position);
+
+/*!
  * \fn void printListIdentifier(ListIdentifier addr)
  * \brief Fonction affiche l'état actuelle de la liste des identificateurs
  *

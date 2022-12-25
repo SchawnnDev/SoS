@@ -175,11 +175,12 @@ int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp 
     }
 
     ulong index;
-    ulong size = addr->Identifiers[position]->arraySize;
+    ulong size;
     if(addr->Identifiers[position]->values != NULL){
         log_info("Identifier will be freed.")
-
         /* ToDo
+        size = addr->Identifiers[position]->arraySize;
+
         for(index = 0; index < size; index++){
             free(addr->Identifiers[position]->values[index]);
 
@@ -274,6 +275,33 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
 }
 
 /*!
+ * \fn int printIdentifier(ListIdentifier addr,int position)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+*/
+int printIdentifier(ListIdentifier addr,int position)
+{
+    log_trace("printIdentifier (ListIdentifier %p, int %d)",addr,position)
+    CHECKPOINTER(addr);
+
+    if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
+        perror("printIdentifier : can not print values of non-existent identifier.");
+        return RETURN_FAILURE;
+    }
+
+    printf("position : %d, name %s, values : %s",position,addr->Identifiers[position]->name,addr->Identifiers[position]->values[0]);
+
+    int index;
+    int numberValues = addr->Identifiers[position]->arraySize;
+    for(index = 1; index < numberValues; index++){
+        printf(", %s",addr->Identifiers[position]->values[index]);
+    }
+    printf("\n");
+
+    return RETURN_SUCCESS;
+}
+
+/*!
  * \fn void printListIdentifier(ListIdentifier addr)
  * \brief Fonction affiche l'état actuelle de la liste des identificateurs
 */
@@ -282,17 +310,10 @@ void printListIdentifier(ListIdentifier addr)
     log_trace("printListIdentifier (ListIdentifier %p)",addr)
     CHECKPOINTER(addr);
 
-    int index,valuesIndex;
+    int index;
     int size = addr->numberIdentifiers;
-    int numberValues;
 
     for(index = 0; index < size; index++){
-        printf("index : %d, name %s, values : %s",index,addr->Identifiers[index]->name,addr->Identifiers[index]->values[0]);
-        numberValues = addr->Identifiers[index]->arraySize;
-
-        for(valuesIndex = 1; valuesIndex < numberValues; valuesIndex++){
-            printf(", %s",addr->Identifiers[index]->values[valuesIndex]);
-        }
-        printf("\n");
+        printIdentifier(addr,index);
     }
 }

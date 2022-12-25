@@ -243,5 +243,15 @@ int setIndexIdentifierOrder(ListIdentifierOrder addr, int index);
 */
 int deleteIdentifierOrder(ListIdentifierOrder addr);
 
+/*!
+ * \fn int printIdentifierFromListRange(ListRangeVariable addr,char* name)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param position : int, la position de l'identificateur dans la liste des identificateurs
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int printIdentifierFromListRange(ListRangeVariable addr,char* name);
 
 #endif

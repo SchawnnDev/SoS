@@ -18,6 +18,7 @@ ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
 ListTmp listTmp;
 FILE *outFile;
+int currentOperation;
 
 void initStruct();
 
@@ -34,6 +35,10 @@ void addTmpValuesListTmp();
 void assign();
 
 void addValueIntoListTmp(char *value);
+
+void echo();
+
+void doOperation();
 
 int compile(FILE *inputFile, FILE *outputFile);
 

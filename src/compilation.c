@@ -18,6 +18,7 @@ void initStruct() {
     listRangeVariable = initListRangeVariable();
     listIdentifierOrder = initListIdentifierOrder();
     listTmp = initListTmp();
+    currentOperation = UNSET;
 }
 
 /*!
@@ -46,6 +47,7 @@ void assign() {
     addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
     setValuesFromListTmp(listRangeVariable,listIdentifierOrder->cursor->name,listTmp);
     deleteListTmp(listTmp);
+    deleteIdentifierOrder(listIdentifierOrder);
 }
 
 void assignArray() {
@@ -91,6 +93,18 @@ void addTmpValuesListTmp() {
 */
 void addValueIntoListTmp(char *value) {
     addIntoListTmp(listTmp, value);
+}
+
+/* ToDo : version 1*/
+void echo(){
+    printIdentifierFromListRange(listRangeVariable, listIdentifierOrder->cursor->name);
+    deleteIdentifierOrder(listIdentifierOrder);
+}
+
+void doOperation()
+{
+    operationListTmp(listTmp, currentOperation);
+    currentOperation = UNSET;
 }
 
 int checkRegex(const char *pattern, const char *string) {
