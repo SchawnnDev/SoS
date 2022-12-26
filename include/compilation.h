@@ -125,4 +125,5 @@ int asm_printNotEquals(const char *id1, const char *id2);
 
 int asm_syscall(syscall_t type);
 
+
 #endif //SOS_COMPILATION_H

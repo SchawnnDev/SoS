@@ -45,7 +45,7 @@ int compile(FILE *inputFile, FILE *outputFile) {
 void assign() {
     log_trace("assign (void)")
     addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
-    setValuesFromListTmp(listRangeVariable,listIdentifierOrder->cursor->name,listTmp);
+    setValuesFromListTmp(listRangeVariable, listIdentifierOrder->cursor->name, listTmp);
     deleteListTmp(listTmp);
     deleteIdentifierOrder(listIdentifierOrder);
 }
@@ -60,9 +60,8 @@ void assignArray() {
  *
  * \param name : char*, le nom de l'identificateur
 */
-void addIdOrder(char * name)
-{
-    addIdentifierOrder(listIdentifierOrder,name);
+void addIdOrder(char *name) {
+    addIdentifierOrder(listIdentifierOrder, name);
 }
 
 /*!
@@ -71,10 +70,9 @@ void addIdOrder(char * name)
  *
  * \param name : char*, le nom de l'identificateur
 */
-void setTypeOrder(int type)
-{
+void setTypeOrder(int type) {
     log_trace("setTypeOrder (int %d)", type);
-    setTypeIdentifierOrder(listIdentifierOrder,type);
+    setTypeIdentifierOrder(listIdentifierOrder, type);
 }
 
 /*!
@@ -82,7 +80,7 @@ void setTypeOrder(int type)
  * \brief Fonction qui ajoute une structure de valeur temporaire
 */
 void addTmpValuesListTmp() {
-    addListTmp( listTmp, initTmpValues(listTmp->cursor) );
+    addListTmp(listTmp, initTmpValues(listTmp->cursor));
 }
 
 /*!
@@ -96,13 +94,12 @@ void addValueIntoListTmp(char *value) {
 }
 
 /* ToDo : version 1*/
-void echo(){
+void echo() {
     printIdentifierFromListRange(listRangeVariable, listIdentifierOrder->cursor->name);
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-void doOperation()
-{
+void doOperation() {
     operationListTmp(listTmp, currentOperation);
     currentOperation = UNSET;
 }
@@ -166,6 +163,20 @@ int parseInt32(const char *word) {
 /**
 *  MIPS CODE GENERATION
 */
+
+int sections = 0;
+
+int asm_writeSection(int section) {
+    // Check if session is not already written
+    if (sections & section)
+        return RETURN_FAILURE;
+    if (section == SECTION_DATA)
+        asm_fprintf(".data\n")
+    if (section == SECTION_TEXT)
+        asm_fprintf(".text\n")
+    sections = sections | section;
+    return RETURN_SUCCESS;
+}
 
 int asm_syscall(syscall_t type) {
     log_trace("asm_syscall of type %s", stringFromSyscall(type))
