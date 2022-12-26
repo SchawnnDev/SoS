@@ -7,6 +7,7 @@
 #define TEXT_TAB_MAX 100
 #define DATA_TAB_MAX 100
 #define CODE_TAB_MAX 100
+#define ASM_PRINTF_BUF_MAX 256
 
 /* Error */
 #define NOTFOUND -1

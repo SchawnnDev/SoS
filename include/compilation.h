@@ -7,19 +7,20 @@
 #include "listInstructionMips.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
-#define asm_code_fprintf(...) \
+#define asm_code_printf(...) \
     do { \
-        if (fprintf(outFile, __VA_ARGS__) < 0) { \
-            log_error(strerror(errno)); \
+        char buf[ASM_PRINTF_BUF_MAX]; \
+        if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
+            log_error(strerror(errno));  \
             return RETURN_FAILURE; \
-        }                \
+        } \
+        addIntoCode(listInstruction, buf); \
     } while (0);
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
 ListTmp listTmp;
 ListInstruction listInstruction;
-FILE *outFile;
 int currentOperation;
 
 void initStruct();

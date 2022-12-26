@@ -34,9 +34,10 @@ void initStruct() {
 int compile(FILE *inputFile, FILE *outputFile) {
     log_trace("Started compile (%d, %d)", inputFile, outputFile)
     initStruct();
-    outFile = outputFile == NULL ? stdout : outputFile;
     yyin = inputFile;
-    return yyparse();
+    int result = yyparse();
+    if(result != RETURN_SUCCESS) return result;
+    return writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
 }
 
 /*!
@@ -167,7 +168,7 @@ int parseInt32(const char *word) {
 
 int asm_syscall(syscall_t type) {
     log_trace("asm_syscall of type %s", stringFromSyscall(type))
-    asm_code_fprintf("li $v0, %d", type)
-    asm_code_fprintf("syscall")
+    asm_code_printf("li $v0, %d", type)
+    asm_code_printf("syscall")
     return RETURN_SUCCESS;
 }
