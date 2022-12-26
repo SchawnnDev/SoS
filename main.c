@@ -2,7 +2,6 @@
 #include <argtable3.h>
 #include <log.h>
 #include <errno.h>
-#include "listRangeVar.h"
 #include "compilation.h"
 
 /* global arg_xxx structs */

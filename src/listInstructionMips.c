@@ -228,21 +228,21 @@ void completeUnDefineGoto( ListInstruction addr, char* code )
         Code code = getFirstCodeCursor(list->cursorCode);
         CHECK(fprintf(file, ".data\n"));
 
-        while (data->previousData != NULL) {
+        do {
             for (int i = 0; i < data->numberData; ++i) {
                 CHECK(fprintf(file, "%s\n", data->lineData[i]));
             }
-            data = data->previousData;
-        }
+            data = data->nextData;
+        } while(data != NULL);
 
         CHECK(fprintf(file, ".text\n"));
 
-        while (code->previousCode != NULL) {
+        do {
             for (int i = 0; i < code->numberCode; ++i) {
                 CHECK(fprintf(file, "%s\n", code->lineCode[i]));
             }
-            code = code->previousCode;
-        }
+            code = code->nextCode;
+        } while (code != NULL);
 
         return RETURN_SUCCESS;
     }
