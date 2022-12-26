@@ -16,21 +16,6 @@ Data initData(Data previousData)
 }
 
 /*!
- * \fn Text initText( Text previousText)
- * \brief Fonction qui initialise la structure de Text
-*/
-Text initText(Text previousText)
-{
-    log_trace("initText (Text %p)",previousText)
-
-    Text addr;
-    CHECKPOINTER(addr = (Text)malloc(sizeof( struct text_t)));
-    addr->previousText = previousText;
-    addr->numberText = 0;
-    return addr;
-}
-
-/*!
  * \fn Code initCode( Code previousCode, int codeLevel)
  * \brief Fonction qui initialise la structure de code
 */
@@ -57,7 +42,6 @@ ListInstruction initListInstruction()
     ListInstruction addr;
     CHECKPOINTER(addr = (ListInstruction)malloc(sizeof( listInstruction_t)));
     addr->cursorData = initData(NULL);
-    addr->cursorText = initText(NULL);
     addr->cursorCode = initCode(NULL);
     return addr;
 }
@@ -75,26 +59,6 @@ void cleanData(Data addr)
     while(addrToFree != NULL){
         tmp = addrToFree->previousData;
         free(addr->lineData);
-        free(addrToFree);
-        addrToFree = tmp;
-    }
-
-    free(addr);
-}
-
-/*!
- * \fn void cleanText(Text addr)
- * \brief Fonction qui libère la mémoire de la structure text
-*/
-void cleanText(Text addr)
-{
-    log_trace("cleanText (Text %p)",addr)
-    CHECKPOINTER(addr);
-
-    Text tmp, addrToFree = addr;
-    while(addrToFree != NULL){
-        tmp = addrToFree->previousText;
-        free(addr->lineText);
         free(addrToFree);
         addrToFree = tmp;
     }
@@ -133,7 +97,6 @@ void cleanListInstruction(ListInstruction addr)
     CHECKPOINTER(addr);
 
     cleanData(addr->cursorData);
-    cleanText(addr->cursorText);
     cleanCode(addr->cursorCode);
 
     free(addr);
@@ -174,49 +137,8 @@ void addIntoData( ListInstruction addr, char* data)
 }
 
 /*!
- * \fn void addIntoText( ListInstruction addr)
- * \brief Fonction qui initialise une nouvelle structure de text
- *
- * \param addr : Data, la table précédante
-*/
-void addStructText( ListInstruction addr)
-{
-    log_trace("addStructText (ListInstruction %p)",addr)
-    CHECKPOINTER(addr);
-
-    addr->cursorText = initText(addr->cursorText);
-}
-
-/*!
- * \fn void addIntoText( ListInstruction addr, char* text)
- * \brief Fonction qui permet d'ajoute en fin de la structure de text
- *
- * \param addr : Data, la table précédante
- * \param text : char*, le code mips à stocker
-*/
-void addIntoText( ListInstruction addr, char* text)
-{
-    log_trace("addIntoText (ListInstruction %p, char* %s)",addr, text)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(text);
-
-    if(addr->cursorText->numberText >= TEXT_TAB_MAX){
-        log_info("struct Text is full, numberText %d", addr->cursorText->numberText)
-        addStructText(addr);
-    }
-
-    ulong size = strlen( text ) + 1;
-    CHECKPOINTER(addr->cursorText->lineText[addr->cursorText->numberText] = (char*)malloc(sizeof(char) * size));
-    CHECKPOINTER(strcpy(addr->cursorText->lineText[addr->cursorText->numberText],text));
-
-    addr->cursorText->numberText++;
-}
-
-/*!
  * \fn void addStructCode( ListInstruction addr)
  * \brief Fonction qui initialise une nouvelle structure de code
- *
- * \param addr : ListInstruction, la structure d'instruction
 */
 void addStructCode( ListInstruction addr)
 {
@@ -229,26 +151,38 @@ void addStructCode( ListInstruction addr)
 /*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
  * \brief Fonction qui permet d'ajoute en fin de la structure de code
- *
- * \param addr : ListInstruction, la structure d'instruction
- * \param code : char*, le code mips à stocker
 */
-void addIntoCode( ListInstruction addr, char* code)
+void addIntoCode( ListInstruction addr, char* code){
+    if(addr->cursorCode->numberCode >= CODE_TAB_MAX){
+        log_info("struct Code is full, numberCode %d", addr->cursorCode->numberCode)
+        addStructCode(addr);
+    }
+
+    addIntoCodeWithIndex(addr->cursorCode,code,addr->cursorCode->numberCode);
+    addr->cursorCode->numberCode++;
+}
+
+/*!
+ * \fn int addIntoCode(Code addr, char* code)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de code
+*/
+int addIntoCodeWithIndex(Code addr, char* code, int index)
 {
     log_trace("addIntoCode (ListInstruction %p, char* %s)",addr, code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
 
-    if(addr->cursorCode->numberCode >= TEXT_TAB_MAX){
-        log_info("struct Code is full, numberCode %d", addr->cursorCode->numberCode)
-        addStructCode(addr);
+    if((index < 0) || (index >= CODE_TAB_MAX)){
+        log_error("index out of range : position : %d",index)
+        perror("addIntoCodeWithIndex : can not set code of non-existent table index.");
+        return RETURN_FAILURE;
     }
 
     ulong size = strlen( code ) + 1;
-    CHECKPOINTER(addr->cursorCode->lineCode[addr->cursorCode->numberCode] = (char*)malloc(sizeof(char) * size));
-    CHECKPOINTER(strcpy(addr->cursorCode->lineCode[addr->cursorCode->numberCode],code));
+    CHECKPOINTER(addr->lineCode[index] = (char*)malloc(sizeof(char) * size));
+    CHECKPOINTER(strcpy(addr->lineCode[index],code));
 
-    addr->cursorCode->numberCode++;
+    return RETURN_SUCCESS;
 }
 
 /*!
@@ -262,4 +196,26 @@ void addIntoUnDefineGoto( ListInstruction addr)
 
     addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto] = addr->cursorCode->numberCode;
     addr->cursorCode->numberCode++;
+}
+
+/*!
+ * \fn void completeUnDefineGoto( ListInstruction addr, char* code )
+ * \brief Fonction qui permet d'ajoute un goto indéterminé
+*/
+void completeUnDefineGoto( ListInstruction addr, char* code )
+{
+    log_trace("completeUnDefineGoto (ListInstruction %p, char* %s)", addr, code)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(code);
+
+    int index;
+    Code addrTmp = addr->cursorCode;
+    while(addrTmp != NULL){
+        if(addrTmp->numberGoto != 0){
+            for(index = 0; index < addrTmp->numberGoto; index++){
+                addIntoCodeWithIndex(addrTmp,code,addrTmp->unDefineGoto[index]);
+            }
+        }
+        addrTmp = addrTmp->previousCode;
+    }
 }
