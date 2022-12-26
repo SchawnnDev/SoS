@@ -58,12 +58,9 @@ void cleanData(Data addr)
     Data tmp, addrToFree = addr;
     while(addrToFree != NULL){
         tmp = addrToFree->previousData;
-        free(addr->lineData);
         free(addrToFree);
         addrToFree = tmp;
     }
-
-    free(addr);
 }
 
 /*!
@@ -78,13 +75,9 @@ void cleanCode(Code addr)
     Code tmp, addrToFree = addr;
     while(addrToFree != NULL){
         tmp = addrToFree->previousCode;
-        free(addr->lineCode);
-        free(addr->unDefineGoto);
         free(addrToFree);
         addrToFree = tmp;
     }
-
-    free(addr);
 }
 
 /*!
@@ -195,6 +188,7 @@ void addIntoUnDefineGoto( ListInstruction addr)
     CHECKPOINTER(addr);
 
     addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto] = addr->cursorCode->numberCode;
+    addr->cursorCode->numberGoto++;
     addr->cursorCode->numberCode++;
 }
 
@@ -216,6 +210,7 @@ void completeUnDefineGoto( ListInstruction addr, char* code )
                 addIntoCodeWithIndex(addrTmp,code,addrTmp->unDefineGoto[index]);
             }
         }
+        addrTmp->numberGoto = 0;
         addrTmp = addrTmp->previousCode;
     }
 }
