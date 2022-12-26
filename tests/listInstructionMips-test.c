@@ -20,6 +20,7 @@ TEST initDataTest(void) {
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ(NULL, addr->previousData);
+    ASSERT_EQ(NULL, addr->nextData);
     ASSERT_NEQ(NULL, addr->lineData);
     ASSERT_EQ_FMT(0, addr->numberData,"%d");
     PASS();
@@ -33,6 +34,7 @@ TEST initCodeTest(void) {
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ(NULL, addr->previousCode);
+    ASSERT_EQ(NULL, addr->nextCode);
     ASSERT_NEQ(NULL, addr->lineCode);
     ASSERT_NEQ(NULL, addr->unDefineGoto);
     ASSERT_EQ_FMT(0, addr->numberCode,"%d");
@@ -148,6 +150,8 @@ TEST addIntoCodeFullTest(void) {
     ASSERT_EQ_FMT(1, addr->cursorCode->numberCode,"%d");
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[addr->cursorCode->numberCode-1]);
     ASSERT_NEQ(NULL, addr->cursorCode->previousCode);
+    ASSERT_EQ(NULL, addr->cursorCode->nextCode);
+    ASSERT_NEQ(NULL, addr->cursorCode->previousCode->nextCode);
     ASSERT_EQ_FMT(CODE_TAB_MAX, addr->cursorCode->previousCode->numberCode,"%d");
     PASS();
 }
@@ -221,7 +225,7 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
-    log_set_quiet(false); // No logs in tests
+    log_set_quiet(true); // No logs in tests
 
     RUN_TEST(initDataTest);
     RUN_TEST(initCodeTest);
