@@ -22,6 +22,17 @@ typedef struct {
     int indexIdentifier;
 } variablePosition_t, *VariablePosition;
 
+typedef struct identifierOrder_t {
+    char* name;
+    int type;
+    int index;
+    struct identifierOrder_t* previousIdentifier;
+} *IdentifierOrder;
+
+typedef struct {
+    IdentifierOrder cursor;
+} listIdentifierOrder_t, *ListIdentifierOrder;
+
 /*!
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
  * \brief Fonction qui initialise la structure de portée de variable
@@ -153,5 +164,119 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp);
+
+/*!
+ * \fn int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire avec la liste des identificateurs depuis la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp);
+
+/*!
+ * \fn int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire avec la liste des identificateurs depuis la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param index : int, l'index dans le tableau des valeurs de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int getValuesFromIdentifierWithIndex(ListRangeVariable addr, char* name,int index, ListTmp addrTmp);
+
+/*!
+ * \fn IdentifierOrder initIdentifierOrder(IdentifierOrder previousLevel, char* name)
+ * \brief Fonction qui initialise la structure d'ordre d'apparition des identificateurs
+ *
+ * \param previousLevel : previousIdentifier, l'identificateur précédant
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return IdentifierOrder, un pointeur d'une structure d'ordre d'apparition des identificateurs
+*/
+IdentifierOrder initIdentifierOrder(IdentifierOrder previousIdentifier, char* name);
+
+/*!
+ * \fn void cleanIdentifierOrder(IdentifierOrder addr)
+ * \brief Fonction qui libère la mémoire d'une structure d'ordre d'apparition des identificateurs
+ *
+ * \param addr : IdentifierOrder, la structure d'ordre d'apparition des identificateurs
+*/
+void cleanIdentifierOrder(IdentifierOrder addr);
+
+/*!
+ * \fn ListRangeVariable initListRangeVariable()
+ * \brief Fonction qui initialise la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \return ListRangeVariable, un pointeur d'une liste de structure d'ordre d'apparition des identificateurs
+*/
+ListIdentifierOrder initListIdentifierOrder();
+
+/*!
+ * \fn void cleanListRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui libère la mémoire d'une liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurs
+*/
+void cleanListIdentifierOrder(ListIdentifierOrder addr);
+
+/*!
+ * \fn void addIdentifierOrder(ListIdentifierOrder addr, char * name)
+ * \brief Fonction qui ajoute un niveau de portée à la liste d'ordre d'apparition des identificateurs
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurse
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+void addIdentifierOrder(ListIdentifierOrder addr, char * name);
+
+/*!
+ * \fn int setTypeIdentifierOrder(ListIdentifierOrder addr, int type)
+ * \brief Fonction qui modifie le type du dernier identificateur de la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ * \param type : int, le type de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int setTypeIdentifierOrder(ListIdentifierOrder addr, int type);
+
+/*!
+ * \fn int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
+ * \brief Fonction qui modifie l'index pour l'affectation d'un tableau du dernier identificateur de la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ * \param index : int, l'index de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int setIndexIdentifierOrder(ListIdentifierOrder addr, int index);
+
+/*!
+ * \fn int deleteIdentifierOrder(ListIdentifierOrder addr)
+ * \brief Fonction qui supprime un niveau de portée à la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurs
+ *
+ *  \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int deleteIdentifierOrder(ListIdentifierOrder addr);
+
+/*!
+ * \fn int printIdentifierFromListRange(ListRangeVariable addr,char* name)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param position : int, la position de l'identificateur dans la liste des identificateurs
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int printIdentifierFromListRange(ListRangeVariable addr,char* name);
 
 #endif

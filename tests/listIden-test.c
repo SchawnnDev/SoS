@@ -238,6 +238,24 @@ TEST setValuesWithGoodArraySizeTest(void) {
     PASS();
 }
 
+//----------------------------------//
+// getValuesFromIdentifierToListTmp //
+//----------------------------------//
+TEST getValuesFromIdentifierToListTmpTest(void) {
+    ListIdentifier addr = initListIdentifier();
+    char* name = "test";
+    addIntoListIdentifier(addr,name);
+    int position = searchIntoListIdentifier(addr,name);
+    ListTmp addrTmp = initListTmp();
+    addIntoListTmp(addrTmp,"10");
+    setValuesOfIdentifierFromListTmp(addr,position,addrTmp);
+
+    ASSERT_EQ_FMT(RETURN_SUCCESS, getValuesFromIdentifierToListTmp(addr,position, -1,addrTmp),"%d");
+    ASSERT_STR_EQ("10", addrTmp->cursor->values[0]);
+    ASSERT_STR_EQ("10", addrTmp->cursor->values[1]);
+    PASS();
+}
+
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
@@ -267,6 +285,8 @@ int main(int argc, char **argv) {
     RUN_TEST(setValuesWithoutIdentifierTest);
     RUN_TEST(setValuesWithBadPositionTest);
     RUN_TEST(setValuesWithGoodArraySizeTest);
+
+    RUN_TEST(getValuesFromIdentifierToListTmpTest);
 
     GREATEST_MAIN_END();
 }

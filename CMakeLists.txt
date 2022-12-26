@@ -14,13 +14,12 @@ set(PARSER_DIR gen)
 set(LEXER_OUT "${BIN_DIR}/lexer.c")
 set(PARSER_OUT "${BIN_DIR}/parser.c")
 
-
 # Create bin folder if not exists
 add_custom_target(build-time-make-directory ALL COMMAND ${CMAKE_COMMAND} -E make_directory ${BIN_DIR})
 file(MAKE_DIRECTORY ${BIN_DIR})
 
 flex_target(LEXER "${PARSER_DIR}/lexer.lex" "${LEXER_OUT}" DEFINES_FILE "${BIN_DIR}/lexer.h")
-bison_target(PARSER "${PARSER_DIR}/parser.y" "${PARSER_OUT}" DEFINES_FILE "${BIN_DIR}/parser.h")
+bison_target(PARSER "${PARSER_DIR}/parser.y" "${PARSER_OUT}" DEFINES_FILE "${BIN_DIR}/parser.h" COMPILE_FLAGS "-v")
 add_flex_bison_dependency(LEXER PARSER)
 
 add_library(
@@ -28,18 +27,24 @@ add_library(
 
         STATIC
 
+        src/compilation.c
         src/listIden.c
         src/listRangeVar.c
         src/listTmp.c
         src/utils.c
+        src/listInstructionMips.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
 
+        include/compilation.h
         include/listIden.h
         include/listRangeVar.h
         include/listTmp.h
         include/utils.h
-        include/variable.h)
+        include/variable.h
+        include/bool_expr.h
+        include/listInstructionMips.h
+)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include "${BIN_DIR}")

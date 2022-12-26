@@ -15,6 +15,18 @@ char* names[IDEN_MAX] = {"test0","test1","test2","test3","test4","test5","test6"
                          "test80","test81","test82","test83","test84","test85","test86","test87","test88","test89",
                          "test90","test91","test92","test93","test94","test95","test96","test97","test98","test99"};
 
+//-------------------//
+// initTmpValuesTest //
+//-------------------//
+TEST initTmpValuesTest(void) {
+    TmpValues addr = initTmpValues(NULL);
+
+    ASSERT_NEQ(NULL, addr);
+    ASSERT_EQ(NULL, addr->previousTmpValues);
+    ASSERT_EQ_FMT(0, addr->numberValues,"%d");
+    PASS();
+}
+
 //------------------------//
 // initListIdentifierTest //
 //------------------------//
@@ -22,9 +34,20 @@ TEST initListTmpTest(void) {
     ListTmp addr = initListTmp();
 
     ASSERT_NEQ(NULL, addr);
-    ASSERT_EQ_FMT(0, addr->numberValues,"%d");
+    ASSERT_NEQ(NULL, addr->cursor);
     PASS();
 }
+
+//------------------//
+// cleanListTmpTest //
+//------------------//
+TEST cleanListTmpTest(void) {
+    ListTmp addr = initListTmp();
+    cleanListTmp(addr);
+
+    PASS();
+}
+
 //------------------------//
 // addIntoListIdentifier //
 //------------------------//
@@ -38,10 +61,43 @@ TEST addIntoListTmpTest(void) {
     }
 
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoListTmp(addr, name),"%d");
-    ASSERT_EQ_FMT(TMP_TAB_MAX, addr->numberValues,"%d");
+    ASSERT_EQ_FMT(TMP_TAB_MAX, addr->cursor->numberValues,"%d");
     PASS();
 }
 
+//------------//
+// addListTmp //
+//------------//
+TEST addListTmpTest(void) {
+    ListTmp addr = initListTmp();
+    TmpValues lastCursor = addr->cursor;
+    addListTmp(addr, initTmpValues(addr->cursor));
+
+    ASSERT_EQ_FMT(RETURN_SUCCESS, addIntoListTmp(addr, "test"),"%d");
+    ASSERT_EQ_FMT(1, addr->cursor->numberValues,"%d");
+    ASSERT_NEQ(lastCursor, addr->cursor);
+    ASSERT_EQ(lastCursor, addr->cursor->previousTmpValues);
+    PASS();
+}
+
+//---------------//
+// deleteListTmp //
+//---------------//
+TEST deleteListTmpEmptyTest(void) {
+    ListTmp addr = initListTmp();
+    deleteListTmp(addr);
+
+    ASSERT_EQ_FMT(RETURN_FAILURE, deleteListTmp(addr),"%d");
+    PASS();
+}
+
+TEST deleteListTmpTest(void) {
+    ListTmp addr = initListTmp();
+
+    ASSERT_EQ_FMT(RETURN_SUCCESS, deleteListTmp(addr),"%d");
+    ASSERT_EQ(NULL, addr->cursor);
+    PASS();
+}
 
 GREATEST_MAIN_DEFS();
 
@@ -49,8 +105,15 @@ int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
     log_set_quiet(true); // No logs in tests
 
+    RUN_TEST(initTmpValuesTest);
     RUN_TEST(initListTmpTest);
+    RUN_TEST(cleanListTmpTest);
+
     RUN_TEST(addIntoListTmpTest);
+    RUN_TEST(addListTmpTest);
+
+    RUN_TEST(deleteListTmpEmptyTest);
+    RUN_TEST(deleteListTmpTest);
 
     GREATEST_MAIN_END();
 }

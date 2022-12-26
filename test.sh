@@ -36,7 +36,13 @@ fi
 echo -e "${YELLOW}Building binary in ${CMAKE_BUILD_FOLDER}...${NC}"
 cd $CMAKE_BUILD_FOLDER || (echo "${RED}Can't access to folder ${CMAKE_BUILD_FOLDER}, exiting...${NC}" && exit)
 make
+rcode=$?
 cd ..
+
+  if [ ! $rcode == 0 ]; then
+    echo -e "${RED}Make failure (exit code $rcode).${NC}"
+    exit $rcode
+  fi
 
 # TODO: Steps :
 #   - Get sos file
@@ -58,8 +64,15 @@ if [ "$1" == "file" ]; then
   # Creates a temporary file
   temp_asm_file=$(mktemp)
 
-  $EXEC_FILE "$2" -v 0 -o "$temp_asm_file"
-  java -jar $MARS_BIN_FILE "$temp_asm_file"
+  $EXEC_FILE "$2" -v 1 -o "$temp_asm_file"
+  rcode=$?
+  if [ ! $rcode == 0 ]; then
+    echo -e "${RED}Compiler failure (exit code $rcode).${NC}"
+    rm "${temp_asm_file}"
+    exit $rcode
+  fi
+
+  # temp : java -jar $MARS_BIN_FILE "$temp_asm_file"
 
   # Clean
   rm "${temp_asm_file}"
