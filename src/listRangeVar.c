@@ -237,6 +237,44 @@ int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
 }
 
 /*!
+ * \fn int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire avec la liste des identificateurs depuis la liste des postée de variable
+*/
+int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+{
+    log_trace("getValuesFromIdentifier (ListRangeVariable %p, char* %s, ListTmp %p)", addr, name, addrTmp)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+    CHECKPOINTER(addrTmp);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+    return getValuesFromIdentifierToListTmp(variablePosition->rangePosition->listIdentifier,
+                                            variablePosition->indexIdentifier, -1, addrTmp);
+}
+
+/*!
+ * \fn int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire avec la liste des identificateurs depuis la liste des postée de variable
+*/
+int getValuesFromIdentifierWithIndex(ListRangeVariable addr, char* name,int index, ListTmp addrTmp)
+{
+    log_trace("getValuesFromIdentifier (ListRangeVariable %p, char* %s, int %d, ListTmp %p)", addr, name, index, addrTmp)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+    CHECKPOINTER(addrTmp);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+    return getValuesFromIdentifierToListTmp(variablePosition->rangePosition->listIdentifier,
+                                            variablePosition->indexIdentifier, index, addrTmp);
+}
+
+/*!
  * \fn IdentifierOrder initIdentifierOrder(IdentifierOrder previousLevel, char* name)
  * \brief Fonction qui initialise la structure d'ordre d'apparition des identificateurs
 */

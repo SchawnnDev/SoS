@@ -222,14 +222,13 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
         return RETURN_FAILURE;
     }
 
-    ulong sizeStr;
     if (index == -1){
         int size = addr->numberIdentifiers;
         for(index = 0; index < size; index ++){
-            sizeStr = strlen( addrTmp->cursor->values[index]) + 1;
-            CHECKPOINTER(addrTmp->cursor->values[index] = (char*)malloc(sizeof(char) * sizeStr));
             CHECKPOINTER(addr->Identifiers[position]->values[index]);
-            CHECKPOINTER(strcpy(addrTmp->cursor->values[index],addr->Identifiers[position]->values[index]));
+            if(RETURN_FAILURE == addIntoListTmp(addrTmp,addr->Identifiers[position]->values[index])){
+                return RETURN_FAILURE;
+            }
         }
     } else {
 
@@ -239,10 +238,7 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
             return RETURN_FAILURE;
         }
 
-        sizeStr = strlen( addrTmp->cursor->values[index]) + 1;
-        CHECKPOINTER(addrTmp->cursor->values[index] = (char*)malloc(sizeof(char) * sizeStr));
-        CHECKPOINTER(addr->Identifiers[position]->values[index]);
-        CHECKPOINTER(strcpy(addrTmp->cursor->values[index],addr->Identifiers[position]->values[index]));
+        return addIntoListTmp(addrTmp,addr->Identifiers[position]->values[index]);
     }
 
     return RETURN_SUCCESS;
