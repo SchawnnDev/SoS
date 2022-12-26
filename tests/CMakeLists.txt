@@ -5,6 +5,7 @@ set(
         "listRangeVar-test.c"
         "compilation-test.c"
         "listIdentifierOrder-test.c"
+        "listInstructionMips-test.c"
 )
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")

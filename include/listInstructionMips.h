@@ -8,29 +8,24 @@
 #include "utils.h"
 #include "variable.h"
 
-typedef struct data_t {
+typedef struct data_t *Data;
+struct data_t{
     int numberData;
-    char *lineData[DATA_TAB_MAX];
-    struct data_t *previousData;
-} *Data;
+    char* lineData[DATA_TAB_MAX];
+    Data previousData;
+};
 
-typedef struct text_t {
-    int numberText;
-    char *lineText[TEXT_TAB_MAX];
-    struct text_t *previousText;
-} *Text;
-
-typedef struct code_t {
+typedef struct code_t *Code;
+struct code_t{
     int numberCode;
     int numberGoto;
     char *lineCode[CODE_TAB_MAX];
     int unDefineGoto[CODE_TAB_MAX];
-    struct code_t *previousCode;
-} *Code;
+    Code previousCode;
+};
 
 typedef struct {
     Data cursorData;
-    Text cursorText;
     Code cursorCode;
 } listInstruction_t, *ListInstruction;
 
@@ -43,16 +38,6 @@ typedef struct {
  * \return Data, un pointeur d'une structure de data
 */
 Data initData(Data previousData);
-
-/*!
- * \fn Text initText( Text previousText)
- * \brief Fonction qui initialise la structure de Text
- *
- * \param previousText : Text, la table précédante
- *
- * \return Text, un pointeur d'une structure de text
-*/
-Text initText(Text previousText);
 
 /*!
  * \fn Code initCode( Code previousCode)
@@ -79,14 +64,6 @@ ListInstruction initListInstruction();
  * \param addr : ListInstruction, la structure text
 */
 void cleanData(Data addr);
-
-/*!
- * \fn void cleanText(Text addr)
- * \brief Fonction qui libère la mémoire de la structure text
- *
- * \param addr : ListInstruction, la structure d'instruction
-*/
-void cleanText(Text addr);
 
 /*!
  * \fn void cleanCode(Code addr)
@@ -122,23 +99,6 @@ void addStructData(ListInstruction addr);
 void addIntoData(ListInstruction addr, char *data);
 
 /*!
- * \fn void addIntoText( ListInstruction addr)
- * \brief Fonction qui initialise une nouvelle structure de text
- *
- * \param addr : ListInstruction, la structure d'instruction
-*/
-void addStructText(ListInstruction addr);
-
-/*!
- * \fn void addIntoText( ListInstruction addr, char* text)
- * \brief Fonction qui permet d'ajoute en fin de la structure de text
- *
- * \param addr : ListInstruction, la structure d'instruction
- * \param text : char*, le code mips à stocker
-*/
-void addIntoText(ListInstruction addr, char *text);
-
-/*!
  * \fn void addStructCode( ListInstruction addr)
  * \brief Fonction qui initialise une nouvelle structure de code
  *
@@ -156,6 +116,18 @@ void addStructCode(ListInstruction addr);
 void addIntoCode(ListInstruction addr, char *code);
 
 /*!
+ * \fn int addIntoCodeWithIndex( Code addr, char* code, int index)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de code
+ *
+ * \param addr : Code, la structure de code
+ * \param code : char*, le code mips à stocker
+ * \param index : int, l'index dans le tableau de la structure de code
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int addIntoCodeWithIndex( Code addr, char* code, int index);
+
+/*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
  * \brief Fonction qui permet d'ajoute un goto indéterminé
  *
@@ -164,13 +136,13 @@ void addIntoCode(ListInstruction addr, char *code);
 void addIntoUnDefineGoto(ListInstruction addr);
 
 /*!
- * \fn void addIntoCode( ListInstruction addr, char* code)
+ * \fn void completeUnDefineGoto( ListInstruction addr, char* code )
  * \brief Fonction qui permet d'ajoute un goto indéterminé
  *
  * \param addr : ListInstruction, la structure d'instruction
- * \param position : char*, la structure d'instruction
+ * \param code : char*, la structure d'instruction
 */
-void completeUnDefineGoto(ListInstruction addr, char *position);
+void completeUnDefineGoto( ListInstruction addr, char* code );
 
 /*!
  * \fn int writeToFile(ListInstruction list, FILE* file)
