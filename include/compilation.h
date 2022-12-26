@@ -17,17 +17,17 @@
         addIntoCode(listInstruction, buf); \
     } while (0);
 
-ListRangeVariable listRangeVariable;
-ListIdentifierOrder listIdentifierOrder;
-ListTmp listTmp;
-ListInstruction listInstruction;
-int currentOperation;
-
 void initStruct();
 
 void addIdOrder(char *name);
 
 void setTypeOrder(int type);
+
+/*!
+ * \fn void setCurrentOperation(int operation)
+ * @param operation Current operation
+ */
+void setCurrentOperation(int operation);
 
 /*!
  * \fn void addTmpValuesListTmp

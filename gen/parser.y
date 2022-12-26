@@ -149,13 +149,13 @@ operand_int : DOLLAR LBRACE id RBRACE
     | LPAREN sum_int RPAREN
     ;
 
-plus_or_minus : PLUS {currentOperation = PLUS_OPE;}
-    | MINUS {currentOperation = MINUS_OPE;}
+plus_or_minus : PLUS {setCurrentOperation(PLUS_OPE);}
+    | MINUS {setCurrentOperation(MINUS_OPE);}
     ;
 
-mult_div_mod : MULT {currentOperation = MULT_OPE;}
-     | DIV {currentOperation = DIV_OPE;}
-     | MOD {currentOperation = MOD_OPE;}
+mult_div_mod : MULT {setCurrentOperation(MULT_OPE);}
+     | DIV {setCurrentOperation(DIV_OPE);}
+     | MOD {setCurrentOperation(MOD_OPE);}
      ;
 
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE

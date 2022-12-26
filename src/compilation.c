@@ -4,6 +4,17 @@
 #include "parser.h"
 #include "lexer.h"
 
+ListRangeVariable listRangeVariable;
+ListIdentifierOrder listIdentifierOrder;
+ListTmp listTmp;
+ListInstruction listInstruction;
+int currentOperation;
+
+void setCurrentOperation(int operation)
+{
+    currentOperation = operation;
+}
+
 int errorType(const char *msg, ...) {
 
     return (EXIT_FAILURE);
