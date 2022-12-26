@@ -4,6 +4,9 @@
 /* Tailles */
 #define IDEN_MAX 100
 #define TMP_TAB_MAX 100
+#define TEXT_TAB_MAX 100
+#define DATA_TAB_MAX 100
+#define CODE_TAB_MAX 100
 
 /* Error */
 #define NOTFOUND -1
