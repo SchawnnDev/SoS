@@ -13,6 +13,7 @@ struct data_t{
     int numberData;
     char* lineData[DATA_TAB_MAX];
     Data previousData;
+    Data nextData;
 };
 
 typedef struct code_t *Code;
@@ -22,6 +23,7 @@ struct code_t{
     char *lineCode[CODE_TAB_MAX];
     int unDefineGoto[CODE_TAB_MAX];
     Code previousCode;
+    Code nextCode;
 };
 
 typedef struct {

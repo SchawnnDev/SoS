@@ -10,6 +10,7 @@ Data initData(Data previousData) {
     Data addr;
     CHECKPOINTER(addr = (Data) malloc(sizeof(struct data_t)));
     addr->previousData = previousData;
+    addr->nextData = NULL;
     addr->numberData = 0;
     return addr;
 }
@@ -24,6 +25,7 @@ Code initCode(Code previousCode) {
     Code addr;
     CHECKPOINTER(addr = (Code) malloc(sizeof(struct code_t)));
     addr->previousCode = previousCode;
+    addr->nextCode = NULL;
     addr->numberCode = 0;
     addr->numberGoto = 0;
     return addr;
@@ -98,6 +100,7 @@ void addStructData(ListInstruction addr) {
     CHECKPOINTER(addr);
 
     addr->cursorData = initData(addr->cursorData);
+    addr->cursorData->previousData->nextData = addr->cursorData;
 }
 
 /*!
@@ -130,6 +133,7 @@ void addStructCode(ListInstruction addr) {
     CHECKPOINTER(addr);
 
     addr->cursorCode = initCode(addr->cursorCode);
+    addr->cursorCode->previousCode->nextCode = addr->cursorCode;
 }
 
 /*!
