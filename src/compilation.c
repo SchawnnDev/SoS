@@ -165,23 +165,9 @@ int parseInt32(const char *word) {
 *  MIPS CODE GENERATION
 */
 
-int sections = 0;
-
-int asm_writeSection(int section) {
-    // Check if session is not already written
-    if (sections & section)
-        return RETURN_FAILURE;
-    if (section == SECTION_DATA)
-        asm_fprintf(".data\n")
-    if (section == SECTION_TEXT)
-        asm_fprintf(".text\n")
-    sections = sections | section;
-    return RETURN_SUCCESS;
-}
-
 int asm_syscall(syscall_t type) {
     log_trace("asm_syscall of type %s", stringFromSyscall(type))
-    asm_fprintf("li $v0, %d\n", type)
-    asm_fprintf("syscall\n")
+    asm_code_fprintf("li $v0, %d", type)
+    asm_code_fprintf("syscall")
     return RETURN_SUCCESS;
 }

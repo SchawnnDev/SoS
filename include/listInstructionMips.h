@@ -8,31 +8,31 @@
 #include "utils.h"
 #include "variable.h"
 
-typedef struct data_t{
+typedef struct data_t {
     int numberData;
-    char* lineData[DATA_TAB_MAX];
-    struct data_t* previousData;
+    char *lineData[DATA_TAB_MAX];
+    struct data_t *previousData;
 } *Data;
 
-typedef struct text_t{
+typedef struct text_t {
     int numberText;
-    char* lineText[TEXT_TAB_MAX];
-    struct text_t* previousText;
+    char *lineText[TEXT_TAB_MAX];
+    struct text_t *previousText;
 } *Text;
 
-typedef struct code_t{
+typedef struct code_t {
     int numberCode;
     int numberGoto;
-    char* lineCode[CODE_TAB_MAX];
+    char *lineCode[CODE_TAB_MAX];
     int unDefineGoto[CODE_TAB_MAX];
-    struct code_t* previousCode;
+    struct code_t *previousCode;
 } *Code;
 
-typedef struct{
+typedef struct {
     Data cursorData;
     Text cursorText;
     Code cursorCode;
-}listInstruction_t, *ListInstruction;
+} listInstruction_t, *ListInstruction;
 
 /*!
  * \fn Data initData( Data previousData)
@@ -42,7 +42,7 @@ typedef struct{
  *
  * \return Data, un pointeur d'une structure de data
 */
-Data initData( Data previousData);
+Data initData(Data previousData);
 
 /*!
  * \fn Text initText( Text previousText)
@@ -52,7 +52,7 @@ Data initData( Data previousData);
  *
  * \return Text, un pointeur d'une structure de text
 */
-Text initText( Text previousText);
+Text initText(Text previousText);
 
 /*!
  * \fn Code initCode( Code previousCode)
@@ -110,7 +110,7 @@ void cleanListInstruction(ListInstruction addr);
  *
  * \param addr : ListInstruction, la structure d'instruction
 */
-void addStructData( ListInstruction addr);
+void addStructData(ListInstruction addr);
 
 /*!
  * \fn void addIntoData( ListInstruction addr, char* data)
@@ -119,7 +119,7 @@ void addStructData( ListInstruction addr);
  * \param addr : ListInstruction, la structure d'instruction
  * \param data : char*, le code mips à stocker
 */
-void addIntoData( ListInstruction addr, char* data);
+void addIntoData(ListInstruction addr, char *data);
 
 /*!
  * \fn void addIntoText( ListInstruction addr)
@@ -127,7 +127,7 @@ void addIntoData( ListInstruction addr, char* data);
  *
  * \param addr : ListInstruction, la structure d'instruction
 */
-void addStructText( ListInstruction addr);
+void addStructText(ListInstruction addr);
 
 /*!
  * \fn void addIntoText( ListInstruction addr, char* text)
@@ -136,7 +136,7 @@ void addStructText( ListInstruction addr);
  * \param addr : ListInstruction, la structure d'instruction
  * \param text : char*, le code mips à stocker
 */
-void addIntoText( ListInstruction addr, char* text);
+void addIntoText(ListInstruction addr, char *text);
 
 /*!
  * \fn void addStructCode( ListInstruction addr)
@@ -144,7 +144,7 @@ void addIntoText( ListInstruction addr, char* text);
  *
  * \param addr : ListInstruction, la structure d'instruction
 */
-void addStructCode( ListInstruction addr);
+void addStructCode(ListInstruction addr);
 
 /*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
@@ -153,7 +153,7 @@ void addStructCode( ListInstruction addr);
  * \param addr : ListInstruction, la structure d'instruction
  * \param code : char*, le code mips à stocker
 */
-void addIntoCode( ListInstruction addr, char* code);
+void addIntoCode(ListInstruction addr, char *code);
 
 /*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
@@ -161,7 +161,7 @@ void addIntoCode( ListInstruction addr, char* code);
  *
  * \param addr : ListInstruction, la structure d'instruction
 */
-void addIntoUnDefineGoto( ListInstruction addr);
+void addIntoUnDefineGoto(ListInstruction addr);
 
 /*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
@@ -170,6 +170,30 @@ void addIntoUnDefineGoto( ListInstruction addr);
  * \param addr : ListInstruction, la structure d'instruction
  * \param position : char*, la structure d'instruction
 */
-void completeUnDefineGoto( ListInstruction addr, char* position );
+void completeUnDefineGoto(ListInstruction addr, char *position);
+
+/*!
+ * \fn int writeToFile(ListInstruction list, FILE* file)
+ * \brief Write all ListInstruction content into a file (line by line)
+ *
+ * \param list : ListInstruction, instructions structure
+ * \param file : FILE*, File to write to
+ * \return 0 if success, -1 if error
+ */
+int writeToFile(ListInstruction list, FILE *file);
+
+/*!
+ * \fn Move to first cursor in a Data structure
+ * @param cursor Data
+ * @return First cursor or NULL
+ */
+Data getFirstDataCursor(Data cursor);
+
+/*!
+ * \fn Move to first cursor in a Code structure
+ * @param cursor Code
+ * @return First cursor or NULL
+ */
+Code getFirstCodeCursor(Code cursor);
 
 #endif //SOS_LISTINSTRUCTIONMIPS_H

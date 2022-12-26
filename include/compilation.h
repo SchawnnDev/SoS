@@ -7,7 +7,7 @@
 #include "listInstructionMips.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
-#define asm_fprintf(...) \
+#define asm_code_fprintf(...) \
     do { \
         if (fprintf(outFile, __VA_ARGS__) < 0) { \
             log_error(strerror(errno)); \
