@@ -31,7 +31,7 @@ Text initText(Text previousText)
 }
 
 /*!
- * \fn Code initCode( Code previousCode)
+ * \fn Code initCode( Code previousCode, int codeLevel)
  * \brief Fonction qui initialise la structure de code
 */
 Code initCode(Code previousCode)
@@ -42,6 +42,7 @@ Code initCode(Code previousCode)
     CHECKPOINTER(addr = (Code)malloc(sizeof( struct code_t)));
     addr->previousCode = previousCode;
     addr->numberCode = 0;
+    addr->numberGoto = 0;
     return addr;
 }
 
@@ -170,4 +171,95 @@ void addIntoData( ListInstruction addr, char* data)
     CHECKPOINTER(strcpy(addr->cursorData->lineData[addr->cursorData->numberData],data));
 
     addr->cursorData->numberData++;
+}
+
+/*!
+ * \fn void addIntoText( ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de text
+ *
+ * \param addr : Data, la table précédante
+*/
+void addStructText( ListInstruction addr)
+{
+    log_trace("addStructText (ListInstruction %p)",addr)
+    CHECKPOINTER(addr);
+
+    addr->cursorText = initText(addr->cursorText);
+}
+
+/*!
+ * \fn void addIntoText( ListInstruction addr, char* text)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de text
+ *
+ * \param addr : Data, la table précédante
+ * \param text : char*, le code mips à stocker
+*/
+void addIntoText( ListInstruction addr, char* text)
+{
+    log_trace("addIntoText (ListInstruction %p, char* %s)",addr, text)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(text);
+
+    if(addr->cursorText->numberText >= TEXT_TAB_MAX){
+        log_info("struct Text is full, numberText %d", addr->cursorText->numberText)
+        addStructText(addr);
+    }
+
+    ulong size = strlen( text ) + 1;
+    CHECKPOINTER(addr->cursorText->lineText[addr->cursorText->numberText] = (char*)malloc(sizeof(char) * size));
+    CHECKPOINTER(strcpy(addr->cursorText->lineText[addr->cursorText->numberText],text));
+
+    addr->cursorText->numberText++;
+}
+
+/*!
+ * \fn void addStructCode( ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de code
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void addStructCode( ListInstruction addr)
+{
+    log_trace("addStructCode (ListInstruction %p)",addr)
+    CHECKPOINTER(addr);
+
+    addr->cursorCode = initCode(addr->cursorCode);
+}
+
+/*!
+ * \fn void addIntoCode( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de code
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, le code mips à stocker
+*/
+void addIntoCode( ListInstruction addr, char* code)
+{
+    log_trace("addIntoCode (ListInstruction %p, char* %s)",addr, code)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(code);
+
+    if(addr->cursorCode->numberCode >= TEXT_TAB_MAX){
+        log_info("struct Code is full, numberCode %d", addr->cursorCode->numberCode)
+        addStructCode(addr);
+    }
+
+    ulong size = strlen( code ) + 1;
+    CHECKPOINTER(addr->cursorCode->lineCode[addr->cursorCode->numberCode] = (char*)malloc(sizeof(char) * size));
+    CHECKPOINTER(strcpy(addr->cursorCode->lineCode[addr->cursorCode->numberCode],code));
+
+    addr->cursorCode->numberCode++;
+}
+
+/*!
+ * \fn void addIntoCode( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute un goto indéterminé
+*/
+void addIntoUnDefineGoto( ListInstruction addr)
+{
+    log_trace("addIntoUnDefineGoto (ListInstruction %p)",addr)
+    CHECKPOINTER(addr);
+
+    addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto] = addr->cursorCode->numberCode;
+    addr->cursorCode->numberCode++;
 }

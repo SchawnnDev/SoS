@@ -22,6 +22,7 @@ typedef struct text_t{
 
 typedef struct code_t{
     int numberCode;
+    int numberGoto;
     char* lineCode[CODE_TAB_MAX];
     int unDefineGoto[CODE_TAB_MAX];
     struct code_t* previousCode;
@@ -61,7 +62,7 @@ Text initText( Text previousText);
  *
  * \return Code, un pointeur d'une structure de code
 */
-Code initCode( Code previousCode);
+Code initCode(Code previousCode);
 
 /*!
  * \fn ListInstruction initListInstruction()
@@ -104,10 +105,10 @@ void cleanCode(Code addr);
 void cleanListInstruction(ListInstruction addr);
 
 /*!
- * \fn void addIntoData( ListInstruction addr, char* data)
+ * \fn void addIntoData( ListInstruction addr)
  * \brief Fonction qui initialise une nouvelle structure de data
  *
- * \param addr : Data, la table précédante
+ * \param addr : ListInstruction, la structure d'instruction
 */
 void addStructData( ListInstruction addr);
 
@@ -115,9 +116,60 @@ void addStructData( ListInstruction addr);
  * \fn void addIntoData( ListInstruction addr, char* data)
  * \brief Fonction qui permet d'ajoute en fin de la structure de data
  *
- * \param addr : Data, la table précédante
+ * \param addr : ListInstruction, la structure d'instruction
  * \param data : char*, le code mips à stocker
 */
 void addIntoData( ListInstruction addr, char* data);
+
+/*!
+ * \fn void addIntoText( ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de text
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void addStructText( ListInstruction addr);
+
+/*!
+ * \fn void addIntoText( ListInstruction addr, char* text)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de text
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param text : char*, le code mips à stocker
+*/
+void addIntoText( ListInstruction addr, char* text);
+
+/*!
+ * \fn void addStructCode( ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de code
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void addStructCode( ListInstruction addr);
+
+/*!
+ * \fn void addIntoCode( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de code
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, le code mips à stocker
+*/
+void addIntoCode( ListInstruction addr, char* code);
+
+/*!
+ * \fn void addIntoCode( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute un goto indéterminé
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void addIntoUnDefineGoto( ListInstruction addr);
+
+/*!
+ * \fn void addIntoCode( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute un goto indéterminé
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param position : char*, la structure d'instruction
+*/
+void completeUnDefineGoto( ListInstruction addr, char* position );
 
 #endif //SOS_LISTINSTRUCTIONMIPS_H
