@@ -51,6 +51,7 @@ Identifier initIdentifier(char* name)
     ulong size = strlen( name ) + 1;
     CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size));
     CHECKPOINTER(strcpy(addr->name,name));
+    addr->values = NULL;
     addr->type = UNSET;
     addr->arraySize = 1;
 
@@ -178,13 +179,11 @@ int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp 
     ulong size;
     if(addr->Identifiers[position]->values != NULL){
         log_info("Identifier will be freed.")
-        /* ToDo
-        size = addr->Identifiers[position]->arraySize;
 
+        size = addr->Identifiers[position]->arraySize;
         for(index = 0; index < size; index++){
             free(addr->Identifiers[position]->values[index]);
-
-         }*/
+        }
         free(addr->Identifiers[position]->values);
     }
 
