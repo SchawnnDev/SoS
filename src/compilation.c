@@ -18,6 +18,7 @@ void initStruct() {
     listRangeVariable = initListRangeVariable();
     listIdentifierOrder = initListIdentifierOrder();
     listTmp = initListTmp();
+    listInstruction = initListInstruction();
     currentOperation = UNSET;
 }
 
@@ -95,7 +96,7 @@ void addValueIntoListTmp(char *value) {
     addIntoListTmp(listTmp, value);
 }
 
-/* ToDo : version 1*/
+/* ToDo : version 1 : aide au debug*/
 void echo(){
     printIdentifierFromListRange(listRangeVariable, listIdentifierOrder->cursor->name);
     deleteIdentifierOrder(listIdentifierOrder);

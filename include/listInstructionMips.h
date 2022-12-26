@@ -67,8 +67,57 @@ Code initCode( Code previousCode);
  * \fn ListInstruction initListInstruction()
  * \brief Fonction qui initialise la structure de liste d'instruction
  *
- * \return Data, un pointeur d'une structure de data
+ * \return ListInstruction, un pointeur d'une structure de liste d'instruction
 */
 ListInstruction initListInstruction();
+
+/*!
+ * \fn void cleanData(Data addr)
+ * \brief Fonction qui libère la mémoire de la structure data
+ *
+ * \param addr : ListInstruction, la structure text
+*/
+void cleanData(Data addr);
+
+/*!
+ * \fn void cleanText(Text addr)
+ * \brief Fonction qui libère la mémoire de la structure text
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void cleanText(Text addr);
+
+/*!
+ * \fn void cleanCode(Code addr)
+ * \brief Fonction qui libère la mémoire de la structure code
+ *
+ * \param addr : Code, la structure code
+*/
+void cleanCode(Code addr);
+
+/*!
+ * \fn void cleanListInstruction(ListInstruction addr)
+ * \brief Fonction qui libère la mémoire de la liste d'instruction
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void cleanListInstruction(ListInstruction addr);
+
+/*!
+ * \fn void addIntoData( ListInstruction addr, char* data)
+ * \brief Fonction qui initialise une nouvelle structure de data
+ *
+ * \param addr : Data, la table précédante
+*/
+void addStructData( ListInstruction addr);
+
+/*!
+ * \fn void addIntoData( ListInstruction addr, char* data)
+ * \brief Fonction qui permet d'ajoute en fin de la structure de data
+ *
+ * \param addr : Data, la table précédante
+ * \param data : char*, le code mips à stocker
+*/
+void addIntoData( ListInstruction addr, char* data);
 
 #endif //SOS_LISTINSTRUCTIONMIPS_H

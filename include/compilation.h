@@ -4,6 +4,7 @@
 #include <stdarg.h>
 
 #include "listRangeVar.h"
+#include "listInstructionMips.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
 #define asm_fprintf(...) \
@@ -17,6 +18,7 @@
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
 ListTmp listTmp;
+ListInstruction listInstruction;
 FILE *outFile;
 int currentOperation;
 
