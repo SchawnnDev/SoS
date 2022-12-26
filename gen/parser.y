@@ -143,7 +143,7 @@ operand_int : DOLLAR LBRACE id RBRACE
     | DOLLAR int
     | plus_or_minus DOLLAR LBRACE id RBRACE
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | plus_or_minus DOLLAR  int
+    | plus_or_minus DOLLAR int
     | int
     | plus_or_minus int { log_debug("leaving %s %s", $1, $2); }
     | LPAREN sum_int RPAREN
