@@ -166,6 +166,31 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize);
 int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp);
 
 /*!
+ * \fn int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire avec la liste des identificateurs depuis la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp);
+
+/*!
+ * \fn int getValuesFromIdentifier(ListRangeVariable addr, char* name, ListTmp addrTmp)
+ * \brief Fonction remplie liste temporaire avec la liste des identificateurs depuis la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ * \param index : int, l'index dans le tableau des valeurs de l'identificateur
+ * \param ListTmp : addrTmp, la liste des valeurs temporaire
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int getValuesFromIdentifierWithIndex(ListRangeVariable addr, char* name,int index, ListTmp addrTmp);
+
+/*!
  * \fn IdentifierOrder initIdentifierOrder(IdentifierOrder previousLevel, char* name)
  * \brief Fonction qui initialise la structure d'ordre d'apparition des identificateurs
  *
