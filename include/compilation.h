@@ -5,17 +5,10 @@
 
 #include "listRangeVar.h"
 #include "listInstructionMips.h"
+#include "boolExpr.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
-#define asm_code_printf(...) \
-    do { \
-        char buf[ASM_PRINTF_BUF_MAX]; \
-        if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
-            log_error(strerror(errno));  \
-            return RETURN_FAILURE; \
-        } \
-        addIntoCode(listInstruction, buf); \
-    } while (0);
+
 
 void initStruct();
 
@@ -28,6 +21,12 @@ void setTypeOrder(int type);
  * @param operation Current operation
  */
 void setCurrentOperation(int operation);
+
+/**
+ *
+ * @param expr
+ */
+void setCurrentBooleanExpression(boolExpr_t expr);
 
 /*!
  * \fn void addTmpValuesListTmp
@@ -42,6 +41,22 @@ void addValueIntoListTmp(char *value);
 void echo();
 
 void doOperation();
+
+/**
+ *
+ * @return
+ */
+int getValues();
+
+/**
+ *
+ * @param addr
+ * @param boolExpr
+ * @return
+ */
+int doBoolExpression();
+
+// Utils
 
 int compile(FILE *inputFile, FILE *outputFile);
 
@@ -120,11 +135,6 @@ static inline const char *stringFromSyscall(syscall_t syscall) {
             return "unknown";
     }
 }
-
-// Boolean expression
-int asm_printEquals(const char *id1, const char *id2);
-
-int asm_printNotEquals(const char *id1, const char *id2);
 
 int asm_syscall(syscall_t type);
 

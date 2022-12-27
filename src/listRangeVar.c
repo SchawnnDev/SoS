@@ -4,7 +4,7 @@
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
  * \brief Fonction qui initialise la structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
+RangeVariable initRangeVariable(int rangeLevel, int stack, RangeVariable previousLevel)
 {
     log_trace("initRangeVariable (int %d, RangeVariable %p)", rangeLevel,previousLevel)
 
@@ -18,6 +18,7 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)));
     addr->listIdentifier = initListIdentifier();
     addr->rangeLevel = rangeLevel;
+    addr->stack = stack;
 
     addr->previousLevel = previousLevel;
     addr->nextLevel = NULL;
@@ -48,7 +49,7 @@ ListRangeVariable initListRangeVariable()
 
     ListRangeVariable addr;
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
-    addr->cursor = initRangeVariable(0,NULL);
+    addr->cursor = initRangeVariable(0,0,NULL);
 
     return addr;
 }
@@ -81,7 +82,7 @@ int addRangeVariable(ListRangeVariable addr)
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
 
-    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1, addr->cursor);
+    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,addr->cursor->stack, addr->cursor);
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
@@ -398,6 +399,16 @@ int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
     addr->cursor->index = index;
 
     return RETURN_SUCCESS;
+}
+
+void increaseStackSize(ListRangeVariable addr, int amount)
+{
+    addr->cursor->stack += amount;
+}
+
+int getStack(ListRangeVariable addr)
+{
+    return addr->cursor->stack;
 }
 
 /*!

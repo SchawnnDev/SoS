@@ -32,8 +32,4 @@
 
 /* ASM Generation */
 
-// Section
-#define SECTION_DATA 1 << 0
-#define SECTION_TEXT 1 << 1
-
 #endif

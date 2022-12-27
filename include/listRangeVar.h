@@ -8,6 +8,7 @@
 typedef struct rangeVariable_t{
     ListIdentifier listIdentifier;
     int rangeLevel;
+    int stack;
 
     struct rangeVariable_t* nextLevel;
     struct rangeVariable_t* previousLevel;
@@ -42,7 +43,7 @@ typedef struct {
  *
  * \return RangeVariable, un pointeur d'une structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel);
+RangeVariable initRangeVariable(int rangeLevel, int stack, RangeVariable previousLevel);
 
 /*!
  * \fn void cleanRangeVariable(RangeVariable addr)
@@ -257,6 +258,10 @@ int setTypeIdentifierOrder(ListIdentifierOrder addr, int type);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int setIndexIdentifierOrder(ListIdentifierOrder addr, int index);
+
+void increaseStackSize(ListRangeVariable addr, int amount);
+
+int getStack(ListRangeVariable addr);
 
 /*!
  * \fn int deleteIdentifierOrder(ListIdentifierOrder addr)

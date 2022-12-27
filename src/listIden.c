@@ -52,6 +52,7 @@ Identifier initIdentifier(char* name)
     CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size));
     CHECKPOINTER(strcpy(addr->name,name));
     addr->values = NULL;
+    addr->offset = -1;
     addr->type = UNSET;
     addr->arraySize = 1;
 
@@ -217,12 +218,12 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
-        perror("setValuesOfIdentifierFromListTmp : can not set type of non-existent identifier.");
+        perror("getValuesFromIdentifierToListTmp : can not get values of non-existent identifier.");
         return RETURN_FAILURE;
     }
 
     if (index == -1){
-        int size = addr->numberIdentifiers;
+        int size = addr->Identifiers[position]->arraySize;
         for(index = 0; index < size; index ++){
             CHECKPOINTER(addr->Identifiers[position]->values[index]);
             if(RETURN_FAILURE == addIntoListTmp(addrTmp,addr->Identifiers[position]->values[index])){
@@ -233,7 +234,7 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
 
         if(index >= addr->Identifiers[position]->arraySize){
             log_error("Index out of range : index : %d",index)
-            perror("setValuesOfIdentifierFromListTmp : can not copy a out of range value.");
+            perror("getValuesFromIdentifierToListTmp : can not copy a out of range value.");
             return RETURN_FAILURE;
         }
 
@@ -267,6 +268,51 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
     addr->Identifiers[position]->arraySize = arraySize;
 
     return RETURN_SUCCESS;
+}
+
+/*!
+ * \fn int setRegisterOfIdentifier(ListIdentifier addr, int position, char* reg)
+ * \brief Fonction modifier le registre de l'identificateur
+*/
+int setRegisterOfIdentifier(ListIdentifier addr, int position, int offset)
+{
+    log_trace("setRegisterOfIdentifier (ListIdentifier %p, int %d, int %d)",addr,position,offset)
+    CHECKPOINTER(addr);
+
+    if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
+        perror("setRegisterOfIdentifier : can not set the register of non-existent identifier.");
+        return RETURN_FAILURE;
+    }
+
+    if(addr->Identifiers[position]->offset != NULL){
+        log_info("Register not empty  : %s",addr->Identifiers[position]->offset)
+        free(addr->Identifiers[position]->offset);
+    }
+
+    addr->Identifiers[position]->offset = offset;
+
+    return RETURN_SUCCESS;
+}
+
+/*!
+ * \fn int getRegisterOfIdentifier(ListIdentifier addr, int position, ListTmp addrTmp)
+ * \brief Fonction recupérer le registre de l'identificateur
+*/
+int getRegisterOfIdentifier(ListIdentifier addr, int position, ListTmp addrTmp)
+{
+    log_trace("getRegisterOfIdentifier (ListIdentifier %p, int %d, ListTmp %p)", addr, position, addrTmp)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(addrTmp);
+    CHECKPOINTER(addrTmp->cursor);
+
+    if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
+        log_error("Position out of range : position : %d",position)
+        perror("getRegisterOfIdentifier : can not get register of non-existent identifier.");
+        return RETURN_FAILURE;
+    }
+
+    return addIntoListTmp(addrTmp,addr->Identifiers[position]->offset);
 }
 
 /*!

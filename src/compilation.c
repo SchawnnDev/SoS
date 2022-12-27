@@ -3,16 +3,23 @@
 #include "compilation.h"
 #include "parser.h"
 #include "lexer.h"
+#include "asm.h"
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
 ListTmp listTmp;
 ListInstruction listInstruction;
 int currentOperation;
+boolExpr_t currentBooleanExpression;
 
 void setCurrentOperation(int operation)
 {
     currentOperation = operation;
+}
+
+void setCurrentBooleanExpression(boolExpr_t expr)
+{
+    currentBooleanExpression = expr;
 }
 
 int errorType(const char *msg, ...) {
@@ -157,6 +164,10 @@ int checkWordIsInt(const char *word) {
     return checkRegex("^[+-]?[0-9]+", word);
 }
 
+int getValues() {
+    return getValuesFromIdentifier(listRangeVariable, listIdentifierOrder->cursor->name, listTmp);
+}
+
 int parseInt32(const char *word) {
     char *endptr;
     long int parsed = strtol(word, &endptr, 10);
@@ -175,13 +186,51 @@ int parseInt32(const char *word) {
     return (int) parsed;
 }
 
+int doBoolExpression()
+{
+    log_trace("doBoolExpression (ListTmp %p, int %d)", listTmp, currentBooleanExpression)
+    CHECKPOINTER(listTmp);
+    CHECKPOINTER(listTmp->cursor);
+
+    if(listTmp->cursor->numberValues < 2){
+        log_error("numberValues : %d",listTmp->cursor->numberValues)
+        perror("doBoolExpression : you must have two values.");
+        return RETURN_FAILURE;
+    }
+
+    int reg1 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues-2]);
+    int reg2 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues-1]);
+    deleteListTmp(listTmp);
+    addListTmp(listTmp, initTmpValues(listTmp->cursor));
+
+    asm_code_printf("li $t1, %d", reg1)
+    asm_code_printf("li $t2, %d", reg2)
+
+    switch (currentBooleanExpression) {
+        case BOOL_EQ:
+            break;
+        case BOOL_NEQ:
+            break;
+        case BOOL_GT:
+            asm_code_printf("li gteeeetetetete, %d", reg2)
+            break;
+        case BOOL_GE:
+            break;
+        case BOOL_LT:
+            break;
+        case BOOL_LE:
+            break;
+        case L_AND:
+            break;
+        case L_OR:
+            break;
+    }
+
+    return RETURN_SUCCESS;
+}
+
 /**
 *  MIPS CODE GENERATION
 */
 
-int asm_syscall(syscall_t type) {
-    log_trace("asm_syscall of type %s", stringFromSyscall(type))
-    asm_code_printf("li $v0, %d", type)
-    asm_code_printf("syscall")
-    return RETURN_SUCCESS;
-}
+

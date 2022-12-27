@@ -33,6 +33,7 @@ add_library(
         src/listTmp.c
         src/utils.c
         src/listInstructionMips.c
+        src/asm.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
 
@@ -42,9 +43,9 @@ add_library(
         include/listTmp.h
         include/utils.h
         include/variable.h
-        include/bool_expr.h
+        include/boolExpr.h
         include/listInstructionMips.h
-)
+        include/asm.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include "${BIN_DIR}")

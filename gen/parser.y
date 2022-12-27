@@ -45,7 +45,7 @@ instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructi
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO_CALL list_operand {echo();}
+    | ECHO_CALL list_operand
     | READ id
     | READ id LBRACKET operand_int RBRACKET
     | declare_fct
@@ -103,12 +103,12 @@ test_expr3 : LPAREN test_expr RPAREN
 test_instruction : concatenation ASSIGN concatenation
     | concatenation NEQ concatenation
     | operator1 concatenation
-    | operand operator2 operand
+    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); getValues(); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD { asm_syscall(READ_CHAR); log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1);}
+    | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1);}
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
@@ -122,12 +122,12 @@ operator1 : ARG_N
     | ARG_Z
     ;
 
-operator2 : ARG_EQ
-    | ARG_NE
-    | ARG_GT
-    | ARG_GE
-    | ARG_LT
-    | ARG_LE
+operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
+    | ARG_NE { setCurrentBooleanExpression(BOOL_NEQ); }
+    | ARG_GT { setCurrentBooleanExpression(BOOL_GT); }
+    | ARG_GE { setCurrentBooleanExpression(BOOL_GE); }
+    | ARG_LT { setCurrentBooleanExpression(BOOL_LT); }
+    | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
     ;
 
 sum_int : sum_int plus_or_minus mult_int {doOperation();}

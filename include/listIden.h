@@ -10,6 +10,7 @@ typedef struct {
     char ** values;
     int type;
     int arraySize;
+    int offset;
 } identifier_t, *Identifier;
 
 typedef struct {
@@ -121,6 +122,9 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
+
+int setRegisterOfIdentifier(ListIdentifier addr, int position, int offset);
+int getRegisterOfIdentifier(ListIdentifier addr, int position, ListTmp addrTmp);
 
 /*!
  * \fn int printIdentifier(ListIdentifier addr,int position)
