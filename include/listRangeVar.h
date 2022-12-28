@@ -259,9 +259,49 @@ int setTypeIdentifierOrder(ListIdentifierOrder addr, int type);
 */
 int setIndexIdentifierOrder(ListIdentifierOrder addr, int index);
 
-void increaseStackSize(ListRangeVariable addr, int amount);
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui modifie la stack et renvoie la valeur précédante
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ * \param amount : int, la taille que l'on souhaite allouer à la pile
+ *
+ * \return int, return l'ancienne valeur de stack
+*/
+int increaseStackSize(ListRangeVariable addr, int amount);
 
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui recupère la valeur de la stack
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \return int, return la valeur de la stack
+*/
 int getStack(ListRangeVariable addr);
+
+/*!
+ * \fn int setOffset(ListIdentifier addr, int position, int offset)
+ * \brief Fonction qui modifie l'offset de l'identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurse
+ * \param name : char*, le nom de l'identificateur
+ * \param offset : int, l'offet par rapport à la stack
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int setOffset(ListRangeVariable addr, char* name, int offset);
+
+/*!
+ * \fn int getOffset(ListIdentifier addr, int position, ListTmp addrTmp)
+ * \brief Fonction qui récupère l'offset de l'identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurse
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int getOffset(ListRangeVariable addr, char* name, ListTmp addrTmp);
 
 /*!
  * \fn int deleteIdentifierOrder(ListIdentifierOrder addr)

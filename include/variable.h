@@ -31,5 +31,7 @@
 #define SIZE_INT_STR 12
 
 /* ASM Generation */
+#define START_STACK 32
+#define ADDR_STACK_SIZE 4
 
 #endif

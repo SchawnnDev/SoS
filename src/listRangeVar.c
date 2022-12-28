@@ -49,7 +49,7 @@ ListRangeVariable initListRangeVariable()
 
     ListRangeVariable addr;
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
-    addr->cursor = initRangeVariable(0,0,NULL);
+    addr->cursor = initRangeVariable(0,START_STACK,NULL);
 
     return addr;
 }
@@ -179,7 +179,7 @@ int addIdentifier(ListRangeVariable addr, char* name)
         return RETURN_FAILURE;
     }
 
-    return addIntoListIdentifier(addr->cursor->listIdentifier, name);
+    return addIntoListIdentifier(addr->cursor->listIdentifier, name, increaseStackSize(addr,ADDR_STACK_SIZE));
 }
 
 /*!
@@ -234,7 +234,7 @@ int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
         return RETURN_FAILURE;
     }
     return setValuesOfIdentifierFromListTmp(variablePosition->rangePosition->listIdentifier,
-                                                                               variablePosition->indexIdentifier, addrTmp);
+                                            variablePosition->indexIdentifier, addrTmp);
 }
 
 /*!
@@ -401,14 +401,24 @@ int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
     return RETURN_SUCCESS;
 }
 
-void increaseStackSize(ListRangeVariable addr, int amount)
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui modifie la stack et renvoie la valeur précédante
+*/
+int increaseStackSize(ListRangeVariable addr, int amount)
 {
+    int stack = addr->cursor->stack;
     addr->cursor->stack += amount;
+    return stack;
 }
 
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui recupère la valeur de la stack
+*/
 int getStack(ListRangeVariable addr)
 {
-    return addr->cursor->stack;
+   return addr->cursor->stack;
 }
 
 /*!
@@ -431,6 +441,47 @@ int deleteIdentifierOrder(ListIdentifierOrder addr)
     cleanIdentifierOrder(tmp);
 
     return RETURN_SUCCESS;
+}
+
+/*!
+ * \fn int setOffset(ListIdentifier addr, int position, int offset)
+ * \brief Fonction qui modifie l'offset de l'identificateur
+*/
+int setOffset(ListRangeVariable addr, char* name, int offset)
+{
+    log_trace("setOffset (ListRangeVariable %p, char* %s, int %d)", addr, name, offset)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+    return setOffsetOfIdentifier(variablePosition->rangePosition->listIdentifier,
+                                            variablePosition->indexIdentifier, offset);
+}
+
+/*!
+ * \fn int getOffset(ListIdentifier addr, int position, ListTmp listTmp)
+ * \brief Fonction qui récupère l'offset de l'identificateur
+*/
+int getOffset(ListRangeVariable addr, char* name, ListTmp listTmp)
+{
+    log_trace("getOffset (ListRangeVariable %p, char* %s)", addr, name)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+    CHECKPOINTER(listTmp);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+
+    char* offset;
+    CHECKPOINTER(offset = (char*)malloc(sizeof(char) * SIZE_INT_STR));
+    CHECK(sprintf(offset,"%d", (addr->cursor->stack - getOffsetOfIdentifier(
+            variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier))));
+    return addIntoListTmp(listTmp,offset);
 }
 
 /*!

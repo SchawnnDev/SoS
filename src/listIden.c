@@ -109,7 +109,7 @@ int searchIntoListIdentifier(ListIdentifier addr, char* name)
  * \fn int addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
 */
-int addIntoListIdentifier(ListIdentifier addr, char* name)
+int addIntoListIdentifier(ListIdentifier addr, char* name, int offset)
 {
     log_trace("addIntoListIdentifier (ListIdentifier %p, char* %s)",addr,name)
     CHECKPOINTER(addr);
@@ -128,6 +128,7 @@ int addIntoListIdentifier(ListIdentifier addr, char* name)
         return RETURN_FAILURE;
     }
     addr->Identifiers[addr->numberIdentifiers] = identifier;
+    addr->Identifiers[addr->numberIdentifiers]->offset = offset;
     addr->numberIdentifiers++;
 
     return RETURN_SUCCESS;
@@ -271,23 +272,18 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
 }
 
 /*!
- * \fn int setRegisterOfIdentifier(ListIdentifier addr, int position, char* reg)
+ * \fn int setOffsetOfIdentifier(ListIdentifier addr, int position, char* reg)
  * \brief Fonction modifier le registre de l'identificateur
 */
-int setRegisterOfIdentifier(ListIdentifier addr, int position, int offset)
+int setOffsetOfIdentifier(ListIdentifier addr, int position, int offset)
 {
-    log_trace("setRegisterOfIdentifier (ListIdentifier %p, int %d, int %d)",addr,position,offset)
+    log_trace("setOffsetOfIdentifier (ListIdentifier %p, int %d, int %d)",addr,position,offset)
     CHECKPOINTER(addr);
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
-        perror("setRegisterOfIdentifier : can not set the register of non-existent identifier.");
+        perror("setOffsetOfIdentifier : can not set the offset of non-existent identifier.");
         return RETURN_FAILURE;
-    }
-
-    if(addr->Identifiers[position]->offset != NULL){
-        log_info("Register not empty  : %s",addr->Identifiers[position]->offset)
-        free(addr->Identifiers[position]->offset);
     }
 
     addr->Identifiers[position]->offset = offset;
@@ -296,23 +292,21 @@ int setRegisterOfIdentifier(ListIdentifier addr, int position, int offset)
 }
 
 /*!
- * \fn int getRegisterOfIdentifier(ListIdentifier addr, int position, ListTmp addrTmp)
- * \brief Fonction recupérer le registre de l'identificateur
+ * \fn int getOffsetOfIdentifier(ListIdentifier addr, int position)
+ * \brief Fonction recupérer l'offset de l'identificateur
 */
-int getRegisterOfIdentifier(ListIdentifier addr, int position, ListTmp addrTmp)
+int getOffsetOfIdentifier(ListIdentifier addr, int position)
 {
-    log_trace("getRegisterOfIdentifier (ListIdentifier %p, int %d, ListTmp %p)", addr, position, addrTmp)
+    log_trace("getOffsetOfIdentifier (ListIdentifier %p, int %d)", addr, position)
     CHECKPOINTER(addr);
-    CHECKPOINTER(addrTmp);
-    CHECKPOINTER(addrTmp->cursor);
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
-        perror("getRegisterOfIdentifier : can not get register of non-existent identifier.");
+        perror("getOffsetOfIdentifier : can not get offset of non-existent identifier.");
         return RETURN_FAILURE;
     }
 
-    return addIntoListTmp(addrTmp,addr->Identifiers[position]->offset);
+    return addr->Identifiers[position]->offset;
 }
 
 /*!

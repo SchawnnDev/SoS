@@ -64,15 +64,16 @@ void cleanIdentifier(Identifier addr);
 int searchIntoListIdentifier(ListIdentifier addr, char* name);
 
 /*!
- * \fn int addIntoListIdentifier(ListIdentifier addr, char* name, char* value)
+ * \fn int addIntoListIdentifier(ListIdentifier addr, char* name, char* value, int offset)
  * \brief Fonction qui crée un Identifier et l'ajoute en fin de la liste des identificateurs
  * 
  * \param addr : ListIdentifier, la liste des identificateurs
  * \param name : char *, le nom de l'identificateur
+ * \param offset : int, la valeur de l'offet
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addIntoListIdentifier(ListIdentifier addr, char* name);
+int addIntoListIdentifier(ListIdentifier addr, char* name, int offset);
 
 /*!
  * \fn int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
@@ -123,8 +124,28 @@ int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int inde
 */
 int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
 
-int setRegisterOfIdentifier(ListIdentifier addr, int position, int offset);
-int getRegisterOfIdentifier(ListIdentifier addr, int position, ListTmp addrTmp);
+/*!
+ * \fn int setOffsetOfIdentifier(ListIdentifier addr, int position, int offset)
+ * \brief Fonction qui modifie l'offset de l'identificateur
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param position : int, la position de l'identificateur
+ * \param offset : int, l'offet par rapport à la stack
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int setOffsetOfIdentifier(ListIdentifier addr, int position, int offset);
+
+/*!
+ * \fn int getOffsetOfIdentifier(ListIdentifier addr, int position)
+ * \brief Fonction qui récupère l'offset de l'identificateur
+ *
+ * \param addr : ListIdentifier, la liste des identificateurs
+ * \param position : int, la position de l'identificateur
+ *
+ * \return int, l'offet par rapport à la stack
+*/
+int getOffsetOfIdentifier(ListIdentifier addr, int position);
 
 /*!
  * \fn int printIdentifier(ListIdentifier addr,int position)
