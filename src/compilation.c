@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "asm.h"
+#include "labels.h"
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
@@ -186,6 +187,36 @@ int parseInt32(const char *word) {
     return (int) parsed;
 }
 
+int doEcho()
+{
+    log_trace("doEcho")
+    CHECKPOINTER(listTmp);
+    CHECKPOINTER(listTmp->cursor);
+    int values = listTmp->cursor->numberValues;
+
+/*    for (int i = 0; i < values; ++i)
+        finalSize += strlen(listTmp->cursor->values[i]);*/
+
+/*    char* finalStr;
+    CHECKPOINTER(finalStr = malloc(finalSize + 1))*/
+
+    for (int i = 0; i < values; ++i)
+    {
+        char* val = listTmp->cursor->values[i];
+        //CHECKPOINTER(strcat(finalStr, val));
+        asm_code_printf("la $a0, %s", val)
+        asm_syscall(PRINT_STRING);
+    }
+
+    // echo "bla" $1 "bla2"
+    // print_str
+    // $1
+    // print_int
+    // print_str
+    // "blalalal" $1
+    return RETURN_SUCCESS;
+}
+
 int doBoolExpression()
 {
     log_trace("doBoolExpression (ListTmp %p, int %d)", listTmp, currentBooleanExpression)
@@ -229,8 +260,34 @@ int doBoolExpression()
     return RETURN_SUCCESS;
 }
 
-/**
-*  MIPS CODE GENERATION
-*/
+int writeQuotedString(const char* str)
+{
+    const char* label = createNewLabel();
+    int result = asm_writeAsciiz(label, str);
 
+    if(result == RETURN_FAILURE)
+        return RETURN_FAILURE;
 
+    // Don't forget to add label to tmp list
+    addValueIntoListTmp(label);
+    return result;
+}
+
+int writeApostrophedString(const char* str)
+{
+    char* copy;
+    unsigned int len = strlen(str);
+    CHECKPOINTER(copy = malloc(len + 1))
+    // Replace ' char by " char
+    CHECKPOINTER(strcpy(copy, str))
+    copy[0] = '"'; copy[len - 1] = '"';
+    const char* label = createNewLabel();
+    int result = asm_writeAsciiz(label, copy);
+
+    // Don't forget to add label to tmp list
+    if(result == RETURN_SUCCESS)
+        addValueIntoListTmp(label);
+
+    free(copy);
+    return result;
+}

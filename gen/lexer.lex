@@ -111,8 +111,8 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {QMARK} { return QMARK; }
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }
-{QUOTED_STRING} { log_debug("QUOTED_STRING: %s", yytext); return QUOTED_STRING;}
-{APOSTROPHED_STRING} { log_debug("APOSTROPHED_STRING: %s", yytext); return APOSTROPHED_STRING;}
+{QUOTED_STRING} { log_debug("QUOTED_STRING: %s", yytext); yylval.strval = yytext; return QUOTED_STRING;}
+{APOSTROPHED_STRING} { log_debug("APOSTROPHED_STRING: %s", yytext); yylval.strval = yytext; return APOSTROPHED_STRING;}
 
 {SPACE} { log_debug("space '%s'", yytext); }
 {NEWLINE} { log_debug("NEWLINE"); }

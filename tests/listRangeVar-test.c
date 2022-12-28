@@ -16,7 +16,7 @@ char* names[IDEN_MAX] = {"test0","test1","test2","test3","test4","test5","test6"
 // initRangeVariable //
 //-------------------//
 TEST initRangeVariableLvlZeroTest(void) {
-    RangeVariable addr = initRangeVariable(0,NULL);
+    RangeVariable addr = initRangeVariable(0,0,NULL);
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(0, addr->rangeLevel,"%d");
@@ -27,8 +27,8 @@ TEST initRangeVariableLvlZeroTest(void) {
 }
 
 TEST initRangeVariableLvlNTest(void) {
-    RangeVariable addr1 = initRangeVariable(0,NULL);
-    RangeVariable addr = initRangeVariable(10,addr1);
+    RangeVariable addr1 = initRangeVariable(0,0,NULL);
+    RangeVariable addr = initRangeVariable(10,0,addr1);
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(10, addr->rangeLevel,"%d");
@@ -51,7 +51,7 @@ TEST initVariablePositionWithoutIdentifierFoundTest(void) {
 }
 
 TEST initVariablePositionWithIdentifierFoundTest(void) {
-    RangeVariable rangeVariable = initRangeVariable(0,NULL);
+    RangeVariable rangeVariable = initRangeVariable(0,0,NULL);
     VariablePosition addr = initVariablePosition(rangeVariable,10);
 
     ASSERT_NEQ(NULL, addr);

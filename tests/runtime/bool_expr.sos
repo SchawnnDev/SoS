@@ -1,19 +1,11 @@
-a=read;
-
-# read_int -> $v0
-move $t0, $v0
-li $v0, 9  # Set up the syscall number for sbrk (9) in register $v0
-li $a0, 4  # Set up the first argument (number of bytes to allocate) in register $a0
-syscall  # Execute the syscall instruction
-move $t1, $v0  # Save the return value (start address of the allocated memory) in register $t0
-sw $t0, 0($t1)  # Store the integer value at the start address of the allocated memory
-sw $t0, 0($sp)
-
-
+a=1;
 b=2;
 c=3;
 d=4;
-if test ${a} -gt ${b} then
-    echo "Les valeurs doivent etre strictement positives !\n"
-fi ;
+
+echo "Hello World\n" "TEST\n" 'qsdqsdqsd\n';
 exit
+# if test ${a} -gt ${b} then
+#     echo "Les valeurs doivent etre strictement positives !\n"
+# fi ;
+# exit

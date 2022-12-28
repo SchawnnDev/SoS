@@ -21,7 +21,7 @@
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
 %type <strval> NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ASSIGN CASE ESAC
-%type <strval> SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK IF ELIF ELSE TEST THEN FI
+%type <strval> EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK IF ELIF ELSE TEST THEN FI
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
@@ -45,7 +45,7 @@ instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructi
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO_CALL list_operand
+    | ECHO_CALL list_operand { doEcho(); }
     | READ id
     | READ id LBRACKET operand_int RBRACKET
     | declare_fct
@@ -112,8 +112,8 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); ge
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTED_STRING
-    | APOSTROPHED_STRING
+    | QUOTED_STRING { writeQuotedString($1); }
+    | APOSTROPHED_STRING { writeApostrophedString($1); }
     | DOLLAR LPAREN EXPR sum_int RPAREN
     | DOLLAR LPAREN function_call RPAREN
     ;

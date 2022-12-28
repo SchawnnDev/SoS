@@ -73,7 +73,7 @@ if [ "$1" == "file" ]; then
   fi
 
   # temp :
-  # java -jar $MARS_BIN_FILE "$temp_asm_file"
+  java -jar $MARS_BIN_FILE "$temp_asm_file"
 
   # Clean
   rm "${temp_asm_file}"

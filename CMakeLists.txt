@@ -45,7 +45,7 @@ add_library(
         include/variable.h
         include/boolExpr.h
         include/listInstructionMips.h
-        include/asm.h)
+        include/asm.h include/labels.h src/labels.c)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include "${BIN_DIR}")
