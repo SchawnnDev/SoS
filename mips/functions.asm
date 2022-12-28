@@ -4,11 +4,67 @@ global_read_buffer:
     .space 256  # Reserve 256 bytes of space in the data section
     .asciiz "This is a static string in MIPS that is 256 bytes long." 
 
+global_test: .asciiz "1005"
+
 .text
 
 .globl fct_buffer_len
 .globl fct_buffer_write
+.globl fct_atoi
 j main
+
+# atoi - convert a string to an integer
+#
+# $a0 - address of the string to be converted
+#
+# returns: integer value of the string in $v0
+fct_atoi:
+  # Initialize the result to 0
+  li $v0, 0
+
+  # Initialize the index to 0
+  li $t0, 0
+
+  # Get the first character in the string
+  lb $t1, 0($a0)
+
+  # Loop until we reach the end of the string
+  fct_atoi_loop:
+    # Check if the character is a digit
+    beq $t1, '0', fct_atoi_digit
+    bgt $t1, '9', fct_atoi_not_digit
+    subu $t1, $t1, '0'
+
+    # Add the digit to the result
+    sll $t2, $t0, 2
+    addu $v0, $v0, $t2
+    addu $v0, $v0, $t1
+
+    # Increment the index
+    addiu $t0, $t0, 1
+
+    # Get the next character in the string
+    lb $t1, 0($a0)
+    j fct_atoi_loop
+
+  # We have reached the end of the string, so return the result
+  jr $ra
+
+fct_atoi_digit:
+  # The character is a digit, so add it to the result
+  subu $t1, $t1, '0'
+  addu $v0, $v0, $t1
+
+  # Increment the index
+  addiu $t0, $t0, 1
+
+  # Get the next character in the string
+  lb $t1, $t0($a0)
+  j fct_atoi_loop
+
+fct_atoi_not_digit:
+  # The character is not a digit, so return the result
+  jr $ra
 
 # Function to save values from temporary registers to stack
 #
@@ -156,4 +212,12 @@ main:
     jal fct_load_temp_values
     
     move $a0, $t0   # Pass the value in $t0 as an argument
+    syscall
+    
+    
+    la $a0, global_test
+    jal fct_atoi
+    
+    move $a0, $v0
+    li $v0, 5
     syscall

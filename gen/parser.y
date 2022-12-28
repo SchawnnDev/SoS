@@ -106,7 +106,7 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); getValues(); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1);}
     | DOLLAR int

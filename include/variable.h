@@ -33,5 +33,7 @@
 /* ASM Generation */
 #define START_STACK 32
 #define ADDR_STACK_SIZE 4
+#define TYPE_STACK 0
+#define TYPE_DATA 1
 
 #endif

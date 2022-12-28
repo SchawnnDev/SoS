@@ -481,7 +481,7 @@ int getOffset(ListRangeVariable addr, char* name, ListTmp listTmp)
     CHECKPOINTER(offset = (char*)malloc(sizeof(char) * SIZE_INT_STR));
     CHECK(sprintf(offset,"%d", (addr->cursor->stack - getOffsetOfIdentifier(
             variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier))));
-    return addIntoListTmp(listTmp,offset);
+    return addIntoListTmpWithType(listTmp,offset, TYPE_STACK);
 }
 
 /*!

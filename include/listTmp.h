@@ -4,8 +4,9 @@
 #include "utils.h"
 #include "variable.h"
 
-typedef struct tmpValues_t{
+typedef struct tmpValues_t {
     char * values[TMP_MAX];
+    int types[TMP_MAX];
     int numberValues;
 
     struct tmpValues_t* previousTmpValues;
@@ -59,6 +60,18 @@ void cleanListTmp(ListTmp addr);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int addIntoListTmp(ListTmp addr, char* value);
+
+/*!
+ * \fn int addIntoListTmpWithType(ListTmp addr, char* value, int type)
+ * \brief Fonction qui permet d'ajoute en fin de la liste des valeurs temporaires
+ *
+ * \param addr : ListTmp, la liste des valeurs temporaires
+ * \param value : char *, la valeur à ajouter
+ * \param type : int, le type donnée
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int addIntoListTmpWithType(ListTmp addr, char* value, int type);
 
 /*!
  * \fn void addListTmp(ListTmp addr,TmpValues addrTmpValues)

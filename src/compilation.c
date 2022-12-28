@@ -194,26 +194,21 @@ int doEcho()
     CHECKPOINTER(listTmp->cursor);
     int values = listTmp->cursor->numberValues;
 
-/*    for (int i = 0; i < values; ++i)
-        finalSize += strlen(listTmp->cursor->values[i]);*/
-
-/*    char* finalStr;
-    CHECKPOINTER(finalStr = malloc(finalSize + 1))*/
-
     for (int i = 0; i < values; ++i)
     {
         char* val = listTmp->cursor->values[i];
-        //CHECKPOINTER(strcat(finalStr, val));
+        // CHECKPOINTER(strcat(finalStr, val));
+        if(listTmp->cursor->types[i] == TYPE_STACK)
+        {
+            // print_string
+            continue;
+        }
+
+
         asm_code_printf("la $a0, %s", val)
         asm_syscall(PRINT_STRING);
     }
 
-    // echo "bla" $1 "bla2"
-    // print_str
-    // $1
-    // print_int
-    // print_str
-    // "blalalal" $1
     return RETURN_SUCCESS;
 }
 
