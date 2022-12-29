@@ -38,7 +38,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 
 instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
-    | DECLARE id LBRACKET int RBRACKET
+    | DECLARE id LBRACKET int RBRACKET { doDeclareStaticArray(); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE

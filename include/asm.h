@@ -97,4 +97,21 @@ int asm_syscall(syscall_t type);
  */
 int asm_writeAsciiz(const char* label, const char* content);
 
+/**
+ *
+ * @param label
+ * @param size
+ * @return
+ */
+int asm_writeStaticArray(const char* label, int size);
+
+// UTILS
+
+/**
+ *
+ * @param id
+ * @return
+ */
+char* idToLabel(const char* id);
+
 #endif //SOS_ASM_H

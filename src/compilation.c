@@ -23,7 +23,8 @@ void setCurrentBooleanExpression(boolExpr_t expr)
     currentBooleanExpression = expr;
 }
 
-int errorType(const char *msg, ...) {
+int errorType(const char *msg, ...)
+{
 
     return (EXIT_FAILURE);
 }
@@ -32,7 +33,8 @@ int errorType(const char *msg, ...) {
  * \fn void initStruct()
  * \brief Fonction qui initialise les structures
 */
-void initStruct() {
+void initStruct()
+{
     log_trace("Started initStruct")
     listRangeVariable = initListRangeVariable();
     listIdentifierOrder = initListIdentifierOrder();
@@ -50,31 +52,35 @@ void initStruct() {
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int compile(FILE *inputFile, FILE *outputFile) {
+int compile(FILE *inputFile, FILE *outputFile)
+{
     log_trace("Started compile (%d, %d)", inputFile, outputFile)
     initStruct();
     yyin = inputFile;
     int result = yyparse();
-    if(result != RETURN_SUCCESS) return result;
-    return writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
+    if (result != RETURN_SUCCESS) return result;
+    return writeToFile(listInstruction,
+                       outputFile == NULL ? stdout : outputFile);
 }
 
 /*!
  * \fn void assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-void assign() {
+void assign()
+{
     log_trace("assign (void)")
     addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name);
-    setValuesFromListTmp(listRangeVariable, listIdentifierOrder->cursor->name, listTmp);
+    setValuesFromListTmp(listRangeVariable, listIdentifierOrder->cursor->name,
+                         listTmp);
     deleteListTmp(listTmp);
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-void assignArray() {
+void assignArray()
+{
 
 }
-
 
 
 /*!
@@ -83,7 +89,8 @@ void assignArray() {
  *
  * \param name : char*, le nom de l'identificateur
 */
-void addIdOrder(char *name) {
+void addIdOrder(char *name)
+{
     addIdentifierOrder(listIdentifierOrder, name);
 }
 
@@ -93,7 +100,8 @@ void addIdOrder(char *name) {
  *
  * \param name : char*, le nom de l'identificateur
 */
-void setTypeOrder(int type) {
+void setTypeOrder(int type)
+{
     log_trace("setTypeOrder (int %d)", type);
     setTypeIdentifierOrder(listIdentifierOrder, type);
 }
@@ -102,7 +110,8 @@ void setTypeOrder(int type) {
  * \fn void addTmpValuesListTmp
  * \brief Fonction qui ajoute une structure de valeur temporaire
 */
-void addTmpValuesListTmp() {
+void addTmpValuesListTmp()
+{
     addListTmp(listTmp, initTmpValues(listTmp->cursor));
 }
 
@@ -112,22 +121,27 @@ void addTmpValuesListTmp() {
  *
  * \param value : char*, le contenue
 */
-void addValueIntoListTmp(char *value) {
+void addValueIntoListTmp(char *value)
+{
     addIntoListTmp(listTmp, value);
 }
 
 /* ToDo : version 1 : aide au debug*/
-void echo(){
-    printIdentifierFromListRange(listRangeVariable, listIdentifierOrder->cursor->name);
+void echo()
+{
+    printIdentifierFromListRange(listRangeVariable,
+                                 listIdentifierOrder->cursor->name);
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-void doOperation() {
+void doOperation()
+{
     operationListTmp(listTmp, currentOperation);
     currentOperation = UNSET;
 }
 
-int checkRegex(const char *pattern, const char *string) {
+int checkRegex(const char *pattern, const char *string)
+{
     log_trace("checkRegex(%s, %s)", pattern, string)
     //char *pattern = "^[a-zA-Z_][a-zA-Z0-9_]*";
     //char *string = "hello";
@@ -135,19 +149,22 @@ int checkRegex(const char *pattern, const char *string) {
     int ret;
 
     ret = regcomp(&regex, pattern, REG_EXTENDED);
-    if (ret != 0) {
+    if (ret != 0)
+    {
         log_error("Error compiling regular expression")
         return -1;
     }
 
     ret = regexec(&regex, string, 0, NULL, 0);
-    if (ret == 0) {
+    if (ret == 0)
+    {
         log_trace("String matches regular expression");
         regfree(&regex);
         return 1;
     }
 
-    if (ret == REG_NOMATCH) {
+    if (ret == REG_NOMATCH)
+    {
         log_error("String does not match regular expression");
         regfree(&regex);
         return 0;
@@ -157,28 +174,35 @@ int checkRegex(const char *pattern, const char *string) {
     return -1;
 }
 
-int checkWordIsId(const char *word) {
+int checkWordIsId(const char *word)
+{
     return checkRegex("^[a-zA-Z_][a-zA-Z0-9_]*", word);
 }
 
-int checkWordIsInt(const char *word) {
+int checkWordIsInt(const char *word)
+{
     return checkRegex("^[+-]?[0-9]+", word);
 }
 
-int getValues() {
-    return getValuesFromIdentifier(listRangeVariable, listIdentifierOrder->cursor->name, listTmp);
+int getValues()
+{
+    return getValuesFromIdentifier(listRangeVariable,
+                                   listIdentifierOrder->cursor->name, listTmp);
 }
 
-int parseInt32(const char *word) {
+int parseInt32(const char *word)
+{
     char *endptr;
     long int parsed = strtol(word, &endptr, 10);
 
-    if (endptr == word || *endptr != '\0') {
+    if (endptr == word || *endptr != '\0')
+    {
         log_error("Invalid number for parseInt32(%s)", word);
         return -1;
     }
 
-    if (parsed < INT_MIN || parsed > INT_MAX) {
+    if (parsed < INT_MIN || parsed > INT_MAX)
+    {
         // The number is not within the range of a 32-bit integer
         log_error("Number is not 32-bit for parseInt32(%s)", word);
         return -1;
@@ -196,9 +220,9 @@ int doEcho()
 
     for (int i = 0; i < values; ++i)
     {
-        char* val = listTmp->cursor->values[i];
+        char *val = listTmp->cursor->values[i];
         // CHECKPOINTER(strcat(finalStr, val));
-        if(listTmp->cursor->types[i] == TYPE_STACK)
+        if (listTmp->cursor->types[i] == TYPE_STACK)
         {
             // print_string
             continue;
@@ -214,25 +238,28 @@ int doEcho()
 
 int doBoolExpression()
 {
-    log_trace("doBoolExpression (ListTmp %p, int %d)", listTmp, currentBooleanExpression)
+    log_trace("doBoolExpression (ListTmp %p, int %d)", listTmp,
+              currentBooleanExpression)
     CHECKPOINTER(listTmp);
     CHECKPOINTER(listTmp->cursor);
 
-    if(listTmp->cursor->numberValues < 2){
-        log_error("numberValues : %d",listTmp->cursor->numberValues)
+    if (listTmp->cursor->numberValues < 2)
+    {
+        log_error("numberValues : %d", listTmp->cursor->numberValues)
         perror("doBoolExpression : you must have two values.");
         return RETURN_FAILURE;
     }
 
-    int reg1 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues-2]);
-    int reg2 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues-1]);
+    int reg1 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues - 2]);
+    int reg2 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues - 1]);
     deleteListTmp(listTmp);
     addListTmp(listTmp, initTmpValues(listTmp->cursor));
 
     asm_code_printf("li $t1, %d", reg1)
     asm_code_printf("li $t2, %d", reg2)
 
-    switch (currentBooleanExpression) {
+    switch (currentBooleanExpression)
+    {
         case BOOL_EQ:
             break;
         case BOOL_NEQ:
@@ -255,12 +282,52 @@ int doBoolExpression()
     return RETURN_SUCCESS;
 }
 
-int writeQuotedString(const char* str)
+int doDeclareStaticArray()
 {
-    const char* label = createNewLabel();
+    log_trace("doDeclareStaticArray")
+    CHECKPOINTER(listTmp)
+    CHECKPOINTER(listTmp->cursor)
+    CHECKPOINTER(listIdentifierOrder)
+
+    if (listIdentifierOrder->cursor->index == 0)
+    {
+        perror("doDeclareStaticArray : you must have one indentifier.");
+        return RETURN_FAILURE;
+    }
+
+    if (listTmp->cursor->numberValues == 0)
+    {
+        log_error("numberValues : %d", listTmp->cursor->numberValues)
+        perror("doDeclareStaticArray : you must have one value.");
+        return RETURN_FAILURE;
+    }
+
+    const int size = atoi(listTmp->cursor->values[0]);
+
+    if(size <= 0)
+    {
+        log_error("doDeclareStaticArray: size should be greater than 0 (actual: %d)", size)
+        return RETURN_FAILURE;
+    }
+
+    char *id = idToLabel(listIdentifierOrder->cursor->name);
+
+    if (asm_writeStaticArray(id, size) == RETURN_FAILURE)
+        return RETURN_FAILURE;
+
+    free(id);
+    deleteListTmp(listTmp);
+    addListTmp(listTmp, initTmpValues(listTmp->cursor));
+
+    return RETURN_SUCCESS;
+}
+
+int writeQuotedString(const char *str)
+{
+    const char *label = createNewLabel();
     int result = asm_writeAsciiz(label, str);
 
-    if(result == RETURN_FAILURE)
+    if (result == RETURN_FAILURE)
         return RETURN_FAILURE;
 
     // Don't forget to add label to tmp list
@@ -268,19 +335,20 @@ int writeQuotedString(const char* str)
     return result;
 }
 
-int writeApostrophedString(const char* str)
+int writeApostrophedString(const char *str)
 {
-    char* copy;
+    char *copy;
     unsigned int len = strlen(str);
     CHECKPOINTER(copy = malloc(len + 1))
     // Replace ' char by " char
     CHECKPOINTER(strcpy(copy, str))
-    copy[0] = '"'; copy[len - 1] = '"';
-    const char* label = createNewLabel();
+    copy[0] = '"';
+    copy[len - 1] = '"';
+    const char *label = createNewLabel();
     int result = asm_writeAsciiz(label, copy);
 
     // Don't forget to add label to tmp list
-    if(result == RETURN_SUCCESS)
+    if (result == RETURN_SUCCESS)
         addValueIntoListTmp(label);
 
     free(copy);

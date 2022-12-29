@@ -230,7 +230,7 @@ void completeUnDefineGoto( ListInstruction addr, char* code )
 
         do {
             for (int i = 0; i < data->numberData; ++i) {
-                CHECK(fprintf(file, "%s\n", data->lineData[i]));
+                CHECK(fprintf(file, "%s", data->lineData[i]));
             }
             data = data->nextData;
         } while(data != NULL);
@@ -239,7 +239,7 @@ void completeUnDefineGoto( ListInstruction addr, char* code )
 
         do {
             for (int i = 0; i < code->numberCode; ++i) {
-                CHECK(fprintf(file, "%s\n", code->lineCode[i]));
+                CHECK(fprintf(file, "%s", code->lineCode[i]));
             }
             code = code->nextCode;
         } while (code != NULL);

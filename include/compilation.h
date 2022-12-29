@@ -46,6 +46,12 @@ void doOperation();
  *
  * @return
  */
+int doDeclareStaticArray();
+
+/**
+ *
+ * @return
+ */
 int getValues();
 
 /**
