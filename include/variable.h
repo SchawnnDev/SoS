@@ -47,5 +47,6 @@
 #define ASM_BUFFER_LEN_FUNCTION_NAME "_fct_buffer_len"
 #define ASM_BUFFER_WRITE_FUNCTION_NAME "_fct_buffer_write"
 #define ASM_ATOI_FUNCTION_NAME "_fct_atoi"
+#define ASM_STRCMP_FUNCTION_NAME "_fct_strcmp"
 
 #endif

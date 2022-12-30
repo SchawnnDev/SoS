@@ -206,7 +206,7 @@ fct_atoi:
 
     jal fct_buffer_len # get a0 length into v0
 
-    beq $v0, $zero, end_loop # string is empty => over
+    beq $v0, $zero, error # string is empty => error
     move $a0, $a1 # put the copy back into a0
 
     li $t2, 10 # 10
@@ -233,6 +233,12 @@ fct_atoi:
         # Check if we've reached the end of the string
         beq $t0, $zero, end_loop
 
+        li $t7, '0'
+	bltu $t0,$t7, error        # Jump if char < '0'
+
+	li $t7,'9'
+	bltu $t7,$t0, error       # Jump if '9' < char
+
         # Convert the character to its numeric value and add it to the result
         sub $t0, $t0, '0'
         mul $t0, $t0, $t1
@@ -245,6 +251,13 @@ fct_atoi:
         # Move to the next character in the string
         addi $a0, $a0, 1
         j loop
+
+    error:
+    	la $a0, not_a_number
+    	li $v0, 4    # Print String service
+   	    syscall
+    	li $v0, 17
+    	syscall
 
     # End of loop
     end_loop:
