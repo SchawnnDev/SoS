@@ -11,6 +11,7 @@
 #include "saveRegistersToStack.asm.h"
 #include "bufferLen.asm.h"
 #include "atoi.asm.h"
+#include "strcmp.asm.h"
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
@@ -74,6 +75,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeBufferLenFunction();
     asm_writeBufferWriteFunction();
     asm_writeAtoiFunction();
+    asm_writeStrcmpFunction();
     asm_code_printf("\n")
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
