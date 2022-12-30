@@ -65,9 +65,9 @@ int compile(FILE *inputFile, FILE *outputFile)
     yyin = inputFile;
     // Generate all functions & headers
     asm_writeHeader();
-    asm_code_printf("j _main")
+    asm_code_printf("j _main\n")
     asm_code_printf("\n")
-    asm_code_printf("\t# Functions library section\n")
+    asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")
     asm_writeLoadRegistersFromStackFunction();
     asm_writeSaveRegistersToStackFunction();
@@ -75,9 +75,9 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeBufferWriteFunction();
     asm_writeAtoiFunction();
     asm_code_printf("\n")
-    asm_code_printf("\t# Start of main code section\n")
+    asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
-    asm_code_printf("_main:")
+    asm_code_printf("_main:\n")
     // Parse
     int result = yyparse();
     if (result != RETURN_SUCCESS) return result;
@@ -97,34 +97,66 @@ int assign()
     setValuesFromListTmp(listRangeVariable, listIdentifierOrder->cursor->name,
                          listTmp);
 
-    if(getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
+    // Get offset of stack for the assigned value
+    if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
         return RETURN_FAILURE;
 
-    char* stackOffset = listTmp->cursor->values[listTmp->cursor->numberValues-1];
-    ///lw $a1, 0($t0)      # Load the address from the stack and store it in the given register
-    asm_code_printf("\taddi $t0, $sp, %s\n", stackOffset)
-    asm_loadLabelIntoRegister(ASM_VAR_OFFSET_NAME, "$t1");
-    asm_code_printf("\tadd $t0, $t0, $t1\n")
-
+    // Do concatenation
     int values = listTmp->cursor->numberValues;
 
-    for (int i = 0; i < values; ++i)
+    asm_code_printf("\n\t# Assignation of var %s\n", name)
+
+    asm_code_printf("\taddi $t0, $zero, 0\n") // $t0 will be the total size of concat
+
+    // This loop calculates the size of the concatenation
+    for (int i = 0; i < values - 1; ++i) // values - 1 : last element is the stack offset for the assigned value
     {
         char *val = listTmp->cursor->values[i];
-        // CHECKPOINTER(strcat(finalStr, val));
+        //
         if (listTmp->cursor->types[i] == TYPE_STACK)
         {
-            int stack = atoi(val);
-
-            // read sur le stack
-            asm_readFromStack("$t0", stack);
-            asm_useDisplayFromHeapFunction("$t0");
-            continue;
+            // read from stack
+            asm_readFromStack("$t1", val);
+        } else {
+            // Else is a label, do calculations:
+            asm_code_printf("\tla $t1, %s\n", val)
         }
 
-        asm_code_printf("\tla $a0, %s\n", val)
+        asm_useBufferLenFunction("$t1", "$t2");
+        asm_code_printf("\tadd $t0, $t0, $t2\n")
 
     }
+
+    // We now have the size in $t0
+    asm_code_printf("\taddi $t0, $t0, 1\n") // Add 1 for the '\0' char
+    // do a sbrk to get memory
+    asm_code_printf("\tmove $a0, $t0\n")
+    asm_syscall(SBRK);
+    // start address of the heap memory is in $v0
+    asm_code_printf("\tmove $t1, $v0\n") // moving it to $t1
+    // save start address to the assigned value stack
+    asm_allocateMemoryOnStack("$t2", 1); // TODO: check if memory address is right (_offset...)
+    asm_code_printf("\tsw $t1, 0($t2)\n")
+
+    // let's write to the heap !
+    for (int i = 0; i < values - 1; ++i)
+    {
+        char *val = listTmp->cursor->values[i];
+        //
+        if (listTmp->cursor->types[i] == TYPE_STACK)
+        {
+            asm_readFromStack("$t0", val);
+        } else {
+            asm_code_printf("\tla $t0, %s\n", val)
+        }
+        asm_useBufferWriteFunction("$t0", "$t1", "$t1");
+        asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
+    }
+
+    // At the end write $zero
+    asm_code_printf("\tsw $zero, 0($t1)\n")
+
+    asm_code_printf("\n\t# End of assignation of var %s\n", name)
 
     deleteListTmp(listTmp);
     deleteIdentifierOrder(listIdentifierOrder);
@@ -277,11 +309,10 @@ int doEcho()
         // CHECKPOINTER(strcat(finalStr, val));
         if (listTmp->cursor->types[i] == TYPE_STACK)
         {
-            int stack = atoi(val);
-
-            // read sur le stack
-            asm_readFromStack("$t0", stack);
-            asm_useDisplayFromHeapFunction("$t0");
+            // read from stack into $t0
+            asm_readFromStack("$t0", val);
+            asm_code_printf("\tmove $a0, $t0\n")
+            asm_syscall(PRINT_STRING);
             continue;
         }
 

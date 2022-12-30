@@ -118,7 +118,15 @@ int asm_writeStaticArray(const char* label, int size);
  * @param reg
  * @return
  */
-int asm_useDisplayFromHeapFunction(const char* reg);
+int asm_useBufferWriteFunction(const char* source, const char* destination, const char* into);
+
+/**
+ *
+ * @param bufStartAddressRegister
+ * @param into
+ * @return
+ */
+int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into);
 
 /**
  *
