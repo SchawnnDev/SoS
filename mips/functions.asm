@@ -188,7 +188,73 @@ fct_read_address_from_stack:
     add $t0, $sp, $a0   # Adds the offset to the stack pointer and saves it to $t0
     lw $a1, 0($t0)      # Load the address from the stack and store it in the given register
     jr $ra              # Return
-    
+
+# Convert a string to an integer
+#
+# Arguments:
+#   $a0 - address of the string
+#
+# Returns:
+#   $v0 - the integer representation of the string
+fct_atoi:
+
+    move $a1, $a0 # copy a0 into a1 since function following is editing a0
+
+    # Write memory to stack
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+
+    jal fct_buffer_len # get a0 length into v0
+
+    beq $v0, $zero, end_loop # string is empty => over
+    move $a0, $a1 # put the copy back into a0
+
+    li $t2, 10 # 10
+    li $t1, 1 # default value
+
+    li $t6, 1 # loop counter starts at 1
+    move $t7, $v0 # string length as the counter limit
+
+    # Reset the result to 0
+    move $v0, $zero
+
+    beq $t7, 1, loop
+
+    setup:
+        mul     $t1, $t1, 10  # multiply $t1 by 10
+        addi    $t6, $t6, 1   # increment loop counter
+        blt     $t6, $t7, setup # branch to loop if $t6 < $t7
+
+    # Loop through the characters in the string
+    loop:
+        # Load the current character
+        lb $t0, 0($a0)
+
+        # Check if we've reached the end of the string
+        beq $t0, $zero, end_loop
+
+        # Convert the character to its numeric value and add it to the result
+        sub $t0, $t0, '0'
+        mul $t0, $t0, $t1
+        add $v0, $v0, $t0
+
+        # Reduce the multiplier length by one digit : modulo 10
+        div $t1, $t2
+        mflo $t1
+
+        # Move to the next character in the string
+        addi $a0, $a0, 1
+        j loop
+
+    # End of loop
+    end_loop:
+        # Load memory from stack
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4
+
+        # Return the result
+        jr $ra
+
 main:
 
     
