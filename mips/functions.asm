@@ -255,6 +255,68 @@ fct_atoi:
         # Return the result
         jr $ra
 
+# Compares two strings
+#
+# Arguments:
+#   $a0 - address of the first string
+#   $a1 - address of the second string
+#
+# Returns:
+#   $v0 - 1 if equal, else 0
+fct_strcmp:
+
+    # Write memory to stack
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+
+    move $t0, $a0 # copy a0 into t0 since function following is editing a0
+    move $t1, $a1 # copy a1 into t1 since function following is editing a1
+
+    jal fct_buffer_len # get a0 length into v0
+    move $t2, $v0 # first string length into $t2
+
+    move $a0, $a1 # setup call fct_buffer_len
+    jal fct_buffer_len # get a0 length into v0
+    move $t3, $v0 # second string length into $t3
+
+    bne $t2, $t3, to_false # lengths not equal
+
+    # moving strings back into registers
+    move $a0, $t0
+    move $a1, $t1
+
+    loop :
+
+    	# Load the current characters
+        lb $t0, 0($a0)
+        lb $t1, 0($a1)
+
+        # Check if we've reached the end of the string
+        beq $t0, $zero, to_true
+
+        # Check if characters are equal
+        bne $t0, $t1, to_false
+
+        # Move to the next character in the string
+        addi $a0, $a0, 1
+        addi $a1, $a1, 1
+    	j loop
+
+    to_true:
+    	li $v0, 1 # string equals
+    	j end_loop
+
+    to_false :
+    	move $v0, $zero
+
+    # End of loop memory from stack
+    end_loop:
+    # Load memory from stack
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
+    # Return the result
+    jr $ra
+
 main:
 
     
