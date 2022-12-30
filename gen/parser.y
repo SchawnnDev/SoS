@@ -108,12 +108,12 @@ test_instruction : concatenation ASSIGN concatenation
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); doGetVariableAddress(); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD { log_debug("operand : WORD (%s)", $1); writeWord($1, TRUE); }
+    | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1); }
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTED_STRING { writeWord($1, FALSE); }
-    | APOSTROPHED_STRING { writeApostrophedString($1); }
+    | QUOTED_STRING { addStringToListTmp($1); }
+    | APOSTROPHED_STRING { addStringToListTmp($1); }
     | DOLLAR LPAREN EXPR sum_int RPAREN
     | DOLLAR LPAREN function_call RPAREN
     ;

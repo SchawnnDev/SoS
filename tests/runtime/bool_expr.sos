@@ -5,7 +5,7 @@ a="test";
 #c=3;
 #d=4;
 b="1" ${a};
-
+echo ${b};
 #echo ${a} ${b} ${c} "Hello World\n" "TEST\n" 'qsdqsdqsd\n';
 exit
 # if test ${a} -gt ${b} then

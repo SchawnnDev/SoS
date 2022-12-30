@@ -85,6 +85,73 @@ int compile(FILE *inputFile, FILE *outputFile)
                        outputFile == NULL ? stdout : outputFile);
 }
 
+int doConcatenation(const char* into, int skipOffset)
+{
+    log_trace("doConcatenation")
+    CHECKPOINTER(listTmp)
+    CHECKPOINTER(listTmp->cursor)
+
+    // Do concatenation
+    int values = listTmp->cursor->numberValues;
+
+    asm_code_printf("\taddi $t0, $zero, 0\n") // $t0 will be the total size of concat
+    const int max = skipOffset ? values - 1 : values;
+    // This loop calculates the size of the concatenation
+    for (int i = 0; i < max; ++i) // values - 1 : last element is the stack offset for the assigned value
+    {
+        char *val = listTmp->cursor->values[i];
+        //
+        if (listTmp->cursor->types[i] == TYPE_STACK)
+        {
+            // read from stack
+            asm_readFromStack("$t1", val);
+        } else {
+            // Else is a label, do calculations:
+            asm_code_printf("\taddi $t0, $t0, %lu\n", strlen(val))
+        }
+
+        asm_useBufferLenFunction("$t1", "$t2");
+        asm_code_printf("\tadd $t0, $t0, $t2\n")
+
+    }
+
+    // We now have the size in $t0
+    asm_code_printf("\taddi $t0, $t0, 1\n") // Add 1 for the '\0' char
+    // do a sbrk to get memory
+    asm_code_printf("\tmove $a0, $t0\n")
+    asm_syscall(SBRK);
+    // start address of the heap memory is in $v0
+    asm_code_printf("\tmove %s, $v0\n", into) // move start address to a0
+    asm_code_printf("\tmove $t1, $v0\n") // moving it to $t1
+
+    // let's write to the heap !
+    for (int i = 0; i < max; ++i)
+    {
+        char *val = listTmp->cursor->values[i];
+        //
+        if (listTmp->cursor->types[i] == TYPE_STACK) {
+            asm_readFromStack("$t0", val);
+            asm_useBufferWriteFunction("$t0", "$t1", "$t1");
+            asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
+            continue;
+        }
+
+        unsigned int len = strlen(val);
+        // Save chars to heap
+        for (int j = 0; j < len; ++j) {
+            asm_code_printf("\tli $t3, '%c'\n", val[j])
+            asm_code_printf("\tsw $t3, 0($t1)\n")
+            asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
+        }
+
+    }
+
+    // At the end write $zero
+    asm_code_printf("\tsw $zero, 0($t1)\n")
+
+    return RETURN_SUCCESS;
+}
+
 /*!
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
@@ -101,65 +168,20 @@ int assign()
     if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
         return RETURN_FAILURE;
 
-    // Do concatenation
-    int values = listTmp->cursor->numberValues;
-
     asm_code_printf("\n\t# Assignation of var %s\n", name)
 
-    asm_code_printf("\taddi $t0, $zero, 0\n") // $t0 will be the total size of concat
+    if(doConcatenation("$a0", TRUE) == RETURN_FAILURE)
+        return RETURN_FAILURE;
 
-    // This loop calculates the size of the concatenation
-    for (int i = 0; i < values - 1; ++i) // values - 1 : last element is the stack offset for the assigned value
-    {
-        char *val = listTmp->cursor->values[i];
-        //
-        if (listTmp->cursor->types[i] == TYPE_STACK)
-        {
-            // read from stack
-            asm_readFromStack("$t1", val);
-        } else {
-            // Else is a label, do calculations:
-            asm_code_printf("\tla $t1, %s\n", val)
-        }
-
-        asm_useBufferLenFunction("$t1", "$t2");
-        asm_code_printf("\tadd $t0, $t0, $t2\n")
-
-    }
-
-    // We now have the size in $t0
-    asm_code_printf("\taddi $t0, $t0, 1\n") // Add 1 for the '\0' char
-    // do a sbrk to get memory
-    asm_code_printf("\tmove $a0, $t0\n")
-    asm_syscall(SBRK);
-    // start address of the heap memory is in $v0
-    asm_code_printf("\tmove $t1, $v0\n") // moving it to $t1
     // save start address to the assigned value stack
     asm_allocateMemoryOnStack("$t2", 1); // TODO: check if memory address is right (_offset...)
     asm_code_printf("\tsw $t1, 0($t2)\n")
-
-    // let's write to the heap !
-    for (int i = 0; i < values - 1; ++i)
-    {
-        char *val = listTmp->cursor->values[i];
-        //
-        if (listTmp->cursor->types[i] == TYPE_STACK)
-        {
-            asm_readFromStack("$t0", val);
-        } else {
-            asm_code_printf("\tla $t0, %s\n", val)
-        }
-        asm_useBufferWriteFunction("$t0", "$t1", "$t1");
-        asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
-    }
-
-    // At the end write $zero
-    asm_code_printf("\tsw $zero, 0($t1)\n")
 
     asm_code_printf("\n\t# End of assignation of var %s\n", name)
 
     deleteListTmp(listTmp);
     deleteIdentifierOrder(listIdentifierOrder);
+    return RETURN_SUCCESS;
 }
 
 void assignArray()
@@ -225,101 +247,23 @@ void doOperation()
     currentOperation = UNSET;
 }
 
-int checkRegex(const char *pattern, const char *string)
-{
-    log_trace("checkRegex(%s, %s)", pattern, string)
-    //char *pattern = "^[a-zA-Z_][a-zA-Z0-9_]*";
-    //char *string = "hello";
-    regex_t regex;
-    int ret;
-
-    ret = regcomp(&regex, pattern, REG_EXTENDED);
-    if (ret != 0)
-    {
-        log_error("Error compiling regular expression")
-        return -1;
-    }
-
-    ret = regexec(&regex, string, 0, NULL, 0);
-    if (ret == 0)
-    {
-        log_trace("String matches regular expression");
-        regfree(&regex);
-        return 1;
-    }
-
-    if (ret == REG_NOMATCH)
-    {
-        log_error("String does not match regular expression");
-        regfree(&regex);
-        return 0;
-    }
-
-    log_error("Error executing regular expression");
-    return -1;
-}
-
-int checkWordIsId(const char *word)
-{
-    return checkRegex("^[a-zA-Z_][a-zA-Z0-9_]*", word);
-}
-
-int checkWordIsInt(const char *word)
-{
-    return checkRegex("^[+-]?[0-9]+", word);
-}
-
 int getValues()
 {
     return getValuesFromIdentifier(listRangeVariable,
                                    listIdentifierOrder->cursor->name, listTmp);
 }
 
-int parseInt32(const char *word)
-{
-    char *endptr;
-    long int parsed = strtol(word, &endptr, 10);
-
-    if (endptr == word || *endptr != '\0')
-    {
-        log_error("Invalid number for parseInt32(%s)", word);
-        return -1;
-    }
-
-    if (parsed < INT_MIN || parsed > INT_MAX)
-    {
-        // The number is not within the range of a 32-bit integer
-        log_error("Number is not 32-bit for parseInt32(%s)", word);
-        return -1;
-    }
-
-    return (int) parsed;
-}
-
 int doEcho()
 {
     log_trace("doEcho")
-    CHECKPOINTER(listTmp)
-    CHECKPOINTER(listTmp->cursor)
-    int values = listTmp->cursor->numberValues;
+    asm_code_printf("\n# DO ECHO SECTION\n\n")
 
-    for (int i = 0; i < values; ++i)
-    {
-        char *val = listTmp->cursor->values[i];
-        // CHECKPOINTER(strcat(finalStr, val));
-        if (listTmp->cursor->types[i] == TYPE_STACK)
-        {
-            // read from stack into $t0
-            asm_readFromStack("$t0", val);
-            asm_code_printf("\tmove $a0, $t0\n")
-            asm_syscall(PRINT_STRING);
-            continue;
-        }
+    if(doConcatenation("$a0", FALSE) == RETURN_FAILURE)
+        return RETURN_FAILURE;
 
-        asm_code_printf("\tla $a0, %s\n", val)
-        asm_syscall(PRINT_STRING);
+    asm_syscall(PRINT_STRING);
 
-    }
+    asm_code_printf("\n# END DO ECHO SECTION\n\n")
 
     return RETURN_SUCCESS;
 }
@@ -447,37 +391,18 @@ int doDeclareStaticArray()
     return RETURN_SUCCESS;
 }
 
-int writeWord(const char *str, int addQuotes)
-{
-    const char *label = createNewLabel();
-    int result = asm_writeAsciiz(label, str, addQuotes);
-
-    if (result == RETURN_FAILURE)
-        return RETURN_FAILURE;
-
-    // Don't forget to add label to tmp list
-    addValueIntoListTmp(label);
-    return result;
-}
-
-int writeApostrophedString(const char *str)
-{
+int addStringToListTmp(const char *str) {
     char *copy;
-    unsigned int len = strlen(str);
-    CHECKPOINTER(copy = malloc(len + 1))
-    // Replace ' char by " char
-    CHECKPOINTER(strcpy(copy, str))
-    copy[0] = '"';
-    copy[len - 1] = '"';
-    const char *label = createNewLabel();
-    int result = asm_writeAsciiz(label, copy, TRUE);
-
+    unsigned int len = strlen(str) - 1;
+    // \"test\"\0
+    CHECKPOINTER(copy = malloc(len))
+    CHECKPOINTER(strncpy(copy, str + 1, len - 1));
+    copy[len - 1] = '\0'; // add nul char
     // Don't forget to add label to tmp list
-    if (result == RETURN_SUCCESS)
-        addValueIntoListTmp(label);
+    addValueIntoListTmp(copy);
 
     free(copy);
-    return result;
+    return RETURN_SUCCESS;
 }
 
 int doArrayRead()
@@ -519,7 +444,6 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-
 int doGetVariableAddress()
 {
     log_trace("doGetVariableAddress")
@@ -530,5 +454,74 @@ int doGetVariableAddress()
     if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
         return RETURN_FAILURE;
 
+    deleteIdentifierOrder(listIdentifierOrder);
+
     return RETURN_SUCCESS;
+}
+
+// Utils
+
+int parseInt32(const char *word)
+{
+    char *endptr;
+    long int parsed = strtol(word, &endptr, 10);
+
+    if (endptr == word || *endptr != '\0')
+    {
+        log_error("Invalid number for parseInt32(%s)", word);
+        return -1;
+    }
+
+    if (parsed < INT_MIN || parsed > INT_MAX)
+    {
+        // The number is not within the range of a 32-bit integer
+        log_error("Number is not 32-bit for parseInt32(%s)", word);
+        return -1;
+    }
+
+    return (int) parsed;
+}
+
+int checkRegex(const char *pattern, const char *string)
+{
+    log_trace("checkRegex(%s, %s)", pattern, string)
+    //char *pattern = "^[a-zA-Z_][a-zA-Z0-9_]*";
+    //char *string = "hello";
+    regex_t regex;
+    int ret;
+
+    ret = regcomp(&regex, pattern, REG_EXTENDED);
+    if (ret != 0)
+    {
+        log_error("Error compiling regular expression")
+        return -1;
+    }
+
+    ret = regexec(&regex, string, 0, NULL, 0);
+    if (ret == 0)
+    {
+        log_trace("String matches regular expression");
+        regfree(&regex);
+        return 1;
+    }
+
+    if (ret == REG_NOMATCH)
+    {
+        log_error("String does not match regular expression");
+        regfree(&regex);
+        return 0;
+    }
+
+    log_error("Error executing regular expression");
+    return -1;
+}
+
+int checkWordIsId(const char *word)
+{
+    return checkRegex("^[a-zA-Z_][a-zA-Z0-9_]*", word);
+}
+
+int checkWordIsInt(const char *word)
+{
+    return checkRegex("^[+-]?[0-9]+", word);
 }

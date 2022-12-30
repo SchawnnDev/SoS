@@ -100,6 +100,14 @@ int getValues();
  */
 int doBoolExpression();
 
+/**
+ *
+ * @param into Register ($t0-t3 overwritten)
+ * @param skipOffset Skip offset in listTmp
+ * @return
+ */
+int doConcatenation(const char* into, int skipOffset);
+
 // Utils
 
 int compile(FILE *inputFile, FILE *outputFile);
@@ -123,16 +131,8 @@ int parseInt32(const char *word);
 /**
  *
  * @param str
- * @param addQuotes
  * @return
  */
-int writeWord(const char *str, int addQuotes);
-
-/**
- *
- * @param str
- * @return
- */
-int writeApostrophedString(const char *str);
+int addStringToListTmp(const char *str);
 
 #endif //SOS_COMPILATION_H
