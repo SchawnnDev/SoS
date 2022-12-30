@@ -14,7 +14,7 @@
  * \fn CHECK
  * \brief Permet de tester une valeur critique du programme
  */
-#define CHECK(op) do { if (((op) == -1)) raler (1, #op); } while (0)
+#define CHECK(op) do { if (((op) == -1)) raler (1, #op); } while (0);
 
 /*!
  * \fn CHECKPOINTER

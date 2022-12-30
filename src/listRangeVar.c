@@ -4,7 +4,7 @@
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
  * \brief Fonction qui initialise la structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
+RangeVariable initRangeVariable(int rangeLevel, int stack, RangeVariable previousLevel)
 {
     log_trace("initRangeVariable (int %d, RangeVariable %p)", rangeLevel,previousLevel)
 
@@ -18,6 +18,7 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)));
     addr->listIdentifier = initListIdentifier();
     addr->rangeLevel = rangeLevel;
+    addr->stack = stack;
 
     addr->previousLevel = previousLevel;
     addr->nextLevel = NULL;
@@ -48,7 +49,7 @@ ListRangeVariable initListRangeVariable()
 
     ListRangeVariable addr;
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
-    addr->cursor = initRangeVariable(0,NULL);
+    addr->cursor = initRangeVariable(0,START_STACK,NULL);
 
     return addr;
 }
@@ -81,7 +82,7 @@ int addRangeVariable(ListRangeVariable addr)
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
 
-    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1, addr->cursor);
+    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,addr->cursor->stack, addr->cursor);
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
@@ -164,7 +165,7 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
  * \fn int addIdentifier(ListRangeVariable addr, char* name)
  * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
 */
-int addIdentifier(ListRangeVariable addr, char* name)
+int addIdentifier(ListRangeVariable addr, char *name, int saveToStack)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
     CHECKPOINTER(addr);
@@ -178,8 +179,11 @@ int addIdentifier(ListRangeVariable addr, char* name)
         return RETURN_FAILURE;
     }
 
-    return addIntoListIdentifier(addr->cursor->listIdentifier, name);
+    return addIntoListIdentifier(
+            addr->cursor->listIdentifier, name,
+            saveToStack ? increaseStackSize(addr,ADDR_STACK_SIZE) : addr->cursor->stack);
 }
+
 
 /*!
  * \fn int setType(ListRangeVariable addr, char* name, int type)
@@ -233,7 +237,7 @@ int setValuesFromListTmp(ListRangeVariable addr, char* name, ListTmp addrTmp)
         return RETURN_FAILURE;
     }
     return setValuesOfIdentifierFromListTmp(variablePosition->rangePosition->listIdentifier,
-                                                                               variablePosition->indexIdentifier, addrTmp);
+                                            variablePosition->indexIdentifier, addrTmp);
 }
 
 /*!
@@ -401,6 +405,26 @@ int setIndexIdentifierOrder(ListIdentifierOrder addr, int index)
 }
 
 /*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui modifie la stack et renvoie la valeur précédante
+*/
+int increaseStackSize(ListRangeVariable addr, int amount)
+{
+    int stack = addr->cursor->stack;
+    addr->cursor->stack += amount;
+    return stack;
+}
+
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui recupère la valeur de la stack
+*/
+int getStack(ListRangeVariable addr)
+{
+   return addr->cursor->stack;
+}
+
+/*!
  * \fn int deleteIdentifierOrder(ListIdentifierOrder addr)
  * \brief Fonction qui supprime un niveau de portée à la liste de structure d'ordre d'apparition des identificateurs
 */
@@ -420,6 +444,47 @@ int deleteIdentifierOrder(ListIdentifierOrder addr)
     cleanIdentifierOrder(tmp);
 
     return RETURN_SUCCESS;
+}
+
+/*!
+ * \fn int setOffset(ListIdentifier addr, int position, int offset)
+ * \brief Fonction qui modifie l'offset de l'identificateur
+*/
+int setOffset(ListRangeVariable addr, char* name, int offset)
+{
+    log_trace("setOffset (ListRangeVariable %p, char* %s, int %d)", addr, name, offset)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+    return setOffsetOfIdentifier(variablePosition->rangePosition->listIdentifier,
+                                            variablePosition->indexIdentifier, offset);
+}
+
+/*!
+ * \fn int getOffset(ListIdentifier addr, int position, ListTmp listTmp)
+ * \brief Fonction qui récupère l'offset de l'identificateur
+*/
+int getOffset(ListRangeVariable addr, char* name, ListTmp listTmp)
+{
+    log_trace("getOffset (ListRangeVariable %p, char* %s)", addr, name)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(name);
+    CHECKPOINTER(listTmp);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    if(variablePosition->rangePosition == NULL){
+        return RETURN_FAILURE;
+    }
+
+    char* offset;
+    CHECKPOINTER(offset = (char*)malloc(sizeof(char) * SIZE_INT_STR));
+    CHECK(sprintf(offset,"%d", (addr->cursor->stack - ADDR_STACK_SIZE - getOffsetOfIdentifier(
+            variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier))));
+    return addIntoListTmpWithType(listTmp,offset, TYPE_STACK);
 }
 
 /*!

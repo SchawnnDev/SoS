@@ -60,7 +60,8 @@ int handle_args(int argc, char **argv)
 
         log_debug("Verbose was set to level %d.", *verb->ival)
 
-    } else {
+    } else
+    {
         log_set_quiet(true);
     }
 

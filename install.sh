@@ -45,7 +45,7 @@ else
 
   if [ $(dpkg-query -W -f='${Status}' java 2>/dev/null | grep -c "install ok installed") -eq 0 ]; then
     echo -e "${YELLOW}Installing java using apt...${NC}"
-    apt-get -y install openjdk-8-jre-headless
+    apt-get -y install openjdk-8-jre
   else
     echo -e "${YELLOW}Java is installed... skipping to next step.${NC}"
   fi

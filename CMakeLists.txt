@@ -33,8 +33,18 @@ add_library(
         src/listTmp.c
         src/utils.c
         src/listInstructionMips.c
+        src/asm.c
+        src/labels.c
+        mips/header.asm.c
+        mips/functions/atoi.asm.c
+        mips/functions/bufferWrite.asm.c
+        mips/functions/bufferLen.asm.c
+        mips/functions.asm.c
+        mips/functions/saveRegistersToStack.asm.c
+        mips/functions/loadRegistersFromStack.asm.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
+
 
         include/compilation.h
         include/listIden.h
@@ -42,20 +52,28 @@ add_library(
         include/listTmp.h
         include/utils.h
         include/variable.h
-        include/bool_expr.h
+        include/boolExpr.h
         include/listInstructionMips.h
-)
+        include/asm.h
+        include/labels.h
+        mips/functions/atoi.asm.h
+        mips/header.asm.h
+        mips/functions/bufferWrite.asm.h
+        mips/functions/bufferLen.asm.h
+        mips/functions.asm.h
+        mips/functions/saveRegistersToStack.asm.h
+        mips/functions/loadRegistersFromStack.asm.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
-target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include "${BIN_DIR}")
+target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include mips mips/functions "${BIN_DIR}")
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
 
-    if(BUILD_TESTING)
+    if (BUILD_TESTING)
         add_subdirectory(tests)
-    endif()
-endif()
+    endif ()
+endif ()
 
 
 add_executable(sos main.c)

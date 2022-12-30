@@ -1,6 +1,10 @@
 #ifndef __VAR_H
 #define __VAR_H
 
+/* Bool */
+#define FALSE 0
+#define TRUE 1
+
 /* Tailles */
 #define IDEN_MAX 100
 #define TMP_TAB_MAX 100
@@ -8,6 +12,7 @@
 #define DATA_TAB_MAX 100
 #define CODE_TAB_MAX 100
 #define ASM_PRINTF_BUF_MAX 256
+#define ASM_INTEGER_SIZE 4
 
 /* Error */
 #define NOTFOUND -1
@@ -31,9 +36,9 @@
 #define SIZE_INT_STR 12
 
 /* ASM Generation */
-
-// Section
-#define SECTION_DATA 1 << 0
-#define SECTION_TEXT 1 << 1
+#define START_STACK 32
+#define ADDR_STACK_SIZE 4
+#define TYPE_STACK 0
+#define TYPE_DATA 1
 
 #endif

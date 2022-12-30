@@ -8,6 +8,7 @@
 typedef struct rangeVariable_t{
     ListIdentifier listIdentifier;
     int rangeLevel;
+    int stack;
 
     struct rangeVariable_t* nextLevel;
     struct rangeVariable_t* previousLevel;
@@ -42,7 +43,7 @@ typedef struct {
  *
  * \return RangeVariable, un pointeur d'une structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel);
+RangeVariable initRangeVariable(int rangeLevel, int stack, RangeVariable previousLevel);
 
 /*!
  * \fn void cleanRangeVariable(RangeVariable addr)
@@ -127,7 +128,7 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addIdentifier(ListRangeVariable addr, char* name);
+int addIdentifier(ListRangeVariable addr, char *name, int saveToStack);
 
 /*!
  * \fn int setType(ListRangeVariable addr, char* name, int type)
@@ -257,6 +258,50 @@ int setTypeIdentifierOrder(ListIdentifierOrder addr, int type);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int setIndexIdentifierOrder(ListIdentifierOrder addr, int index);
+
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui modifie la stack et renvoie la valeur précédante
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ * \param amount : int, la taille que l'on souhaite allouer à la pile
+ *
+ * \return int, return l'ancienne valeur de stack
+*/
+int increaseStackSize(ListRangeVariable addr, int amount);
+
+/*!
+ * \fn int increaseStackSize(ListRangeVariable addr, int amount)
+ * \brief Fonction qui recupère la valeur de la stack
+ *
+ * \param addr : ListIdentifierOrder, la liste de structure d'ordre d'apparition des identificateurs
+ *
+ * \return int, return la valeur de la stack
+*/
+int getStack(ListRangeVariable addr);
+
+/*!
+ * \fn int setOffset(ListIdentifier addr, int position, int offset)
+ * \brief Fonction qui modifie l'offset de l'identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurse
+ * \param name : char*, le nom de l'identificateur
+ * \param offset : int, l'offet par rapport à la stack
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int setOffset(ListRangeVariable addr, char* name, int offset);
+
+/*!
+ * \fn int getOffset(ListIdentifier addr, int position, ListTmp addrTmp)
+ * \brief Fonction qui récupère l'offset de l'identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure d'ordre d'apparition des identificateurse
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int getOffset(ListRangeVariable addr, char* name, ListTmp addrTmp);
 
 /*!
  * \fn int deleteIdentifierOrder(ListIdentifierOrder addr)

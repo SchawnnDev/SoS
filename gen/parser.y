@@ -21,7 +21,7 @@
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
 %type <strval> NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ASSIGN CASE ESAC
-%type <strval> SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK IF ELIF ELSE TEST THEN FI
+%type <strval> EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK IF ELIF ELSE TEST THEN FI
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
@@ -38,16 +38,16 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 
 instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
-    | DECLARE id LBRACKET int RBRACKET
+    | DECLARE id LBRACKET int RBRACKET { doDeclareStaticArray(); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO_CALL list_operand {echo();}
+    | ECHO_CALL list_operand { doEcho(); }
     | READ id
-    | READ id LBRACKET operand_int RBRACKET
+    | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
     | declare_fct
     | function_call
     | RETURN
@@ -86,11 +86,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O test_expr2
+test_expr : test_expr ARG_O test_expr2 { setCurrentBooleanExpression(L_OR); }
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A test_expr3
+test_expr2 : test_expr2 ARG_A test_expr3 { setCurrentBooleanExpression(L_AND); }
     | test_expr3
     ;
 
@@ -103,17 +103,17 @@ test_expr3 : LPAREN test_expr RPAREN
 test_instruction : concatenation ASSIGN concatenation
     | concatenation NEQ concatenation
     | operator1 concatenation
-    | operand operator2 operand
+    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); doGetVariableAddress(); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD { asm_syscall(READ_CHAR); log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1);}
+    | WORD { log_debug("operand : WORD (%s)", $1); writeWord($1, TRUE); }
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTED_STRING
-    | APOSTROPHED_STRING
+    | QUOTED_STRING { writeWord($1, FALSE); }
+    | APOSTROPHED_STRING { writeApostrophedString($1); }
     | DOLLAR LPAREN EXPR sum_int RPAREN
     | DOLLAR LPAREN function_call RPAREN
     ;
@@ -122,12 +122,12 @@ operator1 : ARG_N
     | ARG_Z
     ;
 
-operator2 : ARG_EQ
-    | ARG_NE
-    | ARG_GT
-    | ARG_GE
-    | ARG_LT
-    | ARG_LE
+operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
+    | ARG_NE { setCurrentBooleanExpression(BOOL_NEQ); }
+    | ARG_GT { setCurrentBooleanExpression(BOOL_GT); }
+    | ARG_GE { setCurrentBooleanExpression(BOOL_GE); }
+    | ARG_LT { setCurrentBooleanExpression(BOOL_LT); }
+    | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
     ;
 
 sum_int : sum_int plus_or_minus mult_int {doOperation();}

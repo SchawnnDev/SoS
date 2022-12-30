@@ -88,9 +88,19 @@ int addIntoListTmp(ListTmp addr, char* value)
     CHECKPOINTER(addr->cursor->values[addr->cursor->numberValues] = (char*)malloc(sizeof(char) * size));
     CHECKPOINTER(strcpy(addr->cursor->values[addr->cursor->numberValues],value));
 
+    addr->cursor->types[addr->cursor->numberValues] = TYPE_DATA;
     addr->cursor->numberValues++;
 
     return RETURN_SUCCESS;
+}
+
+int addIntoListTmpWithType(ListTmp addr, char* value, int type)
+{
+    log_trace("addIntoListTmpWithType (ListTmp %p, char* %s, int %d)",addr,value,type)
+    int returnValue = addIntoListTmp(addr,value);
+    addr->cursor->types[addr->cursor->numberValues-1] = type;
+
+    return returnValue;
 }
 
 /*!
