@@ -10,6 +10,7 @@
 #include "loadRegistersFromStack.asm.h"
 #include "saveRegistersToStack.asm.h"
 #include "bufferLen.asm.h"
+#include "atoi.asm.h"
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
@@ -72,6 +73,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeSaveRegistersToStackFunction();
     asm_writeBufferLenFunction();
     asm_writeBufferWriteFunction();
+    asm_writeAtoiFunction();
     asm_code_printf("\n")
     asm_code_printf("\t# Start of main code section\n")
     asm_code_printf("\n")
@@ -101,7 +103,7 @@ int assign()
     char* stackOffset = listTmp->cursor->values[listTmp->cursor->numberValues-1];
     ///lw $a1, 0($t0)      # Load the address from the stack and store it in the given register
     asm_code_printf("\taddi $t0, $sp, %s\n", stackOffset)
-    asm_loadLabelIntoRegister(ASM_OFFSET_NAME,"$t1");
+    asm_loadLabelIntoRegister(ASM_VAR_OFFSET_NAME, "$t1");
     asm_code_printf("\tadd $t0, $t0, $t1\n")
 
     int values = listTmp->cursor->numberValues;
