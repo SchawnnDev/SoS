@@ -78,10 +78,27 @@ int asm_loadLabelIntoRegister(const char *label, const char *reg)
     return RETURN_SUCCESS;
 }
 
+int asm_jal(const char* name)
+{
+    asm_code_printf("\tjal %s\n", name)
+    return RETURN_SUCCESS;
+}
+
 // functions
 
-int asm_useDisplayFromHeapFunction(const char *reg)
+int asm_useBufferWriteFunction(const char* source, const char* destination, const char* into)
 {
-    asm_code_printf("\tmove $a0, %s\n", reg)
+    asm_code_printf("\tmove $a0, %s\n", source)
+    asm_code_printf("\tmove $a1, %s\n", destination)
+    asm_jal(ASM_BUFFER_WRITE_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
     return asm_syscall(PRINT_STRING);
+}
+
+int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into)
+{
+    asm_code_printf("\tmove $a0, %s\n", bufStartAddressRegister)
+    asm_jal(ASM_BUFFER_WRITE_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
 }
