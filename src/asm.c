@@ -18,7 +18,7 @@ int asm_addArgumentsOnStack(int size, ...)
 
     // TODO: _offset?
 
-    asm_allocateMemoryOnStack("$t0", size * ASM_INTEGER_SIZE);
+    asm_allocateMemoryOnStack(size * ASM_INTEGER_SIZE);
 
     for (int i = 0; i < size; i++)
     {
@@ -57,18 +57,18 @@ int asm_writeStaticArray(const char *label, int size)
     return RETURN_SUCCESS;
 }
 
-int asm_readFromStack(const char *into, char *offset)
-{
-    asm_code_printf("\tla $t0, _offset\n")
-    asm_code_printf("\tadd $t0, $sp, $t0\n")
-    asm_code_printf("\tadd $t0, $t0, %s\n", offset)
-    asm_code_printf("\tlw %s, 0($t0)\n", into)
+int asm_readFromStack(const char *into, char *offset) {
+    asm_code_printf("\tlw %s, _offset\n", into)
+    asm_code_printf("\tadd %s, $sp, %s\n", into, into)
+    asm_code_printf("\taddi %s, %s, %s\n", into, into, offset)
+    asm_code_printf("\tlw %s, 0(%s)\n", into, into)
     return RETURN_SUCCESS;
 }
 
-int asm_allocateMemoryOnStack(const char *reg, int words)
+int asm_allocateMemoryOnStack(int words)
 {
-    asm_code_printf("\taddi %s, $sp, %d\n", reg, words * ASM_INTEGER_SIZE)
+    asm_code_printf("\taddi $sp, $sp, -%d\n", words * ASM_INTEGER_SIZE)
+    //asm_code_printf("\taddi %s, $sp, %d\n", reg, words * ASM_INTEGER_SIZE)
     return RETURN_SUCCESS;
 }
 

@@ -36,7 +36,7 @@ int asm_writeBufferWriteFunction()
     asm_code_printf("\t\t\taddi $t2, $t2, 1\n")
     asm_code_printf("\t\t\taddi $t0, $t0, 4\n")
     asm_code_printf("\t\t\tb %s_loop\n",ASM_BUFFER_WRITE_FUNCTION_NAME)
-    asm_code_printf("\t\t%s_exit:\n", ASM_BUFFER_LEN_FUNCTION_NAME)
+    asm_code_printf("\t\t%s_exit:\n", ASM_BUFFER_WRITE_FUNCTION_NAME)
     asm_code_printf("\t\t\tmove $v0, $t1\n")
     asm_loadRegistersFromStack();
     asm_code_printf("\t\t\tjr $ra\n")

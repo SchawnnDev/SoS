@@ -43,6 +43,8 @@ add_library(
         mips/functions.asm.c
         mips/functions/saveRegistersToStack.asm.c
         mips/functions/loadRegistersFromStack.asm.c
+        mips/functions/strcmp.asm.c
+        mips/functions/displayString.asm.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
 
@@ -60,11 +62,13 @@ add_library(
         mips/functions/atoi.asm.h
         mips/functions/strcmp.asm.h
         mips/header.asm.h
+        mips/functions.asm.h
         mips/functions/bufferWrite.asm.h
         mips/functions/bufferLen.asm.h
-        mips/functions.asm.h
         mips/functions/saveRegistersToStack.asm.h
-        mips/functions/loadRegistersFromStack.asm.h mips/functions/strcmp.asm.c mips/functions/strcmp.asm.h)
+        mips/functions/loadRegistersFromStack.asm.h
+        mips/functions/strcmp.asm.h
+        mips/functions/displayString.asm.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include mips mips/functions "${BIN_DIR}")

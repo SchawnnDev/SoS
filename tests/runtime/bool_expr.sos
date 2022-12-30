@@ -1,10 +1,11 @@
 declare thhhh[4];
 # read thhhh[1] ;
-a="test";
+a="test\n";
+c="test2\n";
 #b=2;
 #c=3;
 #d=4;
-b="1" ${a};
+b="1" ${a} ${c};
 echo ${b};
 #echo ${a} ${b} ${c} "Hello World\n" "TEST\n" 'qsdqsdqsd\n';
 exit
