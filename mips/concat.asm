@@ -1,89 +1,12 @@
+# Example : a = "test"
+# b = "1" ${a}
 .data
-global_read_buffer_len: .word 256
-global_read_buffer:
-    .space 256  # Reserve 256 bytes of space in the data section
-    .asciiz "This is a static string in MIPS that is 256 bytes long." 
 
-global_test: .asciiz "a1005"
+label: .asciiz "test"
 
 .text
-
-.globl fct_buffer_len
-.globl fct_buffer_write
-.globl fct_atoi
 j main
 
-print_string:
-    # $a0 = address of string to print
-
-    # Print all characters until the null terminator is encountered
-    move $t0, $a0 # $t0 = address of string
-
-print_string_loop:
-    # Print the character at the current address
-    lbu $t2, 0($t0) # $t2 = value of byte at address in $t0
-    beq $t2, $zero, print_string_done # If character is null terminator, exit loop
-    addi $t0, $t0, 4 # Increment address
-    li $v0, 11 # System call for printing character
-    syscall # Print character
-    j print_string_loop # Loop until null terminator is encountered
-
-print_string_done:
-    # Return to caller
-    jr $ra
-
-# atoi - convert a string to an integer
-#
-# $a0 - address of the string to be converted
-#
-# returns: integer value of the string in $v0
-fct_atoi:
-  # Initialize the result to 0
-  li $v0, 0
-
-  # Initialize the index to 0
-  li $t0, 0
-
-  # Get the first character in the string
-  lb $t1, 0($a0)
-
-  # Loop until we reach the end of the string
-  fct_atoi_loop:
-    # Check if the character is a digit
-    beq $t1, '0', fct_atoi_digit
-    bgt $t1, '9', fct_atoi_not_digit
-    subu $t1, $t1, '0'
-
-    # Add the digit to the result
-    sll $t2, $t0, 2
-    addu $v0, $v0, $t2
-    addu $v0, $v0, $t1
-
-    # Increment the index
-    addiu $t0, $t0, 1
-
-    # Get the next character in the string
-    lb $t1, 0($a0)
-    j fct_atoi_loop
-
-  # We have reached the end of the string, so return the result
-  jr $ra
-
-fct_atoi_digit:
-  # The character is a digit, so add it to the result
-  subu $t1, $t1, '0'
-  addu $v0, $v0, $t1
-
-  # Increment the index
-  addiu $t0, $t0, 1
-
-  # Get the next character in the string
-  # lb $t1, $t0($a0)
-  j fct_atoi_loop
-
-fct_atoi_not_digit:
-  # The character is not a digit, so return the result
-  jr $ra
 
 # Function to save values from temporary registers to stack
 #
@@ -121,7 +44,23 @@ fct_save_temp_values:
 # Returns:
 #   Nothing
 fct_load_temp_values:
-    
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $s0, 32($sp)
+    lw $s1, 36($sp)
+    lw $s2, 40($sp)
+    lw $s3, 44($sp)
+    lw $s4, 48($sp)
+    lw $s5, 52($sp)
+    lw $s6, 56($sp)
+    lw $s7, 60($sp)
+    addi $sp, $sp, 64
     jr $ra
 
 # Function to count the number of characters in a buffer until the Nul ('\0') character
@@ -131,7 +70,13 @@ fct_load_temp_values:
 #
 # Returns:
 #   $v0: Number of characters in the buffer until the Nul character
-fct_buffer_len:
+_fct_buffer_len:
+
+    # Write memory to stack
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+    jal fct_save_temp_values
+
     addi $t0, $zero, 0  # Initialize a counter to 0
     addi $t1, $zero, 1  # Initialize a loop condition to 1 (true)
     fct_buffer_len_loop:
@@ -142,7 +87,14 @@ fct_buffer_len:
         b fct_buffer_len_loop  # Go back to the start of the loop
     fct_buffer_len_exit:
         move $v0, $t0  # Return the counter
+
+        # Load memory from stack
+        jal fct_load_temp_values
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4
+
         jr $ra
+
 
 # Function to write a buffer to the heap
 #
@@ -153,6 +105,11 @@ fct_buffer_len:
 # Returns:
 #   $v0: Pointer to the start of the allocated memory on the heap
 fct_buffer_write:
+
+    # Write memory to stack
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+    jal fct_save_temp_values
 
     move $t0, $a0 # buffer_start_ptr to $t0
     # Allocate memory on the heap for the buffer
@@ -174,26 +131,38 @@ fct_buffer_write:
 
     # Return the start address of the allocated memory
     move $v0, $t4 # Get start ptr in register $t4
+
+    # Load memory from stack
+    jal fct_load_temp_values
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
+
     jr $ra # Return
 
-# Function get an address from the stack at a specific offset and store it in a given register
-#
-# Arguments:
-#   $a0: the offset of the address on the stack
-#   $a1: the register to store the integer in
-#
-# Returns:
-#   Nothing
-fct_read_address_from_stack:
-    add $t0, $sp, $a0   # Adds the offset to the stack pointer and saves it to $t0
-    lw $a1, 0($t0)      # Load the address from the stack and store it in the given register
-    jr $ra              # Return
-    
 main:
 
-    
-    la $a0, global_test
-    li $v0, 4
+	# DEFINE OF 'a' HERE
+    la $t0, label
+    # Add one argument to function
+    move $a0, $t0
+    jal _fct_buffer_len
+
+    move $t1, $v0
+    addi $t1, $t1, 1 # add terminator
+
+    move $a0, $t0
+    move $a1, $t1
+    jal fct_buffer_write
+
+    addi $sp, $sp, -4
+    sw $v0, 0($sp) # write
+
+
+
+
+    #
+
+
+
+    li $v0, 10
     syscall
-
-

@@ -9,6 +9,23 @@
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
 
+#define CHECK_VALUE_NOT_ZERO(function_name) \
+    CHECKPOINTER(listTmp)                   \
+    CHECKPOINTER(listTmp->cursor)                   \
+    if (listTmp->cursor->numberValues == 0) \
+    { \
+        log_error("%s: numberValues : %d", function_name, listTmp->cursor->numberValues) \
+        return RETURN_FAILURE; \
+    } \
+
+#define CHECK_IDENTIFIER_NOT_ZERO(function_name) \
+    CHECKPOINTER(listIdentifierOrder)                   \
+    CHECKPOINTER(listIdentifierOrder->cursor)                   \
+    if (listIdentifierOrder->cursor->index  == 0) \
+    { \
+        log_error("%s: you must have one identifier.", function_name) \
+        return RETURN_FAILURE; \
+    } \
 
 void initStruct();
 
@@ -34,12 +51,21 @@ void setCurrentBooleanExpression(boolExpr_t expr);
 */
 void addTmpValuesListTmp();
 
-void assign();
+int assign();
 
 void addValueIntoListTmp(char *value);
 
 void echo();
 
+/**
+ *
+ * @return
+ */
+int doEcho();
+
+/**
+ *
+ */
 void doOperation();
 
 /**
@@ -47,6 +73,18 @@ void doOperation();
  * @return
  */
 int doDeclareStaticArray();
+
+/**
+ *
+ * @return
+ */
+int doArrayRead();
+
+/**
+ *
+ * @return
+ */
+int doGetVariableAddress();
 
 /**
  *
@@ -85,15 +123,16 @@ int parseInt32(const char *word);
 /**
  *
  * @param str
+ * @param addQuotes
  * @return
  */
-int writeQuotedString(const char* str);
+int writeWord(const char *str, int addQuotes);
 
 /**
  *
  * @param str
  * @return
  */
-int writeApostrophedString(const char* str);
+int writeApostrophedString(const char *str);
 
 #endif //SOS_COMPILATION_H

@@ -165,7 +165,7 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
  * \fn int addIdentifier(ListRangeVariable addr, char* name)
  * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
 */
-int addIdentifier(ListRangeVariable addr, char* name)
+int addIdentifier(ListRangeVariable addr, char *name, int saveToStack)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
     CHECKPOINTER(addr);
@@ -179,8 +179,11 @@ int addIdentifier(ListRangeVariable addr, char* name)
         return RETURN_FAILURE;
     }
 
-    return addIntoListIdentifier(addr->cursor->listIdentifier, name, increaseStackSize(addr,ADDR_STACK_SIZE));
+    return addIntoListIdentifier(
+            addr->cursor->listIdentifier, name,
+            saveToStack ? increaseStackSize(addr,ADDR_STACK_SIZE) : addr->cursor->stack);
 }
+
 
 /*!
  * \fn int setType(ListRangeVariable addr, char* name, int type)
@@ -479,7 +482,7 @@ int getOffset(ListRangeVariable addr, char* name, ListTmp listTmp)
 
     char* offset;
     CHECKPOINTER(offset = (char*)malloc(sizeof(char) * SIZE_INT_STR));
-    CHECK(sprintf(offset,"%d", (addr->cursor->stack - getOffsetOfIdentifier(
+    CHECK(sprintf(offset,"%d", (addr->cursor->stack - ADDR_STACK_SIZE - getOffsetOfIdentifier(
             variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier))));
     return addIntoListTmpWithType(listTmp,offset, TYPE_STACK);
 }

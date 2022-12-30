@@ -1,3 +1,6 @@
-declare valeurs[4] ;
-
+a=1;
+if test (${a} -gt 10) -o (${a} -gt 0) then
+    b=1
+    #echo "Les valeurs doivent etre strictement positives !\n"
+fi ;
 exit

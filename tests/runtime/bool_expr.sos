@@ -1,9 +1,12 @@
 declare thhhh[4];
+# read thhhh[1] ;
 a=1;
 b=2;
 c=3;
 d=4;
-# echo ${a} ${b} ${c} "Hello World\n" "TEST\n" 'qsdqsdqsd\n';
+#e="test" ${a};
+
+#echo ${a} ${b} ${c} "Hello World\n" "TEST\n" 'qsdqsdqsd\n';
 exit
 # if test ${a} -gt ${b} then
 #     echo "Les valeurs doivent etre strictement positives !\n"

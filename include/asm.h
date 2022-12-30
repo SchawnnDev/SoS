@@ -2,6 +2,7 @@
 #define SOS_ASM_H
 
 #include <errno.h>
+#include <stdarg.h>
 #include "compilation.h"
 
 #define asm_code_printf(...) \
@@ -46,18 +47,6 @@ typedef enum
     */
 } syscall_t;
 
-static const char *syscallStrings[] = {
-        "print_int",
-        "print_string",
-        "read_int",
-        "read_string",
-        "sbrk",
-        "exit",
-        "print_char",
-        "read_char",
-        "exit2"
-};
-
 static inline const char *stringFromSyscall(syscall_t syscall)
 {
     switch (syscall)
@@ -85,8 +74,27 @@ static inline const char *stringFromSyscall(syscall_t syscall)
     }
 }
 
-void asm_readFromStack(const char *into, int what);
+/**
+ *
+ * @param reg
+ * @param words
+ * @return
+ */
+int asm_allocateMemoryOnStack(const char* reg, int words);
 
+/**
+ *
+ * @param into
+ * @param offset
+ * @return
+ */
+int asm_readFromStack(const char *into, char* offset);
+
+/**
+ *
+ * @param type
+ * @return
+ */
 int asm_syscall(syscall_t type);
 
 /**
@@ -95,7 +103,7 @@ int asm_syscall(syscall_t type);
  * @param content
  * @return
  */
-int asm_writeAsciiz(const char* label, const char* content);
+int asm_writeAsciiz(const char *label, const char *content, int addQuotes);
 
 /**
  *
@@ -104,6 +112,29 @@ int asm_writeAsciiz(const char* label, const char* content);
  * @return
  */
 int asm_writeStaticArray(const char* label, int size);
+
+/**
+ *
+ * @param reg
+ * @return
+ */
+int asm_useDisplayFromHeapFunction(const char* reg);
+
+/**
+ *
+ * @param label
+ * @param reg
+ * @return
+ */
+int asm_loadLabelIntoRegister(const char *label, const char* reg);
+
+/**
+ *
+ * @param size
+ * @param ...
+ * @return
+ */
+int asm_addArgumentsOnStack(int size, ...);
 
 // UTILS
 

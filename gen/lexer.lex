@@ -60,6 +60,7 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 %%
 {COMMENT} { log_debug("comment; ignoring"); }
 
+"-a" { return ARG_A; }
 "-o" { return ARG_O; }
 "-n" { return ARG_N; }
 "-z" { return ARG_Z; }

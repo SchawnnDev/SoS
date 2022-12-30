@@ -1,6 +1,10 @@
 #ifndef __VAR_H
 #define __VAR_H
 
+/* Bool */
+#define FALSE 0
+#define TRUE 1
+
 /* Tailles */
 #define IDEN_MAX 100
 #define TMP_TAB_MAX 100

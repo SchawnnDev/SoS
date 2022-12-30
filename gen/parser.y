@@ -47,7 +47,7 @@ instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructi
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho(); }
     | READ id
-    | READ id LBRACKET operand_int RBRACKET
+    | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
     | declare_fct
     | function_call
     | RETURN
@@ -86,11 +86,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O test_expr2
+test_expr : test_expr ARG_O test_expr2 { setCurrentBooleanExpression(L_OR); }
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A test_expr3
+test_expr2 : test_expr2 ARG_A test_expr3 { setCurrentBooleanExpression(L_AND); }
     | test_expr3
     ;
 
@@ -106,13 +106,13 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); doGetVariableAddress(); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1);}
+    | WORD { log_debug("operand : WORD (%s)", $1); writeWord($1, TRUE); }
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTED_STRING { writeQuotedString($1); }
+    | QUOTED_STRING { writeWord($1, FALSE); }
     | APOSTROPHED_STRING { writeApostrophedString($1); }
     | DOLLAR LPAREN EXPR sum_int RPAREN
     | DOLLAR LPAREN function_call RPAREN
