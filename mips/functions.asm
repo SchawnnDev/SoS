@@ -197,75 +197,93 @@ fct_read_address_from_stack:
 # Returns:
 #   $v0 - the integer representation of the string
 fct_atoi:
-
-    move $a1, $a0 # copy a0 into a1 since function following is editing a0
-
-    # Write memory to stack
     addi $sp, $sp, -4
     sw $ra, 0($sp)
+    jal fct_save_temp_values
 
-    jal fct_buffer_len # get a0 length into v0
+    move $a1, $a0
+    jal fct_buffer_len
+    beq $v0, $zero, _fct_atoi_error
+    move $a0, $a1
 
-    beq $v0, $zero, error # string is empty => error
-    move $a0, $a1 # put the copy back into a0
+    lb $t0, 0($a0)
+    li $t6, 1
 
-    li $t2, 10 # 10
-    li $t1, 1 # default value
+    li $t7, '+'
+    bltu $t0, $t7, _fct_atoi_error
+    li $t7, '9'
+    bltu $t7, $t0, _fct_atoi_error
+    li $t7, ','
+    beq $t0, $t7, _fct_atoi_error
+    li $t7, '.'
+    beq $t0, $t7, _fct_atoi_error
+    li $t7, '/'
+    beq $t0, $t7, _fct_atoi_error
 
-    li $t6, 1 # loop counter starts at 1
-    move $t7, $v0 # string length as the counter limit
+    li $t7, '+'
+    beq $t0, $t7, _fct_atoi_set_plus
+    li $t7, '-'
+    beq $t0, $t7, _fct_atoi_set_minus
 
-    # Reset the result to 0
-    move $v0, $zero
+    _fct_atoi_init:
+        li $t2, 10
+        li $t1, 1
+        move $t7, $v0
+        move $v0, $zero
+        beq $t7, 1, _fct_atoi_loop
 
-    beq $t7, 1, loop
+    _fct_atoi_setup:
+        mul $t1, $t1, 10
+        addi $t6, $t6, 1
+        blt $t6, $t7, _fct_atoi_setup
 
-    setup:
-        mul     $t1, $t1, 10  # multiply $t1 by 10
-        addi    $t6, $t6, 1   # increment loop counter
-        blt     $t6, $t7, setup # branch to loop if $t6 < $t7
-
-    # Loop through the characters in the string
-    loop:
-        # Load the current character
+    _fct_atoi_loop:
         lb $t0, 0($a0)
-
-        # Check if we've reached the end of the string
-        beq $t0, $zero, end_loop
+        beq $t0, $zero, _fct_atoi_end_loop
 
         li $t7, '0'
-	bltu $t0,$t7, error        # Jump if char < '0'
+        bltu $t0, $t7, _fct_atoi_error
+        li $t7, '9'
+        bltu $t7, $t0, _fct_atoi_error
 
-	li $t7,'9'
-	bltu $t7,$t0, error       # Jump if '9' < char
-
-        # Convert the character to its numeric value and add it to the result
         sub $t0, $t0, '0'
         mul $t0, $t0, $t1
         add $v0, $v0, $t0
 
-        # Reduce the multiplier length by one digit : modulo 10
         div $t1, $t2
         mflo $t1
 
-        # Move to the next character in the string
         addi $a0, $a0, 1
-        j loop
+        j _fct_atoi_loop
 
-    error:
-    	la $a0, not_a_number
-    	li $v0, 4    # Print String service
-   	    syscall
-    	li $v0, 17
-    	syscall
+    _fct_atoi_set_plus:
+        addi $t6, $t6, 1
+        addi $a0, $a0, 1
+        j _fct_atoi_init
 
-    # End of loop
-    end_loop:
-        # Load memory from stack
+    _fct_atoi_set_minus:
+        li $v1, 1
+        addi $t6, $t6, 1
+        addi $a0, $a0, 1
+        j _fct_atoi_init
+
+    _fct_atoi_error:
+        la $a0, _error_nan
+        li $v0, 4
+        syscall
+        li $v0, 17
+        syscall
+
+    _fct_atoi_end_loop:
+        bne $v1, 1, _fct_atoi_end
+
+    _fct_atoi_apply_minus:
+        mul $v0, $v0, -1
+
+    _fct_atoi_end:
+        jal fct_load_temp_values
         lw $ra, 0($sp)
         addi $sp, $sp, 4
-
-        # Return the result
         jr $ra
 
 # Compares two strings
