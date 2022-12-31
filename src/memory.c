@@ -2,13 +2,13 @@
 #include "memory.h"
 
 int memoryCurrentStackOffset = 0;
-MemorySpace memory = NULL;
+MemorySlot memory = NULL;
 
-MemorySpace reserveMemorySpace() {
+MemorySlot reserveMemorySlot() {
     if (memory == NULL)
         return (memory = newMemorySlot());
 
-    MemorySpace mem = NULL;
+    MemorySlot mem = NULL;
 
     do {
         mem = mem == NULL ? memory : mem->next;
@@ -22,8 +22,8 @@ MemorySpace reserveMemorySpace() {
     return mem;
 }
 
-MemorySpace newMemorySlot() {
-    MemorySpace space;
+MemorySlot newMemorySlot() {
+    MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
 
     asm_allocateMemoryOnStack(1);
@@ -36,8 +36,8 @@ MemorySpace newMemorySlot() {
     return space;
 }
 
-MemorySpace searchByOffset(int offset) {
-    MemorySpace mem = memory;
+MemorySlot searchByOffset(int offset) {
+    MemorySlot mem = memory;
     while (mem != NULL) {
         if (mem->offset == offset) return mem;
         mem = mem->next;
@@ -45,16 +45,16 @@ MemorySpace searchByOffset(int offset) {
     return NULL;
 }
 
-int getMipsOffset(MemorySpace space) {
+int getMipsOffset(MemorySlot space) {
     return space == NULL ? RETURN_FAILURE : memoryCurrentStackOffset - space->offset;
 }
 
-void destroyMemory() {
+void destroyMemorySlot() {
     if (memory == NULL)
         return;
 
-    MemorySpace mem = memory;
-    MemorySpace temp;
+    MemorySlot mem = memory;
+    MemorySlot temp;
 
     do {
         temp = mem->next;
@@ -66,8 +66,45 @@ void destroyMemory() {
 
 }
 
-void freeMemory(MemorySpace mem)
+void freeMemory(MemorySlot mem)
 {
     if(mem == NULL) return;
     mem->used = false;
+}
+
+// MemorySlotList
+
+/**
+ *
+ * @return
+ */
+MemorySlotList newMemorySlotList(MemorySlot memorySlot)
+{
+    MemorySlotList list;
+    CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)));
+    list->slot = memorySlot;
+    list->next = NULL;
+    return list;
+}
+
+void appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
+{
+    // TODO CHANGE HERE FROM BOTTOM TO END ;;;;
+    if(memorySlotList == NULL) return;
+    memorySlotList->next = newMemorySlotList(slot);
+}
+
+void destroyMemoryList(MemorySlotList memorySlotList)
+{
+    if (memorySlotList == NULL)
+        return;
+
+    MemorySlotList temp;
+
+    do {
+        temp = memorySlotList->next;
+        free(memorySlotList);
+        memorySlotList = temp;
+    } while (memorySlotList != NULL);
+
 }

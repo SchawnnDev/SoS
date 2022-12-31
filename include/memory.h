@@ -1,51 +1,77 @@
 #ifndef SOS_MEMORY_H
 #define SOS_MEMORY_H
 #include "asm.h"
-typedef struct memory_space_t *MemorySpace;
+typedef struct memory_space_t *MemorySlot;
 
 struct memory_space_t {
     int used;
     int offset;
     // TODO: GERER IDENTIFICATEUR NE SE SUPPRIME PAS / MAIS VALEUR TEMP SI
     // TODO: Heap= true/false, heapOffset for arrays ???
-    MemorySpace next;
+    MemorySlot next;
 };
 
 /**
  * Searches a free memory space, if no space available, creates a new one
  * @return
  */
-MemorySpace reserveMemorySpace();
+MemorySlot reserveMemorySlot();
 
 /**
  *
  * @return
  */
-MemorySpace newMemorySlot();
+MemorySlot newMemorySlot();
 
 /**
  *
  * @param offset
  * @return
  */
-MemorySpace searchByOffset(int offset);
+MemorySlot searchByOffset(int offset);
 
 /**
  *
  * @param space
  * @return
  */
-int getMipsOffset(MemorySpace space);
+int getMipsOffset(MemorySlot space);
 
 /**
  *
  */
-void destroyMemory();
+void destroyMemorySlot();
 
 /**
  *
  * @param memory
  */
-void freeMemory(MemorySpace memory);
+void freeMemory(MemorySlot memory);
+
+typedef struct list_memory_space_t *MemorySlotList;
+
+struct list_memory_space_t {
+    MemorySlot slot;
+    MemorySlotList next;
+};
+
+/**
+ *
+ * @param memorySlot
+ * @return
+ */
+MemorySlotList newMemorySlotList(MemorySlot memorySlot);
+
+/**
+ *
+ * @param memorySlotList
+ * @param slot
+ */
+void appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot);
+
+/**
+ *
+ */
+void destroyMemoryList(MemorySlotList memorySlotList);
 
 #endif //SOS_MEMORY_H

@@ -21,7 +21,7 @@
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
-            return RETURN_FAILURE; \
+            return 0; \
         } \
         addIntoData(listInstruction, buf); \
     } while (0);

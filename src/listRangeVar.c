@@ -449,7 +449,7 @@ int deleteIdentifierOrder(ListIdentifierOrder addr)
  * \fn int setOffset(ListIdentifier addr, int position, int offset)
  * \brief Fonction qui modifie l'offset de l'identificateur
 */
-int setOffset(ListRangeVariable addr, char* name, MemorySpace offset)
+int setOffset(ListRangeVariable addr, char* name, MemorySlot offset)
 {
     log_trace("setOffset (ListRangeVariable %p, char* %s, int %d)", addr, name, offset)
     CHECKPOINTER(addr);

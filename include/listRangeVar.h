@@ -290,7 +290,7 @@ int getStack(ListRangeVariable addr);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int setOffset(ListRangeVariable addr, char* name, MemorySpace offset);
+int setOffset(ListRangeVariable addr, char* name, MemorySlot offset);
 
 /*!
  * \fn int getOffset(ListIdentifier addr, int position, ListTmp addrTmp)

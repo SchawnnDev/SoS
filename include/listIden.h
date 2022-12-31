@@ -11,7 +11,7 @@ typedef struct {
     char ** values;
     int type;
     int arraySize;
-    MemorySpace memory;
+    MemorySlot memory;
 } identifier_t, *Identifier;
 
 typedef struct {
@@ -74,7 +74,7 @@ int searchIntoListIdentifier(ListIdentifier addr, char* name);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySpace offset);
+int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset);
 
 /*!
  * \fn int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
@@ -135,7 +135,7 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySpace offset);
+int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySlot offset);
 
 /*!
  * \fn int getOffsetOfIdentifier(ListIdentifier addr, int position)
@@ -146,7 +146,7 @@ int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySpace offset)
  *
  * \return int, l'offet par rapport à la stack
 */
-MemorySpace getOffsetOfIdentifier(ListIdentifier addr, int position);
+MemorySlot getOffsetOfIdentifier(ListIdentifier addr, int position);
 
 /*!
  * \fn int printIdentifier(ListIdentifier addr,int position)

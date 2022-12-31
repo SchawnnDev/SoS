@@ -87,7 +87,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     // Parse
     int result = yyparse();
     if (result != RETURN_SUCCESS) return result;
-    destroyMemory();
+    destroyMemorySlot();
     return writeToFile(listInstruction,
                        outputFile == NULL ? stdout : outputFile);
 }
@@ -177,7 +177,7 @@ int doConcatenation(const char* into, int skipOffset)
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-int assign()
+MemorySlot assign()
 {
     log_trace("assign (void)")
     char* name = listIdentifierOrder->cursor->name;
@@ -192,7 +192,7 @@ int assign()
     asm_code_printf("\n\t# Assignation of var %s\n", name)
 
     if(doConcatenation("$a2", TRUE) == RETURN_FAILURE)
-        return RETURN_FAILURE;
+        return NULL;
 
     // save start address to the assigned value stack
     asm_allocateMemoryOnStack(1); // TODO: check if memory address is right (_offset...)
@@ -262,7 +262,7 @@ void echo()
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-MemorySpace doOperation(MemorySpace left, int operation, MemorySpace right)
+MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
 {
     asm_code_printf("\n\t#Start of operation code\n\n")
 
@@ -494,26 +494,22 @@ int doDeclareStaticArray()
     return RETURN_SUCCESS;
 }
 
-int addStringToListTmp(const char *str) {
+MemorySlot addStringToMemory(const char *str) {
     char *copy;
     unsigned int len = strlen(str) - 1;
-    // Replace \\ to '\'
     CHECKPOINTER(copy = malloc(len))
-    // "test\\n"
-    // 1
-/*    for (int i = 1; i < len - 1; ++i) {
-        copy[i - 1] = str[i];
-        if (str[i+1] == '\\') copy[++i] = '\\'; // Insert extra backslash
-    }*/
-
-    // \"test\"\0
     CHECKPOINTER(strncpy(copy, str + 1, len - 1));
     copy[len - 1] = '\0'; // add nul char
     // Don't forget to add label to tmp list
-    addValueIntoListTmp(copy);
-
+    // addValueIntoListTmp(copy);
+    MemorySlot slot = reserveMemorySlot();
+    const char* label = createNewLabel();
+    asm_data_printf("\t%s: .asciiz \"%s\"\n", label, copy)
+    asm_loadLabelIntoRegister(label, "$t0");
+    asm_getStackAddress("$t1", getMipsOffset(slot));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
     free(copy);
-    return RETURN_SUCCESS;
+    return slot;
 }
 
 int doArrayRead()
@@ -542,7 +538,7 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-MemorySpace doGetVariableAddress()
+MemorySlot doGetVariableAddress()
 {
     log_trace("doGetVariableAddress")
     CHECK_IDENTIFIER_NOT_ZERO("doGetVariableAddress")
@@ -621,9 +617,9 @@ int checkWordIsInt(const char *word)
     return checkRegex("^[+-]?[0-9]+", word);
 }
 
-MemorySpace doWriteInt(const char *val)
+MemorySlot doWriteInt(const char *val)
 {
-    MemorySpace mem = reserveMemorySpace();
+    MemorySlot mem = reserveMemorySlot();
     setTypeOrder(INTEGER);
     asm_getStackAddress("$t0", getMipsOffset(mem));
     int parsed;

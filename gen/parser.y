@@ -6,7 +6,7 @@
 #include "memory.h"
 %}
 
-%union { char *strval; int intval; MemorySpace memval; }
+%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; }
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
@@ -26,8 +26,9 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operand concatenation test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp marker
-%type <memval> operand_int int sum_int mult_int
+%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp marker
+%type <memval> operand operand_int int sum_int mult_int
+%type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod
 %start program
 
@@ -77,13 +78,13 @@ filter : WORD
     | MULT
     ;
 
-list_operand : list_operand operand
-    | operand
+list_operand : list_operand operand { $$ = appendMemorySlot($1, $2); }
+    | operand { $$ = newMemorySlotList($1); }
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
-concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
-    | operand { log_debug("concatenation"); }
+concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ = appendMemorySlot($1, $2); }
+    | operand { $$ = newMemorySlotList($1); }
     ;
 
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
@@ -115,9 +116,9 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTED_STRING { addStringToListTmp($1); }
-    | APOSTROPHED_STRING { addStringToListTmp($1); }
-    | DOLLAR LPAREN EXPR sum_int RPAREN { }
+    | QUOTED_STRING { $$ = addStringToMemory($1); }
+    | APOSTROPHED_STRING { $$ = addStringToMemory($1); }
+    | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = $4; }
     | DOLLAR LPAREN function_call RPAREN
     ;
 

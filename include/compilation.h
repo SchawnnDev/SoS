@@ -52,7 +52,7 @@ void setCurrentBooleanExpression(boolExpr_t expr);
 */
 void addTmpValuesListTmp();
 
-int assign();
+MemorySlot assign();
 
 void addValueIntoListTmp(char *value);
 
@@ -67,7 +67,7 @@ int doEcho();
 /**
  *
  */
-MemorySpace doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
+MemorySlot doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
 
 /**
  *
@@ -91,14 +91,14 @@ int doArrayRead();
  *
  * @return
  */
-MemorySpace doGetVariableAddress();
+MemorySlot doGetVariableAddress();
 
 /**
  *
  * @param val
  * @return
  */
-MemorySpace doWriteInt(const char *val);
+MemorySlot doWriteInt(const char *val);
 
 /**
  *
@@ -149,6 +149,6 @@ int parseInt32(const char *word);
  * @param str
  * @return
  */
-int addStringToListTmp(const char *str);
+MemorySlot addStringToMemory(const char *str);
 
 #endif //SOS_COMPILATION_H
