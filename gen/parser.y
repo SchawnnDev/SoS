@@ -114,7 +114,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); do
     | DOLLAR QMARK
     | QUOTED_STRING { addStringToListTmp($1); }
     | APOSTROPHED_STRING { addStringToListTmp($1); }
-    | DOLLAR LPAREN EXPR sum_int RPAREN
+    | DOLLAR LPAREN EXPR sum_int RPAREN { doOperation(); }
     | DOLLAR LPAREN function_call RPAREN
     ;
 
@@ -130,12 +130,12 @@ operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
     | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
     ;
 
-sum_int : sum_int plus_or_minus mult_int {doOperation();}
+sum_int : sum_int plus_or_minus mult_int
     | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
-mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); doOperation(); }
-    | operand_int {log_debug("mult_int : operand_int"); }
+mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); }
+    | operand_int {log_debug("mult_int : operand_int"); doOperationAddInt(); }
     ;
 
 operand_int : DOLLAR LBRACE id RBRACE
@@ -149,13 +149,13 @@ operand_int : DOLLAR LBRACE id RBRACE
     | LPAREN sum_int RPAREN
     ;
 
-plus_or_minus : PLUS {setCurrentOperation(PLUS_OPE);}
-    | MINUS {setCurrentOperation(MINUS_OPE);}
+plus_or_minus : PLUS {setCurrentOperation(PLUS_OPE); addValueIntoListTmp("+"); }
+    | MINUS {setCurrentOperation(MINUS_OPE); addValueIntoListTmp("-");}
     ;
 
-mult_div_mod : MULT {setCurrentOperation(MULT_OPE);}
-     | DIV {setCurrentOperation(DIV_OPE);}
-     | MOD {setCurrentOperation(MOD_OPE);}
+mult_div_mod : MULT {addValueIntoListTmp("*");}
+     | DIV {addValueIntoListTmp("/");}
+     | MOD {addValueIntoListTmp("%");}
      ;
 
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE

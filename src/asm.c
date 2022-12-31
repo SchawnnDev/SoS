@@ -103,3 +103,22 @@ int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *in
     asm_code_printf("\tmove %s, $v0\n", into)
     return RETURN_SUCCESS;
 }
+
+int asm_appendInternalOffset(int words)
+{
+    if(words == 0) return RETURN_SUCCESS;
+    asm_code_printf("\tla $t0, %s\n", ASM_VAR_OFFSET_NAME)
+    asm_code_printf("\t$t1, 0($t0)\n")
+    asm_code_printf("\taddi $t1, $t1, %d\n", words * ASM_INTEGER_SIZE)
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+    return RETURN_SUCCESS;
+}
+
+int asm_addIntOnStack(int value)
+{
+    asm_appendInternalOffset(1);
+    asm_allocateMemoryOnStack(1);
+    asm_code_printf("\tli $t0, %d\n", value)
+    asm_code_printf("\tsw $t0, 0($sp)\n")
+    return RETURN_SUCCESS;
+}

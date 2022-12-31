@@ -118,7 +118,7 @@ void addStructData(ListInstruction addr)
 */
 void addIntoData(ListInstruction addr, char *data)
 {
-    log_trace("addIntoData (ListInstruction %p, char* %s)", addr, data)
+   // log_trace("addIntoData (ListInstruction %p, char* %s)", addr, data)
     CHECKPOINTER(addr);
     CHECKPOINTER(data);
 

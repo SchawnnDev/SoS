@@ -261,8 +261,17 @@ void echo()
 
 void doOperation()
 {
+   // int stack = increaseStackSize(listRangeVariable,ADDR_STACK_SIZE);
     operationListTmp(listTmp, currentOperation);
     currentOperation = UNSET;
+
+
+    //deleteListTmp()
+}
+
+int doOperationAddInt()
+{
+    return RETURN_SUCCESS;
 }
 
 int getValues()
@@ -274,7 +283,7 @@ int getValues()
 int doEcho()
 {
     log_trace("doEcho")
-    asm_code_printf("\n# DO ECHO SECTION\n\n")
+    asm_code_printf("\n\t# Do echo section\n\n")
 
     log_trace("doConcatenation")
     CHECKPOINTER(listTmp)
@@ -304,7 +313,7 @@ int doEcho()
 
     }
 
-    asm_code_printf("\n# END DO ECHO SECTION\n\n")
+    asm_code_printf("\n\t# End do echo section\n\n")
 
     return RETURN_SUCCESS;
 }

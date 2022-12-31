@@ -1,0 +1,7 @@
+echo $(expr 1 + 1);
+exit
+# a = $(expr 1 + 2 * (2 + 2));
+# b = 2;
+# c = $(expr ${a} + ${b} );
+# echo ${c};
+#exit

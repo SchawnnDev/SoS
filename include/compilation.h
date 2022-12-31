@@ -72,6 +72,12 @@ void doOperation();
  *
  * @return
  */
+int doOperationAddInt();
+
+/**
+ *
+ * @return
+ */
 int doDeclareStaticArray();
 
 /**
