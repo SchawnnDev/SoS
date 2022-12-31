@@ -91,7 +91,7 @@ int doArrayRead();
  *
  * @return
  */
-int doGetVariableAddress();
+MemorySpace doGetVariableAddress();
 
 /**
  *

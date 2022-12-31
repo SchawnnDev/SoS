@@ -112,7 +112,7 @@ int doConcatenation(const char* into, int skipOffset)
         {
             // read from stack
             asm_code_printf("\t# Reading value from stack\n")
-            asm_readFromStack("$t1", val);
+            asm_readFromStack("$t1", atoi(val));
             asm_useBufferLenFunction("$t1", "$t2");
             asm_code_printf("\tadd $t0, $t0, $t2 # stack value\n")
             asm_code_printf("\t# End of reading\n")
@@ -186,8 +186,8 @@ int assign()
                          listTmp);
 
     // Get offset of stack for the assigned value
-    if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
-        return RETURN_FAILURE;
+    //if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
+      //  return RETURN_FAILURE;
 
     asm_code_printf("\n\t# Assignation of var %s\n", name)
 
@@ -264,10 +264,6 @@ void echo()
 
 MemorySpace doOperation(MemorySpace left, int operation, MemorySpace right)
 {
-   // int stack = increaseStackSize(listRangeVariable,ADDR_STACK_SIZE);
-    //operationListTmp(listTmp, currentOperation);
-    //currentOperation = UNSET;
-
     asm_code_printf("\n\t#Start of operation code\n\n")
 
     asm_readFromStack("$t0", getMipsOffset(left));
@@ -546,20 +542,18 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-int doGetVariableAddress()
+MemorySpace doGetVariableAddress()
 {
     log_trace("doGetVariableAddress")
     CHECK_IDENTIFIER_NOT_ZERO("doGetVariableAddress")
 
     char *name = listIdentifierOrder->cursor->name;
-
-    if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
-        return RETURN_FAILURE;
-
+    // TODO ICI ???
+    int a = searchIdentifierPosition(listRangeVariable, name)->indexIdentifier;
+    //if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
+      //  return RETURN_FAILURE;
     deleteIdentifierOrder(listIdentifierOrder);
-
-//    return getOffsetOfIdentifier();
-return 0;
+    return getOffsetOfIdentifier(listRangeVariable->cursor->listIdentifier, a);
 }
 
 // Utils

@@ -109,7 +109,7 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); doGetVariableAddress(); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress(); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1); }
     | DOLLAR int
@@ -141,7 +141,7 @@ mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s |
     | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
-operand_int : DOLLAR LBRACE id RBRACE
+operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress(); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | DOLLAR int
     | plus_or_minus DOLLAR LBRACE id RBRACE

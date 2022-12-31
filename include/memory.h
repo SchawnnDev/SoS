@@ -6,6 +6,7 @@ typedef struct memory_space_t *MemorySpace;
 struct memory_space_t {
     int used;
     int offset;
+    // TODO: GERER IDENTIFICATEUR NE SE SUPPRIME PAS / MAIS VALEUR TEMP SI
     // TODO: Heap= true/false, heapOffset for arrays ???
     MemorySpace next;
 };
