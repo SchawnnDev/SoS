@@ -3,9 +3,10 @@
 %{
 #include "lexer.h"
 #include "compilation.h"
+#include "memory.h"
 %}
 
-%union { char *strval; }
+%union { char *strval; int intval; MemorySpace memval; }
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
@@ -25,7 +26,9 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp marker
+%type <strval> id operand concatenation test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp marker
+%type <memval> operand_int int sum_int mult_int
+%type <intval> plus_or_minus mult_div_mod
 %start program
 
 %%
@@ -114,7 +117,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); do
     | DOLLAR QMARK
     | QUOTED_STRING { addStringToListTmp($1); }
     | APOSTROPHED_STRING { addStringToListTmp($1); }
-    | DOLLAR LPAREN EXPR sum_int RPAREN { doOperation(); }
+    | DOLLAR LPAREN EXPR sum_int RPAREN { }
     | DOLLAR LPAREN function_call RPAREN
     ;
 
@@ -130,12 +133,12 @@ operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
     | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
     ;
 
-sum_int : sum_int plus_or_minus mult_int { log_debug("CALCUL: $1 $2 $3");}
+sum_int : sum_int plus_or_minus mult_int { log_debug("sum_int: CALCUL: %d | %d | %d", $1, $2, $3); $$ = doOperation($1, $2, $3); }
     | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
-mult_int : mult_int mult_div_mod operand_int { log_debug("CALCUL: $1 $2 $3");}
-    | operand_int {log_debug("mult_int : operand_int"); doOperationAddInt(); }
+mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s | %d | %s", $1, $2, $3); $$ = doOperation($1, $2, $3); }
+    | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
 operand_int : DOLLAR LBRACE id RBRACE
@@ -149,13 +152,13 @@ operand_int : DOLLAR LBRACE id RBRACE
     | LPAREN sum_int RPAREN
     ;
 
-plus_or_minus : PLUS {setCurrentOperation(PLUS_OPE); addValueIntoListTmp("+"); }
-    | MINUS {setCurrentOperation(MINUS_OPE); addValueIntoListTmp("-");}
+plus_or_minus : PLUS { $$ = PLUS_OPE; }
+    | MINUS { $$ = MINUS_OPE; }
     ;
 
-mult_div_mod : MULT {addValueIntoListTmp("*");}
-     | DIV {addValueIntoListTmp("/");}
-     | MOD {addValueIntoListTmp("%");}
+mult_div_mod : MULT { $$ = MULT_OPE; }
+     | DIV { $$ = DIV_OPE; }
+     | MOD { $$ = MULT_OPE;}
      ;
 
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
@@ -172,7 +175,7 @@ function_call : id list_operand
 id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
     ;
 
-int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER); }
+int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWriteInt($1); }
     ;
 
 addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};

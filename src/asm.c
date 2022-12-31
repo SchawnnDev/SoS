@@ -57,11 +57,16 @@ int asm_writeStaticArray(const char *label, int size)
     return RETURN_SUCCESS;
 }
 
-int asm_readFromStack(const char *into, char *offset) {
+int asm_readFromStack(const char *into, int offset) {
+    asm_getStackAddress(into, offset);
+    asm_code_printf("\tlw %s, 0(%s)\n", into, into)
+    return RETURN_SUCCESS;
+}
+
+int asm_getStackAddress(const char *into, int offset) {
     asm_code_printf("\tlw %s, _offset\n", into)
     asm_code_printf("\tadd %s, $sp, %s\n", into, into)
-    asm_code_printf("\taddi %s, %s, %s\n", into, into, offset)
-    asm_code_printf("\tlw %s, 0(%s)\n", into, into)
+    asm_code_printf("\taddi %s, %s, %d\n", into, into, offset)
     return RETURN_SUCCESS;
 }
 
@@ -110,6 +115,16 @@ int asm_appendInternalOffset(int words)
     asm_code_printf("\tla $t0, %s\n", ASM_VAR_OFFSET_NAME)
     asm_code_printf("\t$t1, 0($t0)\n")
     asm_code_printf("\taddi $t1, $t1, %d\n", words * ASM_INTEGER_SIZE)
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+    return RETURN_SUCCESS;
+}
+
+int asm_subtractInternalOffset(int words)
+{
+    if(words == 0) return RETURN_SUCCESS;
+    asm_code_printf("\tla $t0, %s\n", ASM_VAR_OFFSET_NAME)
+    asm_code_printf("\t$t1, 0($t0)\n")
+    asm_code_printf("\tsubi $t1, $t1, %d\n", words * ASM_INTEGER_SIZE)
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return RETURN_SUCCESS;
 }

@@ -45,6 +45,7 @@ add_library(
         mips/functions/loadRegistersFromStack.asm.c
         mips/functions/strcmp.asm.c
         mips/functions/displayString.asm.c
+        src/memory.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
 
@@ -59,6 +60,7 @@ add_library(
         include/listInstructionMips.h
         include/asm.h
         include/labels.h
+        include/memory.h
         mips/functions/atoi.asm.h
         mips/functions/strcmp.asm.h
         mips/header.asm.h

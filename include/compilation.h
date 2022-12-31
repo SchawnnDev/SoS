@@ -6,6 +6,7 @@
 #include "listRangeVar.h"
 #include "listInstructionMips.h"
 #include "boolExpr.h"
+#include "memory.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
 
@@ -66,7 +67,7 @@ int doEcho();
 /**
  *
  */
-void doOperation();
+MemorySpace doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
 
 /**
  *
@@ -91,6 +92,13 @@ int doArrayRead();
  * @return
  */
 int doGetVariableAddress();
+
+/**
+ *
+ * @param val
+ * @return
+ */
+MemorySpace doWriteInt(const char *val);
 
 /**
  *

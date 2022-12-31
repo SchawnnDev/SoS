@@ -3,14 +3,15 @@
 
 #include <errno.h>
 #include <stdarg.h>
-#include "compilation.h"
+#include "listInstructionMips.h"
 
+// TODO: fix error code
 #define asm_code_printf(...) \
     do { \
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
-            return RETURN_FAILURE; \
+            return 0; \
         } \
         addIntoCode(listInstruction, buf); \
     } while (0);
@@ -98,11 +99,26 @@ int asm_appendInternalOffset(int count);
 
 /**
  *
+ * @param words
+ * @return
+ */
+int asm_subtractInternalOffset(int words);
+
+/**
+ *
  * @param into
  * @param offset
  * @return
  */
-int asm_readFromStack(const char *into, char* offset);
+int asm_readFromStack(const char *into, int offset);
+
+/**
+ *
+ * @param into
+ * @param offset
+ * @return
+ */
+int asm_getStackAddress(const char *into, int offset);
 
 /**
  *

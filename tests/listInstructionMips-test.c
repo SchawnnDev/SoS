@@ -172,7 +172,7 @@ TEST addIntoCodeWithIndexBadIndexTest(void) {
 //---------------------//
 TEST addIntoUnDefineGotoTest(void) {
     ListInstruction addr = initListInstruction();
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
 
     ASSERT_EQ_FMT(1, addr->cursorCode->numberCode,"%d");
     ASSERT_EQ_FMT(1, addr->cursorCode->numberGoto,"%d");
@@ -185,9 +185,9 @@ TEST addIntoUnDefineGotoTest(void) {
 //----------------------//
 TEST completeUnDefineGotoSameTableTest(void) {
     ListInstruction addr = initListInstruction();
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     addIntoCode(addr,"test");
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(3, addr->cursorCode->numberCode,"%d");
@@ -207,9 +207,9 @@ TEST completeUnDefineGotoDifferentTableTest(void) {
         addIntoCode(addr, codes[i]);
     }
 
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     addIntoCode(addr,"test");
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(2, addr->cursorCode->numberCode,"%d");

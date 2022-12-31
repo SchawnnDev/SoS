@@ -13,6 +13,7 @@
 #include "atoi.asm.h"
 #include "strcmp.asm.h"
 #include "displayString.asm.h"
+#include "memory.h"
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
@@ -86,6 +87,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     // Parse
     int result = yyparse();
     if (result != RETURN_SUCCESS) return result;
+    destroyMemory();
     return writeToFile(listInstruction,
                        outputFile == NULL ? stdout : outputFile);
 }
@@ -260,14 +262,47 @@ void echo()
     deleteIdentifierOrder(listIdentifierOrder);
 }
 
-void doOperation()
+MemorySpace doOperation(MemorySpace left, int operation, MemorySpace right)
 {
    // int stack = increaseStackSize(listRangeVariable,ADDR_STACK_SIZE);
-    operationListTmp(listTmp, currentOperation);
-    currentOperation = UNSET;
+    //operationListTmp(listTmp, currentOperation);
+    //currentOperation = UNSET;
 
+    asm_code_printf("\n\t#Start of operation code\n\n")
 
-    //deleteListTmp()
+    asm_readFromStack("$t0", getMipsOffset(left));
+    asm_readFromStack("$t1", getMipsOffset(right));
+
+    switch (operation) {
+        case PLUS_OPE:
+            asm_code_printf("\tadd $t0, $t0, $t1\n")
+            break;
+        case MINUS_OPE:
+            asm_code_printf("\tsub $t0, $t0, $t1\n")
+            break;
+        case MULT_OPE:
+            asm_code_printf("\tmul $t0, $t0, $t1\n")
+            break;
+        case DIV_OPE:
+            asm_code_printf("\tmul $t0, $t1\n")
+            asm_code_printf("\tmflo $t0\n")
+            break;
+        case MOD_OPE:
+            asm_code_printf("\tmul $t0, $t1\n")
+            asm_code_printf("\tmfhi $t0\n")
+            break;
+        default:
+            // ERROR: unknown operation
+            break;
+    }
+
+    freeMemory(right);
+    asm_getStackAddress("$t1", getMipsOffset(left));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
+
+    asm_code_printf("\n\t#End of operation code\n\n")
+
+    return left;
 }
 
 int doOperationAddInt()
@@ -508,19 +543,6 @@ int doArrayRead()
     }
 
 
-    // read tableau[1];
-    // read tableau[$1];
-    // read tableau[${a}];
-
-/*    if (size <= 0)
-    {
-        log_error(
-                "doDeclareStaticArray: size should be greater than 0 (actual: %d)",
-                size)
-        return RETURN_FAILURE;
-    }*/
-
-
     return RETURN_SUCCESS;
 }
 
@@ -536,11 +558,12 @@ int doGetVariableAddress()
 
     deleteIdentifierOrder(listIdentifierOrder);
 
-    return RETURN_SUCCESS;
+//    return getOffsetOfIdentifier();
+return 0;
 }
 
 // Utils
-
+// TODO: CONVERT TO HANDLE +/-
 int parseInt32(const char *word)
 {
     char *endptr;
@@ -549,14 +572,14 @@ int parseInt32(const char *word)
     if (endptr == word || *endptr != '\0')
     {
         log_error("Invalid number for parseInt32(%s)", word);
-        return -1;
+        return RETURN_FAILURE;
     }
 
     if (parsed < INT_MIN || parsed > INT_MAX)
     {
         // The number is not within the range of a 32-bit integer
         log_error("Number is not 32-bit for parseInt32(%s)", word);
-        return -1;
+        return RETURN_FAILURE;
     }
 
     return (int) parsed;
@@ -602,4 +625,16 @@ int checkWordIsId(const char *word)
 int checkWordIsInt(const char *word)
 {
     return checkRegex("^[+-]?[0-9]+", word);
+}
+
+MemorySpace doWriteInt(const char *val)
+{
+    MemorySpace mem = reserveMemorySpace();
+    setTypeOrder(INTEGER);
+    asm_getStackAddress("$t0", getMipsOffset(mem));
+    int parsed;
+    if((parsed = parseInt32(val))== RETURN_FAILURE) return NULL;
+    asm_code_printf("\tli $t1, %d\n", parsed)
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+    return mem;
 }

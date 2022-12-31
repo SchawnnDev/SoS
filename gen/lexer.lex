@@ -2,7 +2,7 @@
 
 %{
 #define YYERROR_VERBOSE 1
-
+#include "memory.h"
 #include "parser.h"
 #include "string.h"
 #include "log.h"
@@ -92,10 +92,10 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {CASE} { return CASE; }
 {ESAC} { return ESAC; }
 {EXPR} { return EXPR; }
-{LBRACKET} { return LBRACKET; }
-{RBRACKET} { return RBRACKET; }
-{LPAREN} { return LPAREN; }
-{RPAREN} { log_debug("RPAREN"); return RPAREN; }
+{LBRACKET} { yylval.strval = yytext; return LBRACKET; }
+{RBRACKET} { yylval.strval = yytext; return RBRACKET; }
+{LPAREN} { yylval.strval = yytext; return LPAREN; }
+{RPAREN} { yylval.strval = yytext; log_debug("RPAREN"); return RPAREN; }
 {LBRACE} { log_debug("LBRACE"); return LBRACE; }
 {RBRACE} { log_debug("RBRACE"); return RBRACE; }
 {QUOTE} { return QUOTE; }
