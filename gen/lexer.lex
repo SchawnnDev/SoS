@@ -104,11 +104,11 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {SEMICOLON} {log_debug("SEMICOLON : %s",yytext); return SEMICOLON; }
 {EXCL} { return EXCL; }
 {DOLLAR} { log_debug("DOLLAR"); return DOLLAR; }
-{PLUS} { log_debug("PLUS"); return PLUS; }
-{MINUS} { return MINUS; }
-{MULT} { return MULT; }
-{DIV} { return DIV; }
-{MOD} { return MOD; }
+{PLUS} { yylval.strval = yytext; log_debug("PLUS"); return PLUS; }
+{MINUS} { yylval.strval = yytext; return MINUS; }
+{MULT} { yylval.strval = yytext; return MULT; }
+{DIV} { yylval.strval = yytext; return DIV; }
+{MOD} { yylval.strval = yytext; return MOD; }
 {QMARK} { return QMARK; }
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }

@@ -130,11 +130,11 @@ operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
     | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
     ;
 
-sum_int : sum_int plus_or_minus mult_int
+sum_int : sum_int plus_or_minus mult_int { log_debug("CALCUL: $1 $2 $3");}
     | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
-mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); }
+mult_int : mult_int mult_div_mod operand_int { log_debug("CALCUL: $1 $2 $3");}
     | operand_int {log_debug("mult_int : operand_int"); doOperationAddInt(); }
     ;
 
