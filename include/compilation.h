@@ -98,6 +98,8 @@ int doGetVariableAddress();
  */
 int getValues();
 
+int setMarker();
+
 /**
  *
  * @param addr

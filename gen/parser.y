@@ -25,7 +25,7 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp
+%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp marker
 %start program
 
 %%
@@ -86,11 +86,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O test_expr2 { setCurrentBooleanExpression(L_OR); }
+test_expr : test_expr ARG_O marker test_expr2 { setCurrentBooleanExpression(L_OR); doBoolExpression();}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A test_expr3 { setCurrentBooleanExpression(L_AND); }
+test_expr2 : test_expr2 ARG_A marker test_expr3 { setCurrentBooleanExpression(L_AND); doBoolExpression();}
     | test_expr3
     ;
 
@@ -176,6 +176,8 @@ int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueInt
     ;
 
 addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
+
+marker : {$$ = ""; setMarker();}
 
 %%
 

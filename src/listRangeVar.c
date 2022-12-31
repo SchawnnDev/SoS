@@ -378,7 +378,8 @@ int setTypeIdentifierOrder(ListIdentifierOrder addr, int type)
         return RETURN_FAILURE;
     }
 
-    addr->cursor->type = type;
+    if(addr->cursor != NULL)
+        addr->cursor->type = type;
 
     return RETURN_SUCCESS;
 }
