@@ -19,6 +19,7 @@ ListTmp listTmp;
 ListInstruction listInstruction;
 int currentOperation;
 boolExpr_t currentBooleanExpression;
+int marker;
 
 void setCurrentOperation(int operation)
 {
@@ -270,6 +271,13 @@ int doEcho()
     return RETURN_SUCCESS;
 }
 
+int setMarker(){
+    marker = listInstruction->cursorCode->numberCode;
+    asm_code_printf("\t%s : \n",createNewLabel())
+
+    return RETURN_SUCCESS;
+}
+
 int doBoolExpression()
 {
     log_trace("doBoolExpression (ListTmp %p, int %d)", listTmp,
@@ -283,6 +291,8 @@ int doBoolExpression()
         perror("doBoolExpression : you must have two values.");
         return RETURN_FAILURE;
     }
+
+    asm_code_printf("\n\t# Start of Test block of ope %d\n", currentBooleanExpression)
 
     int index;
     for (index = listTmp->cursor->numberValues - 2;
@@ -302,7 +312,7 @@ int doBoolExpression()
                 // ToDo Call Mips ATOI
             } else
             {
-                asm_code_printf("li $t2, %s\n", listTmp->cursor->values[index])
+                asm_code_printf("\tli $t2, %s\n", listTmp->cursor->values[index])
             }
         }
     }
@@ -313,37 +323,49 @@ int doBoolExpression()
     deleteListTmp(listTmp);
     addListTmp(listTmp, initTmpValues(listTmp->cursor));
     */
-    char* else_lab = createNewLabel();
-
+    char* else_lab;
     switch (currentBooleanExpression)
     {
         case BOOL_EQ:
-            asm_code_printf("beq $t1, $t2, %s",else_lab)
+            addIntoTrueList(listInstruction,"\tbeq $t1, $t2,");
+            addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_NEQ:
-            asm_code_printf("bne $t1, $t2, %s", else_lab)
+            addIntoTrueList(listInstruction,"\tbne $t1, $t2,");
+            addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_GT:
-            asm_code_printf("bgt $t1, $t2, %s", else_lab)
+            addIntoTrueList(listInstruction,"\tbgt $t1, $t2,");
+            addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_GE:
-            asm_code_printf("bge $t1, $t2, %s", else_lab)
+            addIntoTrueList(listInstruction,"\tbge $t1, $t2,");
+            addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_LT:
-            asm_code_printf("blt $t1, $t2, %s", else_lab)
+            addIntoTrueList(listInstruction,"\tblt $t1, $t2,");
+            addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_LE:
-            asm_code_printf("ble $t1, $t2, %s", else_lab)
+            addIntoTrueList(listInstruction,"\tble $t1, $t2,");
+            addIntoFalseList(listInstruction,"\n\tj");
             break;
         case L_AND:
+            asm_code_printf("%s", "ligne ET\n")
+            //else_lab = createNewLabel();
 
             break;
         case L_OR:
-            asm_code_printf("%s", "ligne OU")
+            asm_code_printf("%s", "ligne OU\n")
+            else_lab = createNewLabel();
+            completeTrueList(listInstruction,else_lab);
+            completeTrueList(listInstruction,else_lab);
+            //completeFalseList(listInstruction, );
+            completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
             break;
     }
 
-
+    asm_code_printf("\n\t# End of Test block of ope %d\n", currentBooleanExpression)
     return RETURN_SUCCESS;
 }
 

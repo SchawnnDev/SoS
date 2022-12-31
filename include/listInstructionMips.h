@@ -20,8 +20,12 @@ typedef struct code_t *Code;
 struct code_t{
     int numberCode;
     int numberGoto;
+    int numberTrue;
+    int numberFalse;
     char *lineCode[CODE_TAB_MAX];
     int unDefineGoto[CODE_TAB_MAX];
+    int trueList[CODE_TAB_MAX];
+    int falseList[CODE_TAB_MAX];
     Code previousCode;
     Code nextCode;
 };
@@ -134,12 +138,49 @@ int addIntoCodeWithIndex( Code addr, char* code, int index);
  * \brief Fonction qui permet d'ajoute un goto indéterminé
  *
  * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, le code que l'on souhaite écrire dans le code
 */
-void addIntoUnDefineGoto(ListInstruction addr);
+void addIntoUnDefineGoto(ListInstruction addr, char* code);
+
+/*!
+ * \fn void addIntoTrueList( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute à la trueList
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, le code que l'on souhaite écrire dans le code
+*/
+void addIntoTrueList(ListInstruction addr, char* code);
+
+/*!
+ * \fn void addIntoFalseList( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute à la falseList
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, le code que l'on souhaite écrire dans le code
+*/
+void addIntoFalseList(ListInstruction addr, char* code);
+
+/*!
+ * \fn void completeTrueList( ListInstruction addr, char* code )
+ * \brief Fonction qui permet complete une ligne de la trueList
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, la structure d'instruction
+*/
+void completeTrueList(ListInstruction addr, char *code);
+
+/*!
+ * \fn void completeFalseList( ListInstruction addr, char* code )
+ * \brief Fonction qui permet complete une ligne de la falseList
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, la structure d'instruction
+*/
+void completeFalseList(ListInstruction addr, char *code);
 
 /*!
  * \fn void completeUnDefineGoto( ListInstruction addr, char* code )
- * \brief Fonction qui permet d'ajoute un goto indéterminé
+ * \brief Fonction qui completer un goto indeterminé
  *
  * \param addr : ListInstruction, la structure d'instruction
  * \param code : char*, la structure d'instruction
