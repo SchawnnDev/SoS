@@ -176,7 +176,7 @@ void addIntoCode(ListInstruction addr, char *code)
 */
 int addIntoCodeWithIndex(Code addr, char *code, int index)
 {
-    log_trace("addIntoCode (ListInstruction %p, char* %s)", addr, code)
+//    log_trace("addIntoCode (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
 

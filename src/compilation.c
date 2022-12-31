@@ -115,9 +115,9 @@ int doConcatenation(const char* into, int skipOffset)
             asm_code_printf("\t# End of reading\n")
         } else {
             // Else is a label, do calculations:
-            unsigned long len = strlen(val);
+            int len = countWithoutBackslash(val);
             if(len == 0) continue;
-            asm_code_printf("\taddi $t0, $t0, %lu # static value\n", len)
+            asm_code_printf("\taddi $t0, $t0, %d # static value\n", len)
         }
 
     }
@@ -141,7 +141,7 @@ int doConcatenation(const char* into, int skipOffset)
         if (listTmp->cursor->types[i] == TYPE_STACK) {
             asm_readFromStack("$t0", val);
             asm_useBufferWriteFunction("$t0", "$t1", "$t1");
-            asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
+            //asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
             continue;
         }
 
@@ -188,12 +188,12 @@ int assign()
 
     asm_code_printf("\n\t# Assignation of var %s\n", name)
 
-    if(doConcatenation("$a0", TRUE) == RETURN_FAILURE)
+    if(doConcatenation("$a2", TRUE) == RETURN_FAILURE)
         return RETURN_FAILURE;
 
     // save start address to the assigned value stack
     asm_allocateMemoryOnStack(1); // TODO: check if memory address is right (_offset...)
-    asm_code_printf("\tsw $a0, 0($sp)\n")
+    asm_code_printf("\tsw $a2, 0($sp)\n")
 
     asm_code_printf("\n\t# End of assignation of var %s\n", name)
 
@@ -276,10 +276,33 @@ int doEcho()
     log_trace("doEcho")
     asm_code_printf("\n# DO ECHO SECTION\n\n")
 
-    if(doConcatenation("$a0", FALSE) == RETURN_FAILURE)
-        return RETURN_FAILURE;
+    log_trace("doConcatenation")
+    CHECKPOINTER(listTmp)
+    CHECKPOINTER(listTmp->cursor)
 
-    asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
+    // Do concatenation
+    int values = listTmp->cursor->numberValues;
+
+    // This loop calculates the size of the concatenation
+    for (int i = 0; i < values; ++i) // values - 1 : last element is the stack offset for the assigned value
+    {
+        char *val = listTmp->cursor->values[i];
+        //
+        if (listTmp->cursor->types[i] == TYPE_STACK)
+        {
+            // read from stack
+            asm_readFromStack("$a0", val);
+            asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
+        } else {
+            // Else is a label, do calculations:
+            if(strlen(val) == 0) continue;
+            const char* lbl = createNewLabel();
+            asm_data_printf("\t%s: .asciiz \"%s\"\n", lbl, val)
+            asm_code_printf("\tla $a0, %s\n", lbl)
+            asm_syscall(PRINT_STRING);
+        }
+
+    }
 
     asm_code_printf("\n# END DO ECHO SECTION\n\n")
 

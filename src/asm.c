@@ -92,7 +92,8 @@ int asm_useBufferWriteFunction(const char* source, const char* destination, cons
     asm_code_printf("\tmove $a1, %s\n", destination)
     asm_jal(ASM_BUFFER_WRITE_FUNCTION_NAME);
     asm_code_printf("\tmove %s, $v0\n", into)
-    return asm_syscall(PRINT_STRING);
+    return RETURN_SUCCESS;
+    //return asm_syscall(PRINT_STRING);
 }
 
 int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into)

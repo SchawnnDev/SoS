@@ -1,13 +1,7 @@
-declare thhhh[4];
-# read thhhh[1] ;
-a="test\n";
-c="test2\n";
-#b=2;
-#c=3;
-#d=4;
-b="1" ${a} ${c};
-echo ${b};
-#echo ${a} ${b} ${c} "Hello World\n" "TEST\n" 'qsdqsdqsd\n';
+a="Hello";
+c="World";
+b= ${a} ' ' ${c};
+echo ${b} ' ' '!' "\n";
 exit
 # if test ${a} -gt ${b} then
 #     echo "Les valeurs doivent etre strictement positives !\n"
