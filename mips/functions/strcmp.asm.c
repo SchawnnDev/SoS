@@ -1,4 +1,3 @@
-#include "asm.h"
 #include "strcmp.asm.h"
 
 int asm_fctStrcmpWritten = FALSE;

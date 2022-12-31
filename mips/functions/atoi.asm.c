@@ -1,6 +1,4 @@
-#include "asm.h"
 #include "atoi.asm.h"
-#include "header.asm.h"
 
 int asm_fctAtoiWritten = FALSE;
 

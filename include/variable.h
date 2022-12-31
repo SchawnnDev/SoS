@@ -50,4 +50,11 @@
 #define ASM_STRCMP_FUNCTION_NAME "_fct_strcmp"
 #define ASM_DISPLAY_STRING_FUNCTION_NAME "_fct_display_string"
 
+/* ASM MIPS Variables */
+#define ASM_VAR_OFFSET_NAME "_offset"
+#define ASM_VAR_GLOBAL_READ_BUFFER_LEN_NAME "_global_read_buffer_len"
+#define ASM_VAR_GLOBAL_READ_BUFFER_NAME "_global_read_buffer"
+#define ASM_VAR_GLOBAL_READ_BUFFER_SIZE 256
+#define ASM_VAR_ERROR_NAN "_error_nan"
+
 #endif
