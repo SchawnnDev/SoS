@@ -80,7 +80,7 @@ static inline const char *stringFromSyscall(syscall_t syscall)
  * @param words
  * @return
  */
-int asm_allocateMemoryOnStack(const char* reg, int words);
+int asm_allocateMemoryOnStack(int words);
 
 /**
  *
@@ -135,6 +135,13 @@ int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *in
  * @return
  */
 int asm_loadLabelIntoRegister(const char *label, const char* reg);
+
+/**
+ *
+ * @param name
+ * @return
+ */
+int asm_jal(const char* name);
 
 /**
  *

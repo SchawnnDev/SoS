@@ -8,7 +8,7 @@ int asm_writeSaveRegistersToStackFunction()
         return RETURN_SUCCESS;
     asm_fctSaveRegistersToStackWritten = TRUE;
 
-    asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
+    asm_code_printf("\t%s:\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
     asm_code_printf("\t\taddi $sp, $sp, -64\n")
     int count = 0;
 

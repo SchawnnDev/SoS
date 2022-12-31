@@ -12,6 +12,7 @@
 #include "bufferLen.asm.h"
 #include "atoi.asm.h"
 #include "strcmp.asm.h"
+#include "displayString.asm.h"
 
 ListRangeVariable listRangeVariable;
 ListIdentifierOrder listIdentifierOrder;
@@ -77,6 +78,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeBufferWriteFunction();
     asm_writeAtoiFunction();
     asm_writeStrcmpFunction();
+    asm_writeDisplayStringFunction();
     asm_code_printf("\n")
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
@@ -97,7 +99,7 @@ int doConcatenation(const char* into, int skipOffset)
     // Do concatenation
     int values = listTmp->cursor->numberValues;
 
-    asm_code_printf("\taddi $t0, $zero, 0\n") // $t0 will be the total size of concat
+    asm_code_printf("\taddi $t0, $zero, 0 # Size counter\n") // $t0 will be the total size of concat
     const int max = skipOffset ? values - 1 : values;
     // This loop calculates the size of the concatenation
     for (int i = 0; i < max; ++i) // values - 1 : last element is the stack offset for the assigned value
@@ -107,21 +109,26 @@ int doConcatenation(const char* into, int skipOffset)
         if (listTmp->cursor->types[i] == TYPE_STACK)
         {
             // read from stack
+            asm_code_printf("\t# Reading value from stack\n")
             asm_readFromStack("$t1", val);
+            asm_useBufferLenFunction("$t1", "$t2");
+            asm_code_printf("\tadd $t0, $t0, $t2 # stack value\n")
+            asm_code_printf("\t# End of reading\n")
         } else {
             // Else is a label, do calculations:
-            asm_code_printf("\taddi $t0, $t0, %lu\n", strlen(val))
+            int len = countWithoutBackslash(val);
+            if(len == 0) continue;
+            asm_code_printf("\taddi $t0, $t0, %d # static value\n", len)
         }
-
-        asm_useBufferLenFunction("$t1", "$t2");
-        asm_code_printf("\tadd $t0, $t0, $t2\n")
 
     }
 
     // We now have the size in $t0
     asm_code_printf("\taddi $t0, $t0, 1\n") // Add 1 for the '\0' char
+    // multiply by 4 to have words
+    asm_code_printf("\tmul $t3, $t0, 4\n")
     // do a sbrk to get memory
-    asm_code_printf("\tmove $a0, $t0\n")
+    asm_code_printf("\tmove $a0, $t3\n")
     asm_syscall(SBRK);
     // start address of the heap memory is in $v0
     asm_code_printf("\tmove %s, $v0\n", into) // move start address to a0
@@ -135,14 +142,23 @@ int doConcatenation(const char* into, int skipOffset)
         if (listTmp->cursor->types[i] == TYPE_STACK) {
             asm_readFromStack("$t0", val);
             asm_useBufferWriteFunction("$t0", "$t1", "$t1");
-            asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
+            //asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
             continue;
         }
 
         unsigned int len = strlen(val);
         // Save chars to heap
         for (int j = 0; j < len; ++j) {
-            asm_code_printf("\tli $t3, '%c'\n", val[j])
+            asm_code_printf("\tli $t3, '%c", val[j])
+
+            if(val[j] == '\\' && j + 1 < len)
+            {
+                j++;
+                asm_code_printf("%c", val[j])
+            }
+
+            asm_code_printf("'\n")
+
             asm_code_printf("\tsw $t3, 0($t1)\n")
             asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
         }
@@ -173,12 +189,12 @@ int assign()
 
     asm_code_printf("\n\t# Assignation of var %s\n", name)
 
-    if(doConcatenation("$a0", TRUE) == RETURN_FAILURE)
+    if(doConcatenation("$a2", TRUE) == RETURN_FAILURE)
         return RETURN_FAILURE;
 
     // save start address to the assigned value stack
-    asm_allocateMemoryOnStack("$t2", 1); // TODO: check if memory address is right (_offset...)
-    asm_code_printf("\tsw $t1, 0($t2)\n")
+    asm_allocateMemoryOnStack(1); // TODO: check if memory address is right (_offset...)
+    asm_code_printf("\tsw $a2, 0($sp)\n")
 
     asm_code_printf("\n\t# End of assignation of var %s\n", name)
 
@@ -261,10 +277,33 @@ int doEcho()
     log_trace("doEcho")
     asm_code_printf("\n# DO ECHO SECTION\n\n")
 
-    if(doConcatenation("$a0", FALSE) == RETURN_FAILURE)
-        return RETURN_FAILURE;
+    log_trace("doConcatenation")
+    CHECKPOINTER(listTmp)
+    CHECKPOINTER(listTmp->cursor)
 
-    asm_syscall(PRINT_STRING);
+    // Do concatenation
+    int values = listTmp->cursor->numberValues;
+
+    // This loop calculates the size of the concatenation
+    for (int i = 0; i < values; ++i) // values - 1 : last element is the stack offset for the assigned value
+    {
+        char *val = listTmp->cursor->values[i];
+        //
+        if (listTmp->cursor->types[i] == TYPE_STACK)
+        {
+            // read from stack
+            asm_readFromStack("$a0", val);
+            asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
+        } else {
+            // Else is a label, do calculations:
+            if(strlen(val) == 0) continue;
+            const char* lbl = createNewLabel();
+            asm_data_printf("\t%s: .asciiz \"%s\"\n", lbl, val)
+            asm_code_printf("\tla $a0, %s\n", lbl)
+            asm_syscall(PRINT_STRING);
+        }
+
+    }
 
     asm_code_printf("\n# END DO ECHO SECTION\n\n")
 
@@ -418,8 +457,16 @@ int doDeclareStaticArray()
 int addStringToListTmp(const char *str) {
     char *copy;
     unsigned int len = strlen(str) - 1;
-    // \"test\"\0
+    // Replace \\ to '\'
     CHECKPOINTER(copy = malloc(len))
+    // "test\\n"
+    // 1
+/*    for (int i = 1; i < len - 1; ++i) {
+        copy[i - 1] = str[i];
+        if (str[i+1] == '\\') copy[++i] = '\\'; // Insert extra backslash
+    }*/
+
+    // \"test\"\0
     CHECKPOINTER(strncpy(copy, str + 1, len - 1));
     copy[len - 1] = '\0'; // add nul char
     // Don't forget to add label to tmp list
@@ -509,8 +556,6 @@ int parseInt32(const char *word)
 int checkRegex(const char *pattern, const char *string)
 {
     log_trace("checkRegex(%s, %s)", pattern, string)
-    //char *pattern = "^[a-zA-Z_][a-zA-Z0-9_]*";
-    //char *string = "hello";
     regex_t regex;
     int ret;
 

@@ -1,6 +1,4 @@
-#include "asm.h"
 #include "atoi.asm.h"
-#include "header.asm.h"
 
 int asm_fctAtoiWritten = FALSE;
 
@@ -48,7 +46,7 @@ int asm_writeAtoiFunction()
     asm_code_printf("\t\t\tadd $v0, $v0, $t0\n")
     asm_code_printf("\t\t\tdiv $t1, $t2\n")
     asm_code_printf("\t\t\tmflo $t1\n")
-    asm_code_printf("\t\t\taddi $a0, $a0, $1\n")
+    asm_code_printf("\t\t\taddi $a0, $a0, 1\n")
     asm_code_printf("\t\t\tj %s_loop\n", ASM_ATOI_FUNCTION_NAME)
     asm_code_printf("\t\t%s_error:\n", ASM_ATOI_FUNCTION_NAME)
     asm_code_printf("\t\t\tla $a0, %s\n", ASM_VAR_ERROR_NAN)

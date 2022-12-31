@@ -24,4 +24,11 @@
 
 void raler (int syserr, const char *msg, ...);
 
+/**
+ *
+ * @param str
+ * @return
+ */
+int countWithoutBackslash(char* str);
+
 #endif
