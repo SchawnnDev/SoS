@@ -312,7 +312,7 @@ int getValues()
                                    listIdentifierOrder->cursor->name, listTmp);
 }
 
-int doEcho()
+int doEcho(MemorySlotList list)
 {
     log_trace("doEcho")
     asm_code_printf("\n\t# Do echo section\n\n")
@@ -321,29 +321,23 @@ int doEcho()
     CHECKPOINTER(listTmp)
     CHECKPOINTER(listTmp->cursor)
 
-    // Do concatenation
-    int values = listTmp->cursor->numberValues;
+    list = firstMemorySlotList(list);
+    if(list == NULL) { log_error("list == NULL;") return RETURN_FAILURE; }
+    MemorySlotList first = list;
 
-    // This loop calculates the size of the concatenation
-    for (int i = 0; i < values; ++i) // values - 1 : last element is the stack offset for the assigned value
-    {
-        char *val = listTmp->cursor->values[i];
-        //
-        if (listTmp->cursor->types[i] == TYPE_STACK)
-        {
-            // read from stack
-            asm_readFromStack("$a0", val);
-            asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
-        } else {
-            // Else is a label, do calculations:
-            if(strlen(val) == 0) continue;
-            const char* lbl = createNewLabel();
-            asm_data_printf("\t%s: .asciiz \"%s\"\n", lbl, val)
-            asm_code_printf("\tla $a0, %s\n", lbl)
-            asm_syscall(PRINT_STRING);
+    do {
+        if(list->slot == NULL) {
+            log_error("list->slot == NULL;")
+            destroyMemoryList(first);
+            return RETURN_FAILURE;
         }
 
-    }
+        asm_readFromStack("$a0", getMipsOffset(list->slot));
+        asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
+        list = list->next;
+    } while(list != NULL);
+
+    destroyMemoryList(first);
 
     asm_code_printf("\n\t# End do echo section\n\n")
 
@@ -506,6 +500,8 @@ MemorySlot addStringToMemory(const char *str) {
     const char* label = createNewLabel();
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, copy)
     asm_loadLabelIntoRegister(label, "$t0");
+    //asm_allocateOnHeap("$t1", (int)len - 1);
+    //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
     asm_getStackAddress("$t1", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t1)\n")
     free(copy);

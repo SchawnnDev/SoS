@@ -5,15 +5,22 @@ int memoryCurrentStackOffset = 0;
 MemorySlot memory = NULL;
 
 MemorySlot reserveMemorySlot() {
-    if (memory == NULL)
-        return (memory = newMemorySlot());
-
     MemorySlot mem = NULL;
+
+    if (memory == NULL)
+    {
+        mem = newMemorySlot();
+        mem->used = true;
+        return mem;
+    }
 
     do {
         mem = mem == NULL ? memory : mem->next;
         if (!mem->used)
+        {
+            mem->used = true;
             return mem;
+        }
     } while (mem->next != NULL);
 
     mem->next = newMemorySlot();
@@ -84,14 +91,18 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot)
     CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)));
     list->slot = memorySlot;
     list->next = NULL;
+    list->previous = NULL;
     return list;
 }
 
-void appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
+MemorySlotList appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
 {
     // TODO CHANGE HERE FROM BOTTOM TO END ;;;;
-    if(memorySlotList == NULL) return;
-    memorySlotList->next = newMemorySlotList(slot);
+    if(memorySlotList == NULL) return NULL;
+    MemorySlotList m = newMemorySlotList(slot);
+    m->previous = memorySlotList;
+    memorySlotList->next = m;
+    return m;
 }
 
 void destroyMemoryList(MemorySlotList memorySlotList)
@@ -99,6 +110,7 @@ void destroyMemoryList(MemorySlotList memorySlotList)
     if (memorySlotList == NULL)
         return;
 
+    memorySlotList = firstMemorySlotList(memorySlotList);
     MemorySlotList temp;
 
     do {
@@ -107,4 +119,15 @@ void destroyMemoryList(MemorySlotList memorySlotList)
         memorySlotList = temp;
     } while (memorySlotList != NULL);
 
+}
+
+MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList)
+{
+    if(memorySlotList == NULL) return NULL;
+    MemorySlotList result = memorySlotList;
+
+    while(result->previous != NULL)
+        result = result->previous;
+
+    return result;
 }

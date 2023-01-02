@@ -53,6 +53,7 @@ typedef struct list_memory_space_t *MemorySlotList;
 struct list_memory_space_t {
     MemorySlot slot;
     MemorySlotList next;
+    MemorySlotList previous;
 };
 
 /**
@@ -67,7 +68,14 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot);
  * @param memorySlotList
  * @param slot
  */
-void appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot);
+MemorySlotList appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot);
+
+/**
+ *
+ * @param memorySlotList
+ * @return
+ */
+MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList);
 
 /**
  *

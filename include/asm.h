@@ -181,6 +181,14 @@ int asm_jal(const char* name);
  */
 int asm_addArgumentsOnStack(int size, ...);
 
+/**
+ *
+ * @param into
+ * @param size
+ * @return
+ */
+int asm_allocateOnHeap(const char* into, int size);
+
 // UTILS
 
 /**

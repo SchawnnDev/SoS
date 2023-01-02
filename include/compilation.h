@@ -62,7 +62,7 @@ void echo();
  *
  * @return
  */
-int doEcho();
+int doEcho(MemorySlotList list);
 
 /**
  *

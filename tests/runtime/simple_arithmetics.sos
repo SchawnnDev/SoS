@@ -1,4 +1,4 @@
-echo "test\n";
+echo "test\n" "test2\n";
 #echo $(expr ${a} + 1);
 exit
 # a = $(expr 1 + 2 * (2 + 2));

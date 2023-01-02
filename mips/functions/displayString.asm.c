@@ -14,7 +14,7 @@ int asm_writeDisplayStringFunction()
     asm_code_printf("\t\t\tlb $a0, 0($t0)\n")
     asm_code_printf("\t\t\tbeq $a0, $zero, %s_exit\n", ASM_DISPLAY_STRING_FUNCTION_NAME)
     asm_syscall(PRINT_CHAR);
-    asm_code_printf("\t\t\taddi $t0, $t0, 4\n")
+    asm_code_printf("\t\t\taddi $t0, $t0, 1\n")
     asm_code_printf("\t\t\tb %s_loop\n", ASM_DISPLAY_STRING_FUNCTION_NAME)
     asm_code_printf("\t\t%s_exit:\n", ASM_DISPLAY_STRING_FUNCTION_NAME)
     asm_loadRegistersFromStack();

@@ -137,3 +137,11 @@ int asm_addIntOnStack(int value)
     asm_code_printf("\tsw $t0, 0($sp)\n")
     return RETURN_SUCCESS;
 }
+
+int asm_allocateOnHeap(const char* into, int size)
+{
+    asm_code_printf("\tli $a0, %d\n", size)
+    asm_syscall(SBRK);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+}

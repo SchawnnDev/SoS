@@ -49,7 +49,7 @@ instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructi
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO_CALL list_operand { doEcho(); }
+    | ECHO_CALL list_operand { doEcho($2); }
     | READ id
     | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
     | declare_fct
