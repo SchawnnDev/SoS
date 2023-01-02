@@ -142,7 +142,7 @@ TEST deleteRangeVariableWithNextLvlWithValuesTest(void) {
     int lastLvl = addr->cursor->rangeLevel;
 
     addRangeVariable(addr);
-    addIdentifier(addr, "test", TRUE);
+    addIdentifier(addr, "test");
 
     ASSERT_EQ_FMT(RETURN_SUCCESS, deleteRangeVariable(addr),"%d");
     ASSERT_NEQ(NULL, addr->cursor);
@@ -166,7 +166,7 @@ TEST searchIdentifierPositionWithoutIdentifierInRangeListTest(void) {
 
 TEST searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addIdentifier(addr, "test", TRUE);
+    addIdentifier(addr, "test");
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
     ASSERT_EQ(0, variablePosition->indexIdentifier);
@@ -178,7 +178,7 @@ TEST searchIdentifierPositionWithIdentifierInRangeListWithMayLvlTest(void) {
     ListRangeVariable addr = initListRangeVariable();
     addRangeVariable(addr);
     addRangeVariable(addr);
-    addIdentifier(addr, "test", TRUE);
+    addIdentifier(addr, "test");
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
     ASSERT_EQ(0, variablePosition->indexIdentifier);
@@ -189,7 +189,7 @@ TEST searchIdentifierPositionWithIdentifierInRangeListWithMayLvlTest(void) {
 TEST searchIdentifierPositionWithIdentifierOnFirstLvlInRangeListWithMayLvlTest(void) {
     ListRangeVariable addr = initListRangeVariable();
     RangeVariable firstRange = addr->cursor;
-    addIdentifier(addr, "test", TRUE);
+    addIdentifier(addr, "test");
     addRangeVariable(addr);
     addRangeVariable(addr);
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
@@ -203,8 +203,8 @@ TEST searchIdentifierPositionWithIdentifierOnNLvlInRangeListWithMayLvlAndNotFirs
     ListRangeVariable addr = initListRangeVariable();
     addRangeVariable(addr);
     RangeVariable firstRange = addr->cursor;
-    addIdentifier(addr, "hello", TRUE);
-    addIdentifier(addr, "test", TRUE);
+    addIdentifier(addr, "hello");
+    addIdentifier(addr, "test");
     addRangeVariable(addr);
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
@@ -219,7 +219,7 @@ TEST searchIdentifierPositionWithIdentifierOnNLvlInRangeListWithMayLvlAndNotFirs
 TEST addIdentifierTest(void) {
     ListRangeVariable addr = initListRangeVariable();
 
-    ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test", TRUE));
+    ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test"));
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
     ASSERT_NEQ(NULL, variablePosition->rangePosition);
     ASSERT_EQ(0, variablePosition->indexIdentifier);
@@ -229,8 +229,8 @@ TEST addIdentifierTest(void) {
 TEST addIdentifierTwiceTest(void) {
     ListRangeVariable addr = initListRangeVariable();
 
-    ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test", TRUE));
-    ASSERT_EQ(RETURN_FAILURE, addIdentifier(addr, "test", TRUE));
+    ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test"));
+    ASSERT_EQ(RETURN_FAILURE, addIdentifier(addr, "test"));
     PASS();
 }
 TEST addIdentifierToManyIdentifierTest(void) {
@@ -239,10 +239,10 @@ TEST addIdentifierToManyIdentifierTest(void) {
     //simule le remplissage de la liste
     int i;
     for(i = 0; i < IDEN_MAX; i++){
-        addIdentifier(addr, names[i], TRUE);
+        addIdentifier(addr, names[i]);
     }
 
-    ASSERT_EQ(RETURN_FAILURE, addIdentifier(addr, "test", TRUE));
+    ASSERT_EQ(RETURN_FAILURE, addIdentifier(addr, "test"));
     PASS();
 }
 

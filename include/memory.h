@@ -1,15 +1,19 @@
 #ifndef SOS_MEMORY_H
 #define SOS_MEMORY_H
 #include "asm.h"
+
 typedef struct memory_space_t *MemorySlot;
 
 struct memory_space_t {
     int used;
     int offset;
+    int temp;
     // TODO: GERER IDENTIFICATEUR NE SE SUPPRIME PAS / MAIS VALEUR TEMP SI
     // TODO: Heap= true/false, heapOffset for arrays ???
     MemorySlot next;
 };
+
+//
 
 /**
  * Searches a free memory space, if no space available, creates a new one

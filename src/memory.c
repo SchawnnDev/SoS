@@ -38,6 +38,7 @@ MemorySlot newMemorySlot() {
     space->used = false;
     space->offset = memoryCurrentStackOffset;
     space->next = NULL;
+    space->temp = true;
     memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;

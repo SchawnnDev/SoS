@@ -128,7 +128,7 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addIdentifier(ListRangeVariable addr, char *name, int saveToStack);
+int addIdentifier(ListRangeVariable addr, char *name);
 
 /*!
  * \fn int setType(ListRangeVariable addr, char* name, int type)

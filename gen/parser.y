@@ -26,7 +26,7 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp marker
+%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 marker
 %type <memval> operand operand_int int sum_int mult_int
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod
@@ -40,7 +40,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
     | instructions {log_debug("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
+instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET int RBRACKET { doDeclareStaticArray(); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
@@ -110,7 +110,7 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress(); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1); }
     | DOLLAR int
@@ -142,7 +142,7 @@ mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s |
     | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
-operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress(); }
+operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | DOLLAR int
     | plus_or_minus DOLLAR LBRACE id RBRACE
@@ -173,13 +173,11 @@ function_call : id list_operand
     | id
     ;
 
-id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
+id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) }
     ;
 
 int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWriteInt($1); }
     ;
-
-addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
 
 marker : {$$ = ""; setMarker();}
 

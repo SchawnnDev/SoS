@@ -177,32 +177,34 @@ int doConcatenation(const char* into, int skipOffset)
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-MemorySlot assign()
+MemorySlot assign(char* name, MemorySlotList list)
 {
     log_trace("assign (void)")
-    char* name = listIdentifierOrder->cursor->name;
-    addIdentifier(listRangeVariable, listIdentifierOrder->cursor->name, TRUE);
-    setValuesFromListTmp(listRangeVariable, listIdentifierOrder->cursor->name,
-                         listTmp);
+    addIdentifier(listRangeVariable, name);
+    VariablePosition pos = searchIdentifierPosition(listRangeVariable, name);
 
-    // Get offset of stack for the assigned value
-    //if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
-      //  return RETURN_FAILURE;
+    if(pos->indexIdentifier == NOTFOUND)
+    {
+        log_error("Identifier not found at assignation.")
+        return NULL;
+    }
 
-    asm_code_printf("\n\t# Assignation of var %s\n", name)
-
+    return getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+/*
     if(doConcatenation("$a2", TRUE) == RETURN_FAILURE)
         return NULL;
+*/
 
+/*
     // save start address to the assigned value stack
     asm_allocateMemoryOnStack(1); // TODO: check if memory address is right (_offset...)
     asm_code_printf("\tsw $a2, 0($sp)\n")
 
     asm_code_printf("\n\t# End of assignation of var %s\n", name)
+*/
 
-    deleteListTmp(listTmp);
-    deleteIdentifierOrder(listIdentifierOrder);
-    return RETURN_SUCCESS;
+/*
+    return RETURN_SUCCESS;*/
 }
 
 void assignArray()
@@ -252,14 +254,6 @@ void addTmpValuesListTmp()
 void addValueIntoListTmp(char *value)
 {
     addIntoListTmp(listTmp, value);
-}
-
-/* ToDo : version 1 : aide au debug*/
-void echo()
-{
-    printIdentifierFromListRange(listRangeVariable,
-                                 listIdentifierOrder->cursor->name);
-    deleteIdentifierOrder(listIdentifierOrder);
 }
 
 MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
@@ -334,6 +328,10 @@ int doEcho(MemorySlotList list)
 
         asm_readFromStack("$a0", getMipsOffset(list->slot));
         asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
+
+        if(list->slot->temp) // Free memory
+         list->slot->used = false;
+
         list = list->next;
     } while(list != NULL);
 
@@ -482,7 +480,7 @@ int doDeclareStaticArray()
     setArraySize(listRangeVariable, name, size);
     deleteListTmp(listTmp);
     addListTmp(listTmp, initTmpValues(listTmp->cursor));
-    addIdentifier(listRangeVariable, name, FALSE);
+    addIdentifier(listRangeVariable, name);
     deleteIdentifierOrder(listIdentifierOrder);
 
     return RETURN_SUCCESS;
@@ -534,18 +532,18 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetVariableAddress()
+MemorySlot doGetVariableAddress(char* id)
 {
     log_trace("doGetVariableAddress")
-    CHECK_IDENTIFIER_NOT_ZERO("doGetVariableAddress")
 
-    char *name = listIdentifierOrder->cursor->name;
-    // TODO ICI ???
-    int a = searchIdentifierPosition(listRangeVariable, name)->indexIdentifier;
-    //if (getOffset(listRangeVariable, name, listTmp) == RETURN_FAILURE)
-      //  return RETURN_FAILURE;
-    deleteIdentifierOrder(listIdentifierOrder);
-    return getOffsetOfIdentifier(listRangeVariable->cursor->listIdentifier, a);
+    VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
+
+    if(pos->indexIdentifier == NOTFOUND) {
+        log_error("The variable was not found.")
+        return NULL;
+    }
+
+    return getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
 }
 
 // Utils

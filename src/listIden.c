@@ -127,6 +127,7 @@ int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset)
         perror("addIntoListIdentifier : identifier isn't well initialized.");
         return RETURN_FAILURE;
     }
+    offset->temp = false;
     addr->Identifiers[addr->numberIdentifiers] = identifier;
     addr->Identifiers[addr->numberIdentifiers]->memory = offset;
     addr->numberIdentifiers++;

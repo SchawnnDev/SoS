@@ -52,11 +52,14 @@ void setCurrentBooleanExpression(boolExpr_t expr);
 */
 void addTmpValuesListTmp();
 
-MemorySlot assign();
+/**
+ *
+ * @param name
+ * @return
+ */
+MemorySlot assign(char* name, MemorySlotList list);
 
 void addValueIntoListTmp(char *value);
-
-void echo();
 
 /**
  *
@@ -91,7 +94,7 @@ int doArrayRead();
  *
  * @return
  */
-MemorySlot doGetVariableAddress();
+MemorySlot doGetVariableAddress(char* id);
 
 /**
  *

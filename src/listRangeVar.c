@@ -165,7 +165,7 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
  * \fn int addIdentifier(ListRangeVariable addr, char* name)
  * \brief Fonction qui ajoute unidentificateur dans la liste des postée de variable
 */
-int addIdentifier(ListRangeVariable addr, char *name, int saveToStack)
+int addIdentifier(ListRangeVariable addr, char *name)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
     CHECKPOINTER(addr);
@@ -174,12 +174,11 @@ int addIdentifier(ListRangeVariable addr, char *name, int saveToStack)
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
 
     if(variablePosition->indexIdentifier != NOTFOUND){
-        log_error("Identifier found : position : %d",variablePosition->indexIdentifier)
-        perror("addIdentifier : can not set add existing identifier.");
+        log_info("Identifier found : position : %d",variablePosition->indexIdentifier)
         return RETURN_FAILURE;
     }
 
-    return addIntoListIdentifier(addr->cursor->listIdentifier, name, newMemorySlot());
+    return addIntoListIdentifier(addr->cursor->listIdentifier, name, reserveMemorySlot());
 }
 
 
