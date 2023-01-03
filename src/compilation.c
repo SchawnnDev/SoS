@@ -88,89 +88,57 @@ int compile(FILE *inputFile, FILE *outputFile)
     int result = yyparse();
     if (result != RETURN_SUCCESS) return result;
     destroyMemorySlot();
-    return writeToFile(listInstruction,
-                       outputFile == NULL ? stdout : outputFile);
+    return writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
 }
 
-int doConcatenation(const char* into, int skipOffset)
+MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
 {
     log_trace("doConcatenation")
-    CHECKPOINTER(listTmp)
-    CHECKPOINTER(listTmp->cursor)
-
-    // Do concatenation
-    int values = listTmp->cursor->numberValues;
-
-    asm_code_printf("\taddi $t0, $zero, 0 # Size counter\n") // $t0 will be the total size of concat
-    const int max = skipOffset ? values - 1 : values;
-    // This loop calculates the size of the concatenation
-    for (int i = 0; i < max; ++i) // values - 1 : last element is the stack offset for the assigned value
-    {
-        char *val = listTmp->cursor->values[i];
-        //
-        if (listTmp->cursor->types[i] == TYPE_STACK)
-        {
-            // read from stack
-            asm_code_printf("\t# Reading value from stack\n")
-            asm_readFromStack("$t1", atoi(val));
-            asm_useBufferLenFunction("$t1", "$t2");
-            asm_code_printf("\tadd $t0, $t0, $t2 # stack value\n")
-            asm_code_printf("\t# End of reading\n")
-        } else {
-            // Else is a label, do calculations:
-            int len = countWithoutBackslash(val);
-            if(len == 0) continue;
-            asm_code_printf("\taddi $t0, $t0, %d # static value\n", len)
-        }
-
+    if (memorySlot == NULL || slotList == NULL) {
+        log_error("Cant concatenate an empty list")
+        return NULL;
     }
 
-    // We now have the size in $t0
-    asm_code_printf("\taddi $t0, $t0, 1\n") // Add 1 for the '\0' char
-    // multiply by 4 to have words
-    asm_code_printf("\tmul $t3, $t0, 4\n")
-    // do a sbrk to get memory
-    asm_code_printf("\tmove $a0, $t3\n")
+    asm_code_printf("\taddi $t0, $zero, 1 # Size counter\n") // $t0 will be the total size of concat (start at 1 for \0)
+    MemorySlotList first = firstMemorySlotList(slotList);
+    MemorySlotList temp = first;
+
+    // Calculate size
+    while(temp != NULL)
+    {
+        asm_readFromStack("$t0", getMipsOffset(temp->slot));
+        asm_useBufferLenFunction("$t0", "$t1");
+        asm_code_printf("\tadd $t0, $t0, $t1\n")
+        temp = temp->next;
+    }
+
+    asm_code_printf("\tmove $a0, $t0\n")
     asm_syscall(SBRK);
-    // start address of the heap memory is in $v0
-    asm_code_printf("\tmove %s, $v0\n", into) // move start address to a0
-    asm_code_printf("\tmove $t1, $v0\n") // moving it to $t1
+    asm_code_printf("\tmove $t0, $v0\n") // move start address to v0
+    // write heap address to stack
+    asm_getStackAddress("$t1", getMipsOffset(memorySlot));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
+    // reset pointer to first
+    temp = first;
 
-    // let's write to the heap !
-    for (int i = 0; i < max; ++i)
-    {
-        char *val = listTmp->cursor->values[i];
-        //
-        if (listTmp->cursor->types[i] == TYPE_STACK) {
-            asm_readFromStack("$t0", val);
-            asm_useBufferWriteFunction("$t0", "$t1", "$t1");
-            //asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
-            continue;
-        }
+    while (temp != NULL) {
+        asm_readFromStack("$t1", getMipsOffset(temp->slot));
+        asm_useBufferWriteFunction("$t1", "$t0", "$t0");
+        asm_code_printf("\taddi $t0, $t0, 1\n")
 
-        unsigned int len = strlen(val);
-        // Save chars to heap
-        for (int j = 0; j < len; ++j) {
-            asm_code_printf("\tli $t3, '%c", val[j])
+        // Free memory
+        if (temp->slot->temp)
+            temp->slot->used = false;
 
-            if(val[j] == '\\' && j + 1 < len)
-            {
-                j++;
-                asm_code_printf("%c", val[j])
-            }
-
-            asm_code_printf("'\n")
-
-            asm_code_printf("\tsw $t3, 0($t1)\n")
-            asm_code_printf("\taddi $t1, $t1, 4\n") // Move forward to write the next char
-        }
-
+        temp = temp->next;
     }
+
+    asm_code_printf("\taddi $t0, $t0, 1\n")
 
     // At the end write $zero
-    asm_code_printf("\tsw $zero, 0($t1)\n")
+    asm_code_printf("\tsb $zero, 0($t1)\n")
 
-    return RETURN_SUCCESS;
+    return memorySlot;
 }
 
 /*!
@@ -189,22 +157,15 @@ MemorySlot assign(char* name, MemorySlotList list)
         return NULL;
     }
 
-    return getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
-/*
-    if(doConcatenation("$a2", TRUE) == RETURN_FAILURE)
-        return NULL;
-*/
+    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
 
-/*
-    // save start address to the assigned value stack
-    asm_allocateMemoryOnStack(1); // TODO: check if memory address is right (_offset...)
-    asm_code_printf("\tsw $a2, 0($sp)\n")
+    if(slot == NULL)
+    {
+        log_error("MemorySlot of identifier not found at assignation")
+        return slot;
+    }
 
-    asm_code_printf("\n\t# End of assignation of var %s\n", name)
-*/
-
-/*
-    return RETURN_SUCCESS;*/
+    return doConcatenation(slot, list);
 }
 
 void assignArray()

@@ -122,10 +122,10 @@ int doBoolExpression();
 /**
  *
  * @param into Register ($t0-t3 overwritten)
- * @param skipOffset Skip offset in listTmp
+ * @param memorySlot Skip offset in listTmp
  * @return
  */
-int doConcatenation(const char* into, int skipOffset);
+MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList);
 
 // Utils
 
