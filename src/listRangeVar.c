@@ -48,7 +48,9 @@ ListRangeVariable initListRangeVariable()
 
     ListRangeVariable addr;
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
-    addr->cursor = initRangeVariable(0,NULL);
+    RangeVariable rangeAddr = initRangeVariable(0,NULL);
+    addr->cursor = rangeAddr;
+    addr->cursorGlobal = rangeAddr;
 
     return addr;
 }
@@ -70,6 +72,29 @@ void cleanListRangeVariable(ListRangeVariable addr)
     }
 
     free(addr);
+}
+
+/*!
+ * \fn int increaseGlobalRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui augmente la taille de la liste de portée de vaiable global en ajoutant un nouveau bloque
+*/
+int increaseGlobalRangeVariable(ListRangeVariable addr)
+{
+    log_trace("increaseGlobalRangeVariable (ListRangeVariable %p)", addr)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(addr->cursorGlobal);
+    CHECKPOINTER(addr->cursor);
+
+    RangeVariable newCursor = initRangeVariable(0, addr->cursorGlobal);
+    if(addr->cursorGlobal->nextLevel != NULL){
+        newCursor->nextLevel = addr->cursorGlobal->nextLevel;
+    }
+
+    addr->cursorGlobal->nextLevel = newCursor;
+    addr->cursorGlobal = newCursor;
+    addr->cursor = newCursor;
+
+    return RETURN_SUCCESS;
 }
 
 /*!
@@ -168,6 +193,7 @@ int addIdentifier(ListRangeVariable addr, char *name)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
     CHECKPOINTER(addr);
+    CHECKPOINTER(addr->cursorGlobal);
     CHECKPOINTER(name);
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
@@ -177,9 +203,40 @@ int addIdentifier(ListRangeVariable addr, char *name)
         return RETURN_FAILURE;
     }
 
-    return addIntoListIdentifier(addr->cursor->listIdentifier, name, reserveMemorySlot());
+    if(addr->cursorGlobal->listIdentifier->numberIdentifiers >= IDEN_MAX){
+        log_info("No more place into global range variable, so auto increase is called")
+        increaseGlobalRangeVariable(addr);
+    }
+
+    return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, reserveMemorySlot());
 }
 
+/*!
+ * \fn int addLocalIdentifier(ListRangeVariable addr, char* name)
+ * \brief Fonction qui ajoute un identificateur dans la liste des postée de variable
+*/
+int addLocalIdentifier(ListRangeVariable addr, char *name)
+{
+    log_trace("addLocalIdentifier (ListRangeVariable %p, char* %s)", addr, name)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(addr->cursor);
+    CHECKPOINTER(name);
+
+    VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+
+    if(variablePosition->indexIdentifier != NOTFOUND){
+        log_info("Identifier found : position : %d",variablePosition->indexIdentifier)
+        return RETURN_FAILURE;
+    }
+
+    if(addr->cursor->rangeLevel == 0){
+        log_error("You can't add local variable into a global context : rangeLevel %d", addr->cursor->rangeLevel)
+        perror("addLocalIdentifier : add into global context.");
+        return RETURN_FAILURE;
+    }
+
+    return addIntoListIdentifier(addr->cursor->listIdentifier, name, reserveMemorySlot());
+}
 
 /*!
  * \fn int setType(ListRangeVariable addr, char* name, int type)

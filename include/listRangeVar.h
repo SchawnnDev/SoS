@@ -15,6 +15,7 @@ typedef struct rangeVariable_t{
 
 typedef struct {
     RangeVariable cursor;
+    RangeVariable cursorGlobal;
 } listRangeVariable_t, *ListRangeVariable;
 
 typedef struct {
@@ -56,6 +57,16 @@ ListRangeVariable initListRangeVariable();
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
 */
 void cleanListRangeVariable(ListRangeVariable addr);
+
+/*!
+ * \fn int increaseGlobalRangeVariable(ListRangeVariable addr)
+ * \brief Fonction qui augmente la taille de la liste de portée de vaiable global en ajoutant un nouveau bloque
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int increaseGlobalRangeVariable(ListRangeVariable addr);
 
 /*!
  * \fn int addRangeVariable(ListRangeVariable addr)
@@ -117,6 +128,17 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int addIdentifier(ListRangeVariable addr, char *name);
+
+/*!
+ * \fn int addLocalIdentifier(ListRangeVariable addr, char* name)
+ * \brief Fonction qui ajoute un identificateur dans la liste des postée de variable
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ * \param name : char*, le nom de l'identificateur
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int addLocalIdentifier(ListRangeVariable addr, char *name);
 
 /*!
  * \fn int setType(ListRangeVariable addr, char* name, int type)
