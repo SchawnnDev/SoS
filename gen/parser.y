@@ -33,7 +33,7 @@
 %start program
 
 %%
-program : {log_debug("program : list_instructions")} list_instructions {log_debug("program : list_instructions")}
+program : list_instructions {log_debug("program : list_instructions")}
     ;
 
 list_instructions : list_instructions SEMICOLON instructions {log_debug("program : list_instructions SEMICOLON instructions")}
@@ -173,7 +173,9 @@ function_call : id list_operand
     | id
     ;
 
-id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) }
+id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char* destination;
+            CHECKPOINTER(destination = malloc(strlen($1) + 1));
+            CHECKPOINTER(strcpy(destination, $1)); $$ = destination; }
     ;
 
 int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWriteInt($1); }

@@ -94,6 +94,8 @@ int compile(FILE *inputFile, FILE *outputFile)
 MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
 {
     log_trace("doConcatenation")
+    asm_code_printf("\t# start of concatenation\n")
+
     if (memorySlot == NULL || slotList == NULL) {
         log_error("Cant concatenate an empty list")
         return NULL;
@@ -136,7 +138,7 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
         }
         asm_readFromStack("$t1", getMipsOffset(temp->slot));
         asm_useBufferWriteFunction("$t1", "$t0", "$t0");
-        asm_code_printf("\taddi $t0, $t0, 1\n")
+        //asm_code_printf("\taddi $t0, $t0, 1\n")
 
         // Free memory
         if (temp->slot->temp)
@@ -145,10 +147,10 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
         temp = temp->next;
     }
 
-    asm_code_printf("\taddi $t0, $t0, 1\n")
-
     // At the end write $zero
     asm_code_printf("\tsb $zero, 0($t1)\n")
+
+    asm_code_printf("\t# end of concatenation\n")
 
     return memorySlot;
 }
@@ -160,6 +162,7 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
 MemorySlot assign(char* name, MemorySlotList list)
 {
     log_trace("assign (void)")
+    asm_code_printf("\n\t# assign of %s\n", name)
     addIdentifier(listRangeVariable, name);
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, name);
 

@@ -1,7 +1,3 @@
-//
-// Created by the_s on 26/12/2022.
-//
-
 #ifndef SOS_LISTINSTRUCTIONMIPS_H
 #define SOS_LISTINSTRUCTIONMIPS_H
 
