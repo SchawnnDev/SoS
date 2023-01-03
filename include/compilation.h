@@ -8,7 +8,7 @@
 #include "boolExpr.h"
 #include "memory.h"
 
-#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
+#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
 
 void initStruct();
 
@@ -50,9 +50,18 @@ int doOperationAddInt();
 
 /**
  *
+ * @param val
  * @return
  */
-int doDeclareStaticArray(char *id, MemorySlot slot);
+int doParseTableInt(const char *val);
+
+/**
+ *
+ * @param id
+ * @param size
+ * @return
+ */
+int doDeclareStaticArray(char *id, int size);
 
 /**
  *

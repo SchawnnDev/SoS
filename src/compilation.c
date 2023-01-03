@@ -358,33 +358,34 @@ int doBoolExpression()
     return RETURN_SUCCESS;
 }
 
-int doDeclareStaticArray(char* id)
+int doDeclareStaticArray(char *id, int size)
 {
-    log_trace("doDeclareStaticArray")
-    CHECKPOINTER(id)
+    log_trace("doDeclareStaticArray(%s, %d)", id, size)
 
-    /* ToDo
-    const int size = atoi(listTmp->cursor->values[0]);
+    addIdentifier(listRangeVariable, id);
+    VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
 
-    if (size <= 0)
+    if (pos->indexIdentifier == NOTFOUND)
     {
-        log_error(
-                "doDeclareStaticArray: size should be greater than 0 (actual: %d)",
-                size)
+        log_error("Identifier not found at assignation.")
         return RETURN_FAILURE;
     }
 
-    char *name = listIdentifierOrder->cursor->name;
-    char *id = idToLabel(name);
+    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier,
+                                            pos->indexIdentifier);
 
-    if (asm_writeStaticArray(id, size) == RETURN_FAILURE)
+    if (slot == NULL)
+    {
+        log_error("MemorySlot of identifier not found at assignation")
         return RETURN_FAILURE;
+    }
 
-    free(id);
-    setArraySize(listRangeVariable, name, size);
-    addIdentifier(listRangeVariable, name);
-    deleteIdentifierOrder(listIdentifierOrder);
-    */
+    const char *label = createNewLabel();
+    asm_writeStaticArray(label, size);
+    asm_getStackAddress("$t0", getMipsOffset(slot));
+    asm_loadLabelIntoRegister(label, "$t1");
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+    free((char*)label);
     return RETURN_SUCCESS;
 }
 
@@ -496,6 +497,8 @@ int checkWordIsInt(const char *word)
 
 MemorySlot doWriteInt(const char *val)
 {
+    log_trace("doWriteInt(%s)", val)
+    CHECK_TYPE(checkWordIsInt(val))
     MemorySlot mem = reserveMemorySlot();
     asm_getStackAddress("$t0", getMipsOffset(mem));
     int parsed;
@@ -503,4 +506,30 @@ MemorySlot doWriteInt(const char *val)
     asm_code_printf("\tli $t1, %d\n", parsed)
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return mem;
+}
+
+int doParseTableInt(const char *val)
+{
+    log_trace("doParseTableInt(%s)", val)
+
+    if (!checkWordIsInt(val))
+    {
+        log_error("%s should be int type.", val)
+        return RETURN_FAILURE;
+    }
+
+    int parsedSize;
+    if ((parsedSize = parseInt32(val)) == RETURN_FAILURE)
+    {
+        log_error("Cant parse int32(%s)", val)
+        return parsedSize;
+    }
+
+    if(parsedSize <= 0)
+    {
+        log_error("Table size should be > 0 (actually: %d)", parsedSize)
+        return RETURN_FAILURE;
+    }
+
+    return parsedSize;
 }

@@ -29,7 +29,7 @@
 %type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 marker
 %type <memval> operand operand_int int sum_int mult_int
 %type <memlistval> list_operand concatenation
-%type <intval> plus_or_minus mult_div_mod
+%type <intval> plus_or_minus mult_div_mod table_int
 %start program
 
 %%
@@ -42,7 +42,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 
 instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
-    | DECLARE id LBRACKET WORD RBRACKET { CHECK_TYPE(checkWordIsInt($4)); doDeclareStaticArray($2, $4); }
+    | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
@@ -180,6 +180,8 @@ id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char*
 
 int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWriteInt($1); }
     ;
+
+table_int : WORD { $$ = doParseTableInt($1); }
 
 marker : {$$ = ""; setMarker();}
 
