@@ -1,0 +1,4 @@
+echo $( expr 60 - 50 );
+echo "\n";
+echo $( expr 50 - 60 );
+exit

@@ -1,0 +1,12 @@
+a=10;
+b=50;
+c=4;
+d= $( expr ${a} + ${b} * ${c});
+e= $( expr ${a} * ${b} + ${c});
+f= $( expr ${a} * ${b} + ${c} * ${c});
+echo ${d};
+echo "\n";
+echo ${e};
+echo "\n";
+echo ${f};
+exit

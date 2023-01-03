@@ -1,0 +1,6 @@
+echo $( expr 10 * 50 );
+echo "\n";
+echo $( expr -10 * 50 );
+echo "\n";
+echo $( expr -10 * -50 );
+exit

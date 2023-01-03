@@ -1,0 +1,9 @@
+a=100;
+b=5;
+c=4;
+d= $( expr ${a} * ${b} / ${c});
+e= $( expr ${a} / ${b} * ${c});
+echo ${d};
+echo "\n";
+echo ${e};
+exit
