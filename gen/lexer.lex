@@ -2,7 +2,7 @@
 
 %{
 #define YYERROR_VERBOSE 1
-
+#include "memory.h"
 #include "parser.h"
 #include "string.h"
 #include "log.h"
@@ -92,23 +92,23 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {CASE} { return CASE; }
 {ESAC} { return ESAC; }
 {EXPR} { return EXPR; }
-{LBRACKET} { return LBRACKET; }
-{RBRACKET} { return RBRACKET; }
-{LPAREN} { return LPAREN; }
-{RPAREN} { log_debug("RPAREN"); return RPAREN; }
-{LBRACE} { log_debug("LBRACE"); return LBRACE; }
-{RBRACE} { log_debug("RBRACE"); return RBRACE; }
+{LBRACKET} { yylval.strval = yytext; return LBRACKET; }
+{RBRACKET} { yylval.strval = yytext; return RBRACKET; }
+{LPAREN} { yylval.strval = yytext; return LPAREN; }
+{RPAREN} { yylval.strval = yytext; log_debug("RPAREN"); return RPAREN; }
+{LBRACE} { yylval.strval = yytext; log_debug("LBRACE"); return LBRACE; }
+{RBRACE} { yylval.strval = yytext; log_debug("RBRACE"); return RBRACE; }
 {QUOTE} { return QUOTE; }
 {APOSTROPHE} { return APOSTROPHE; }
 {ASSIGN} { log_debug("ASSIGN"); return ASSIGN; }
 {SEMICOLON} {log_debug("SEMICOLON : %s",yytext); return SEMICOLON; }
 {EXCL} { return EXCL; }
 {DOLLAR} { log_debug("DOLLAR"); return DOLLAR; }
-{PLUS} { log_debug("PLUS"); return PLUS; }
-{MINUS} { return MINUS; }
-{MULT} { return MULT; }
-{DIV} { return DIV; }
-{MOD} { return MOD; }
+{PLUS} { yylval.strval = yytext; log_debug("PLUS"); return PLUS; }
+{MINUS} { yylval.strval = yytext; return MINUS; }
+{MULT} { yylval.strval = yytext; return MULT; }
+{DIV} { yylval.strval = yytext; return DIV; }
+{MOD} { yylval.strval = yytext; return MOD; }
 {QMARK} { return QMARK; }
 {NEQ} { return NEQ; }
 {BOR} { return BOR; }

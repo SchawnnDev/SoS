@@ -77,4 +77,35 @@ if [ "$1" == "file" ]; then
 
   # Clean
   rm "${temp_asm_file}"
+  exit 0
 fi
+
+if [ "$1" == "valgrind" ]; then
+
+  if [ -z "$2" ]; then
+    echo -e "${RED}Missing args: $0 $1 <file_path>${NC}"
+    exit 1
+  fi
+
+  if [ ! -f "$2" ]; then
+    echo -e "${RED}File $2 not exists.${NC}"
+    exit 1
+  fi
+
+  # Creates a temporary file
+  temp_asm_file=$(mktemp)
+
+  valgrind $EXEC_FILE "$2" -v 1 -o "$temp_asm_file"
+  rcode=$?
+  if [ ! $rcode == 0 ]; then
+    echo -e "${RED}Compiler failure (exit code $rcode).${NC}"
+    rm "${temp_asm_file}"
+    exit $rcode
+  fi
+
+  # Clean
+  rm "${temp_asm_file}"
+  exit 0
+fi
+
+helpFunction

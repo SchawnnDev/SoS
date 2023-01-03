@@ -1,0 +1,5 @@
+a="Hello";
+c="World";
+b= ${a} ' ' ${c};
+echo ${b} ' ' '!' "\n";
+exit

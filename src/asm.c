@@ -18,7 +18,7 @@ int asm_addArgumentsOnStack(int size, ...)
 
     // TODO: _offset?
 
-    asm_allocateMemoryOnStack("$t0", size * ASM_INTEGER_SIZE);
+    asm_allocateMemoryOnStack(size * ASM_INTEGER_SIZE);
 
     for (int i = 0; i < size; i++)
     {
@@ -57,18 +57,23 @@ int asm_writeStaticArray(const char *label, int size)
     return RETURN_SUCCESS;
 }
 
-int asm_readFromStack(const char *into, char *offset)
-{
-    asm_code_printf("\tla $t0, _offset\n")
-    asm_code_printf("\tadd $t0, $sp, $t0\n")
-    asm_code_printf("\tadd $t0, $t0, %s\n", offset)
-    asm_code_printf("\tlw %s, 0($t0)\n", into)
+int asm_readFromStack(const char *into, int offset) {
+    asm_getStackAddress(into, offset);
+    asm_code_printf("\tlw %s, 0(%s)\n", into, into)
     return RETURN_SUCCESS;
 }
 
-int asm_allocateMemoryOnStack(const char *reg, int words)
+int asm_getStackAddress(const char *into, int offset) {
+    asm_code_printf("\tlw %s, _offset\n", into)
+    asm_code_printf("\tadd %s, $sp, %s\n", into, into)
+    asm_code_printf("\taddi %s, %s, %d\n", into, into, offset)
+    return RETURN_SUCCESS;
+}
+
+int asm_allocateMemoryOnStack(int words)
 {
-    asm_code_printf("\taddi %s, $sp, %d\n", reg, words * ASM_INTEGER_SIZE)
+    asm_code_printf("\taddi $sp, $sp, -%d\n", words * ASM_INTEGER_SIZE)
+    //asm_code_printf("\taddi %s, $sp, %d\n", reg, words * ASM_INTEGER_SIZE)
     return RETURN_SUCCESS;
 }
 
@@ -78,10 +83,65 @@ int asm_loadLabelIntoRegister(const char *label, const char *reg)
     return RETURN_SUCCESS;
 }
 
+int asm_jal(const char* name)
+{
+    asm_code_printf("\tjal %s\n", name)
+    return RETURN_SUCCESS;
+}
+
 // functions
 
-int asm_useDisplayFromHeapFunction(const char *reg)
+int asm_useBufferWriteFunction(const char* source, const char* destination, const char* into)
 {
-    asm_code_printf("\tmove $a0, %s\n", reg)
-    return asm_syscall(PRINT_STRING);
+    asm_code_printf("\tmove $a0, %s\n", source)
+    asm_code_printf("\tmove $a1, %s\n", destination)
+    asm_jal(ASM_BUFFER_WRITE_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+    //return asm_syscall(PRINT_STRING);
+}
+
+int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into)
+{
+    asm_code_printf("\tmove $a0, %s\n", bufStartAddressRegister)
+    asm_jal(ASM_BUFFER_LEN_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+}
+
+int asm_appendInternalOffset(int words)
+{
+    if(words == 0) return RETURN_SUCCESS;
+    asm_code_printf("\tla $t0, %s\n", ASM_VAR_OFFSET_NAME)
+    asm_code_printf("\tlw $t1, 0($t0)\n")
+    asm_code_printf("\taddi $t1, $t1, %d\n", words * ASM_INTEGER_SIZE)
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+    return RETURN_SUCCESS;
+}
+
+int asm_subtractInternalOffset(int words)
+{
+    if(words == 0) return RETURN_SUCCESS;
+    asm_code_printf("\tla $t0, %s\n", ASM_VAR_OFFSET_NAME)
+    asm_code_printf("\tlw $t1, 0($t0)\n")
+    asm_code_printf("\tsubi $t1, $t1, %d\n", words * ASM_INTEGER_SIZE)
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+    return RETURN_SUCCESS;
+}
+
+int asm_addIntOnStack(int value)
+{
+    asm_appendInternalOffset(1);
+    asm_allocateMemoryOnStack(1);
+    asm_code_printf("\tli $t0, %d\n", value)
+    asm_code_printf("\tsw $t0, 0($sp)\n")
+    return RETURN_SUCCESS;
+}
+
+int asm_allocateOnHeap(const char* into, int size)
+{
+    asm_code_printf("\tli $a0, %d\n", size)
+    asm_syscall(SBRK);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
 }

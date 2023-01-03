@@ -3,14 +3,15 @@
 
 #include <errno.h>
 #include <stdarg.h>
-#include "compilation.h"
+#include "listInstructionMips.h"
 
+// TODO: fix error code
 #define asm_code_printf(...) \
     do { \
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
-            return RETURN_FAILURE; \
+            return 0; \
         } \
         addIntoCode(listInstruction, buf); \
     } while (0);
@@ -20,7 +21,7 @@
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
-            return RETURN_FAILURE; \
+            return 0; \
         } \
         addIntoData(listInstruction, buf); \
     } while (0);
@@ -80,7 +81,28 @@ static inline const char *stringFromSyscall(syscall_t syscall)
  * @param words
  * @return
  */
-int asm_allocateMemoryOnStack(const char* reg, int words);
+int asm_allocateMemoryOnStack(int words);
+
+/**
+ * /!\ INCREASES _offset
+ * @param value
+ * @return
+ */
+int asm_addIntOnStack(int value);
+
+/**
+ *
+ * @param count
+ * @return
+ */
+int asm_appendInternalOffset(int count);
+
+/**
+ *
+ * @param words
+ * @return
+ */
+int asm_subtractInternalOffset(int words);
 
 /**
  *
@@ -88,7 +110,15 @@ int asm_allocateMemoryOnStack(const char* reg, int words);
  * @param offset
  * @return
  */
-int asm_readFromStack(const char *into, char* offset);
+int asm_readFromStack(const char *into, int offset);
+
+/**
+ *
+ * @param into
+ * @param offset
+ * @return
+ */
+int asm_getStackAddress(const char *into, int offset);
 
 /**
  *
@@ -118,7 +148,15 @@ int asm_writeStaticArray(const char* label, int size);
  * @param reg
  * @return
  */
-int asm_useDisplayFromHeapFunction(const char* reg);
+int asm_useBufferWriteFunction(const char* source, const char* destination, const char* into);
+
+/**
+ *
+ * @param bufStartAddressRegister
+ * @param into
+ * @return
+ */
+int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into);
 
 /**
  *
@@ -130,11 +168,26 @@ int asm_loadLabelIntoRegister(const char *label, const char* reg);
 
 /**
  *
+ * @param name
+ * @return
+ */
+int asm_jal(const char* name);
+
+/**
+ *
  * @param size
  * @param ...
  * @return
  */
 int asm_addArgumentsOnStack(int size, ...);
+
+/**
+ *
+ * @param into
+ * @param size
+ * @return
+ */
+int asm_allocateOnHeap(const char* into, int size);
 
 // UTILS
 

@@ -3,9 +3,10 @@
 %{
 #include "lexer.h"
 #include "compilation.h"
+#include "memory.h"
 %}
 
-%union { char *strval; }
+%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; }
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
@@ -25,35 +26,38 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operand concatenation plus_or_minus int operand_int sum_int mult_int test_block test_expr test_expr2 test_expr3 test_instruction operator1 addTmpValuesListTmp
+%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 marker
+%type <memval> operand operand_int int sum_int mult_int
+%type <memlistval> list_operand concatenation
+%type <intval> plus_or_minus mult_div_mod table_int
 %start program
 
 %%
-program : {log_debug("program : list_instructions")} list_instructions {log_debug("program : list_instructions")}
+program : list_instructions {log_debug("program : list_instructions")}
     ;
 
 list_instructions : list_instructions SEMICOLON instructions {log_debug("program : list_instructions SEMICOLON instructions")}
     | instructions {log_debug("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN addTmpValuesListTmp concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign(); }
+instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
-    | DECLARE id LBRACKET int RBRACKET { doDeclareStaticArray(); }
+    | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
-    | ECHO_CALL list_operand { doEcho(); }
+    | ECHO_CALL list_operand { doEcho($2); }
     | READ id
     | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
     | declare_fct
     | function_call
     | RETURN
     | RETURN operand_int
-    | EXIT
-    | EXIT operand_int
+    | EXIT { doExit(NULL); }
+    | EXIT operand_int { doExit($2); }
     ;
 
 else_part : ELIF test_block THEN list_instructions else_part
@@ -74,23 +78,23 @@ filter : WORD
     | MULT
     ;
 
-list_operand : list_operand operand
-    | operand
+list_operand : list_operand operand { $$ = appendMemorySlot($1, $2); }
+    | operand { $$ = newMemorySlotList($1); }
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
-concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); }
-    | operand { log_debug("concatenation"); }
+concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ = appendMemorySlot($1, $2); }
+    | operand { $$ = newMemorySlotList($1); }
     ;
 
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O test_expr2 { setCurrentBooleanExpression(L_OR); }
+test_expr : test_expr ARG_O marker test_expr2 { setCurrentBooleanExpression(L_OR); doBoolExpression();}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A test_expr3 { setCurrentBooleanExpression(L_AND); }
+test_expr2 : test_expr2 ARG_A marker test_expr3 { setCurrentBooleanExpression(L_AND); doBoolExpression();}
     | test_expr3
     ;
 
@@ -106,15 +110,15 @@ test_instruction : concatenation ASSIGN concatenation
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); doGetVariableAddress(); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD { log_debug("operand : WORD (%s)", $1); writeWord($1, TRUE); }
+    | WORD { log_debug("operand : WORD (%s)", $1); }
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK
-    | QUOTED_STRING { writeWord($1, FALSE); }
-    | APOSTROPHED_STRING { writeApostrophedString($1); }
-    | DOLLAR LPAREN EXPR sum_int RPAREN
+    | QUOTED_STRING { $$ = addStringToMemory($1); }
+    | APOSTROPHED_STRING { $$ = addStringToMemory($1); }
+    | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = $4; }
     | DOLLAR LPAREN function_call RPAREN
     ;
 
@@ -130,15 +134,15 @@ operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
     | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
     ;
 
-sum_int : sum_int plus_or_minus mult_int {doOperation();}
+sum_int : sum_int plus_or_minus mult_int { log_debug("sum_int: CALCUL: %d | %d | %d", $1, $2, $3); $$ = doOperation($1, $2, $3); }
     | mult_int {log_debug("leaving sum_int => mult_int"); }
     ;
 
-mult_int : mult_int mult_div_mod operand_int {log_debug("mult_int : mult_int mult_div_mod operand_int"); doOperation(); }
+mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s | %d | %s", $1, $2, $3); $$ = doOperation($1, $2, $3); }
     | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
-operand_int : DOLLAR LBRACE id RBRACE
+operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | DOLLAR int
     | plus_or_minus DOLLAR LBRACE id RBRACE
@@ -149,13 +153,13 @@ operand_int : DOLLAR LBRACE id RBRACE
     | LPAREN sum_int RPAREN
     ;
 
-plus_or_minus : PLUS {setCurrentOperation(PLUS_OPE);}
-    | MINUS {setCurrentOperation(MINUS_OPE);}
+plus_or_minus : PLUS { $$ = PLUS_OPE; }
+    | MINUS { $$ = MINUS_OPE; }
     ;
 
-mult_div_mod : MULT {setCurrentOperation(MULT_OPE);}
-     | DIV {setCurrentOperation(DIV_OPE);}
-     | MOD {setCurrentOperation(MOD_OPE);}
+mult_div_mod : MULT { $$ = MULT_OPE; }
+     | DIV { $$ = DIV_OPE; }
+     | MOD { $$ = MULT_OPE;}
      ;
 
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
@@ -169,13 +173,17 @@ function_call : id list_operand
     | id
     ;
 
-id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)) addIdOrder($1); }
+id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char* destination;
+            CHECKPOINTER(destination = malloc(strlen($1) + 1));
+            CHECKPOINTER(strcpy(destination, $1)); $$ = destination; }
     ;
 
-int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); addValueIntoListTmp($1); setTypeOrder(INTEGER); }
+int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWriteInt($1); }
     ;
 
-addTmpValuesListTmp : {$$ = ""; addTmpValuesListTmp();};
+table_int : WORD { $$ = doParseTableInt($1); }
+
+marker : {$$ = ""; setMarker();}
 
 %%
 

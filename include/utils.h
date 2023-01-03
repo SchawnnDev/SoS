@@ -22,6 +22,13 @@
  */
 #define CHECKPOINTER(op) do { if (((op) == NULL)) raler (1, #op); } while (0);
 
-void raler (int syserr, const char *msg, ...);
+void raler(int syserr, const char *msg, ...);
+
+/**
+ *
+ * @param str
+ * @return
+ */
+int countWithoutBackslash(char *str);
 
 #endif

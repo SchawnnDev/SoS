@@ -3,14 +3,13 @@
 
 #include "utils.h"
 #include "variable.h"
-#include "listTmp.h"
+#include "memory.h"
 
 typedef struct {
     char * name;
-    char ** values;
     int type;
     int arraySize;
-    int offset;
+    MemorySlot memory;
 } identifier_t, *Identifier;
 
 typedef struct {
@@ -73,7 +72,7 @@ int searchIntoListIdentifier(ListIdentifier addr, char* name);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addIntoListIdentifier(ListIdentifier addr, char* name, int offset);
+int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset);
 
 /*!
  * \fn int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
@@ -86,31 +85,6 @@ int addIntoListIdentifier(ListIdentifier addr, char* name, int offset);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int setTypeOfIdentifier(ListIdentifier addr, int position,int type);
-
-/*!
- * \fn int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
- * \brief Fonction remplie le tableau des valeurs de l'identificateur depuis à la liste temporaire
- *
- * \param addr : ListIdentifier, la liste des identificateurs
- * \param position : int, la position de l'identificateur
- * \param addrTmp : ListTmp, la liste des valeurs temporaire
- *
- * \return int, un entier permettant de connaitre l'état de sortie du programme
-*/
-int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp);
-
-/*!
- * \fn int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int index, ListTmp addrTmp)
- * \brief Fonction remplie liste temporaire depuis le tableau des valeurs de l'identificateur
- *
- * \param addr : ListIdentifier, la liste des identificateurs
- * \param position : int, la position de l'identificateur
- * \param index : int, la position de la données qu'on souhaite récupérer (-1 => toutes les données)
- * \param addrTmp : out : ListTmp, la liste des valeurs temporaire
- *
- * \return int, un entier permettant de connaitre l'état de sortie du programme
-*/
-int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int index, ListTmp addrTmp);
 
 /*!
  * \fn int setTypeOfIdentifier(ListIdentifier addr, int position, int type)
@@ -134,7 +108,7 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int setOffsetOfIdentifier(ListIdentifier addr, int position, int offset);
+int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySlot offset);
 
 /*!
  * \fn int getOffsetOfIdentifier(ListIdentifier addr, int position)
@@ -145,7 +119,7 @@ int setOffsetOfIdentifier(ListIdentifier addr, int position, int offset);
  *
  * \return int, l'offet par rapport à la stack
 */
-int getOffsetOfIdentifier(ListIdentifier addr, int position);
+MemorySlot getOffsetOfIdentifier(ListIdentifier addr, int position);
 
 /*!
  * \fn int printIdentifier(ListIdentifier addr,int position)

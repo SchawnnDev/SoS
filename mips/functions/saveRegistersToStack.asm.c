@@ -8,8 +8,10 @@ int asm_writeSaveRegistersToStackFunction()
         return RETURN_SUCCESS;
     asm_fctSaveRegistersToStackWritten = TRUE;
 
-    asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
+    asm_code_printf("\t%s:\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
     asm_code_printf("\t\taddi $sp, $sp, -64\n")
+    // TODO: fix this ($t0 should not be written in this fct) (maybe add value to stack)
+    //asm_appendInternalOffset(16);
     int count = 0;
 
     for (int i = 0; i < 7; ++i)

@@ -188,7 +188,166 @@ fct_read_address_from_stack:
     add $t0, $sp, $a0   # Adds the offset to the stack pointer and saves it to $t0
     lw $a1, 0($t0)      # Load the address from the stack and store it in the given register
     jr $ra              # Return
-    
+
+# Convert a string to an integer
+#
+# Arguments:
+#   $a0 - address of the string
+#
+# Returns:
+#   $v0 - the integer representation of the string
+fct_atoi:
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+    jal fct_save_temp_values
+
+    move $a1, $a0
+    jal fct_buffer_len
+    beq $v0, $zero, _fct_atoi_error
+    move $a0, $a1
+
+    lb $t0, 0($a0)
+    li $t6, 1
+
+    li $t7, '+'
+    bltu $t0, $t7, _fct_atoi_error
+    li $t7, '9'
+    bltu $t7, $t0, _fct_atoi_error
+    li $t7, ','
+    beq $t0, $t7, _fct_atoi_error
+    li $t7, '.'
+    beq $t0, $t7, _fct_atoi_error
+    li $t7, '/'
+    beq $t0, $t7, _fct_atoi_error
+
+    li $t7, '+'
+    beq $t0, $t7, _fct_atoi_set_plus
+    li $t7, '-'
+    beq $t0, $t7, _fct_atoi_set_minus
+
+    _fct_atoi_init:
+        li $t2, 10
+        li $t1, 1
+        move $t7, $v0
+        move $v0, $zero
+        beq $t7, 1, _fct_atoi_loop
+
+    _fct_atoi_setup:
+        mul $t1, $t1, 10
+        addi $t6, $t6, 1
+        blt $t6, $t7, _fct_atoi_setup
+
+    _fct_atoi_loop:
+        lb $t0, 0($a0)
+        beq $t0, $zero, _fct_atoi_end_loop
+
+        li $t7, '0'
+        bltu $t0, $t7, _fct_atoi_error
+        li $t7, '9'
+        bltu $t7, $t0, _fct_atoi_error
+
+        sub $t0, $t0, '0'
+        mul $t0, $t0, $t1
+        add $v0, $v0, $t0
+
+        div $t1, $t2
+        mflo $t1
+
+        addi $a0, $a0, 1
+        j _fct_atoi_loop
+
+    _fct_atoi_set_plus:
+        addi $t6, $t6, 1
+        addi $a0, $a0, 1
+        j _fct_atoi_init
+
+    _fct_atoi_set_minus:
+        li $v1, 1
+        addi $t6, $t6, 1
+        addi $a0, $a0, 1
+        j _fct_atoi_init
+
+    _fct_atoi_error:
+        la $a0, _error_nan
+        li $v0, 4
+        syscall
+        li $v0, 17
+        syscall
+
+    _fct_atoi_end_loop:
+        bne $v1, 1, _fct_atoi_end
+
+    _fct_atoi_apply_minus:
+        mul $v0, $v0, -1
+
+    _fct_atoi_end:
+        jal fct_load_temp_values
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4
+        jr $ra
+
+# Compares two strings
+#
+# Arguments:
+#   $a0 - address of the first string
+#   $a1 - address of the second string
+#
+# Returns:
+#   $v0 - 1 if equal, else 0
+fct_strcmp:
+
+    # Write memory to stack
+    addi $sp, $sp, -4
+    sw $ra, 0($sp)
+
+    move $t0, $a0 # copy a0 into t0 since function following is editing a0
+    move $t1, $a1 # copy a1 into t1 since function following is editing a1
+
+    jal fct_buffer_len # get a0 length into v0
+    move $t2, $v0 # first string length into $t2
+
+    move $a0, $a1 # setup call fct_buffer_len
+    jal fct_buffer_len # get a0 length into v0
+    move $t3, $v0 # second string length into $t3
+
+    bne $t2, $t3, to_false # lengths not equal
+
+    # moving strings back into registers
+    move $a0, $t0
+    move $a1, $t1
+
+    loop :
+
+    	# Load the current characters
+        lb $t0, 0($a0)
+        lb $t1, 0($a1)
+
+        # Check if we've reached the end of the string
+        beq $t0, $zero, to_true
+
+        # Check if characters are equal
+        bne $t0, $t1, to_false
+
+        # Move to the next character in the string
+        addi $a0, $a0, 1
+        addi $a1, $a1, 1
+    	j loop
+
+    to_true:
+    	li $v0, 1 # string equals
+    	j end_loop
+
+    to_false :
+    	move $v0, $zero
+
+    # End of loop memory from stack
+    end_loop:
+    # Load memory from stack
+    lw $ra, 0($sp)
+    addi $sp, $sp, 4
+    # Return the result
+    jr $ra
+
 main:
 
     

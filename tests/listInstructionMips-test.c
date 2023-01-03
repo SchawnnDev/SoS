@@ -172,7 +172,7 @@ TEST addIntoCodeWithIndexBadIndexTest(void) {
 //---------------------//
 TEST addIntoUnDefineGotoTest(void) {
     ListInstruction addr = initListInstruction();
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
 
     ASSERT_EQ_FMT(1, addr->cursorCode->numberCode,"%d");
     ASSERT_EQ_FMT(1, addr->cursorCode->numberGoto,"%d");
@@ -185,16 +185,16 @@ TEST addIntoUnDefineGotoTest(void) {
 //----------------------//
 TEST completeUnDefineGotoSameTableTest(void) {
     ListInstruction addr = initListInstruction();
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     addIntoCode(addr,"test");
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(3, addr->cursorCode->numberCode,"%d");
-    ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
-    ASSERT_STR_EQ("unDefineGoto", addr->cursorCode->lineCode[0]);
+    ASSERT_EQ_FMT(1, addr->cursorCode->numberGoto,"%d");
+    ASSERT_STR_EQ("", addr->cursorCode->lineCode[0]);
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[1]);
-    ASSERT_STR_EQ("unDefineGoto", addr->cursorCode->lineCode[2]);
+    ASSERT_STR_EQ(" unDefineGoto", addr->cursorCode->lineCode[2]);
     PASS();
 }
 
@@ -207,17 +207,17 @@ TEST completeUnDefineGotoDifferentTableTest(void) {
         addIntoCode(addr, codes[i]);
     }
 
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     addIntoCode(addr,"test");
-    addIntoUnDefineGoto(addr);
+    addIntoUnDefineGoto(addr,"");
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(2, addr->cursorCode->numberCode,"%d");
     ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
-    ASSERT_EQ_FMT(0, addr->cursorCode->previousCode->numberGoto,"%d");
-    ASSERT_STR_EQ("unDefineGoto", addr->cursorCode->previousCode->lineCode[CODE_TAB_MAX-1]);
+    ASSERT_EQ_FMT(1, addr->cursorCode->previousCode->numberGoto,"%d");
+    ASSERT_STR_EQ("", addr->cursorCode->previousCode->lineCode[CODE_TAB_MAX-1]);
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[0]);
-    ASSERT_STR_EQ("unDefineGoto", addr->cursorCode->lineCode[1]);
+    ASSERT_STR_EQ(" unDefineGoto", addr->cursorCode->lineCode[1]);
     PASS();
 }
 

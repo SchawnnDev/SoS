@@ -6,32 +6,11 @@
 #include "listRangeVar.h"
 #include "listInstructionMips.h"
 #include "boolExpr.h"
+#include "memory.h"
 
-#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
-
-#define CHECK_VALUE_NOT_ZERO(function_name) \
-    CHECKPOINTER(listTmp)                   \
-    CHECKPOINTER(listTmp->cursor)                   \
-    if (listTmp->cursor->numberValues == 0) \
-    { \
-        log_error("%s: numberValues : %d", function_name, listTmp->cursor->numberValues) \
-        return RETURN_FAILURE; \
-    } \
-
-#define CHECK_IDENTIFIER_NOT_ZERO(function_name) \
-    CHECKPOINTER(listIdentifierOrder)                   \
-    CHECKPOINTER(listIdentifierOrder->cursor)                   \
-    if (listIdentifierOrder->cursor->index  == 0) \
-    { \
-        log_error("%s: you must have one identifier.", function_name) \
-        return RETURN_FAILURE; \
-    } \
+#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
 
 void initStruct();
-
-void addIdOrder(char *name);
-
-void setTypeOrder(int type);
 
 /*!
  * \fn void setCurrentOperation(int operation)
@@ -45,34 +24,44 @@ void setCurrentOperation(int operation);
  */
 void setCurrentBooleanExpression(boolExpr_t expr);
 
-/*!
- * \fn void addTmpValuesListTmp
- * \brief Fonction qui ajoute une structure de valeur temporaire
-*/
-void addTmpValuesListTmp();
-
-int assign();
-
-void addValueIntoListTmp(char *value);
-
-void echo();
+/**
+ *
+ * @param name
+ * @return
+ */
+MemorySlot assign(char* name, MemorySlotList list);
 
 /**
  *
  * @return
  */
-int doEcho();
+int doEcho(MemorySlotList list);
 
 /**
  *
  */
-void doOperation();
+MemorySlot doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
 
 /**
  *
  * @return
  */
-int doDeclareStaticArray();
+int doOperationAddInt();
+
+/**
+ *
+ * @param val
+ * @return
+ */
+int doParseTableInt(const char *val);
+
+/**
+ *
+ * @param id
+ * @param size
+ * @return
+ */
+int doDeclareStaticArray(char *id, int size);
 
 /**
  *
@@ -84,13 +73,22 @@ int doArrayRead();
  *
  * @return
  */
-int doGetVariableAddress();
+MemorySlot doGetVariableAddress(char* id);
+
+/**
+ *
+ * @param val
+ * @return
+ */
+MemorySlot doWriteInt(const char *val);
 
 /**
  *
  * @return
  */
 int getValues();
+
+int setMarker();
 
 /**
  *
@@ -99,6 +97,21 @@ int getValues();
  * @return
  */
 int doBoolExpression();
+
+/**
+ *
+ * @param slot NULL if no exit code
+ * @return
+ */
+int doExit(MemorySlot slot);
+
+/**
+ *
+ * @param into Register ($t0-t3 overwritten)
+ * @param memorySlot Skip offset in listTmp
+ * @return
+ */
+MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList);
 
 // Utils
 
@@ -123,16 +136,8 @@ int parseInt32(const char *word);
 /**
  *
  * @param str
- * @param addQuotes
  * @return
  */
-int writeWord(const char *str, int addQuotes);
-
-/**
- *
- * @param str
- * @return
- */
-int writeApostrophedString(const char *str);
+MemorySlot addStringToMemory(const char *str);
 
 #endif //SOS_COMPILATION_H

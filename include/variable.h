@@ -7,8 +7,6 @@
 
 /* Tailles */
 #define IDEN_MAX 100
-#define TMP_TAB_MAX 100
-#define TEXT_TAB_MAX 100
 #define DATA_TAB_MAX 100
 #define CODE_TAB_MAX 100
 #define ASM_PRINTF_BUF_MAX 256
@@ -33,12 +31,27 @@
 #define MULT_OPE 3
 #define DIV_OPE 4
 #define MOD_OPE 5
-#define SIZE_INT_STR 12
 
 /* ASM Generation */
 #define START_STACK 32
 #define ADDR_STACK_SIZE 4
 #define TYPE_STACK 0
 #define TYPE_DATA 1
+
+/* ASM MIPS Functions */
+#define ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME "_fct_load_registers_from_stack"
+#define ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME "_fct_save_registers_to_stack"
+#define ASM_BUFFER_LEN_FUNCTION_NAME "_fct_buffer_len"
+#define ASM_BUFFER_WRITE_FUNCTION_NAME "_fct_buffer_write"
+#define ASM_ATOI_FUNCTION_NAME "_fct_atoi"
+#define ASM_STRCMP_FUNCTION_NAME "_fct_strcmp"
+#define ASM_DISPLAY_STRING_FUNCTION_NAME "_fct_display_string"
+
+/* ASM MIPS Variables */
+#define ASM_VAR_OFFSET_NAME "_offset"
+#define ASM_VAR_GLOBAL_READ_BUFFER_LEN_NAME "_global_read_buffer_len"
+#define ASM_VAR_GLOBAL_READ_BUFFER_NAME "_global_read_buffer"
+#define ASM_VAR_GLOBAL_READ_BUFFER_SIZE 256
+#define ASM_VAR_ERROR_NAN "_error_nan"
 
 #endif

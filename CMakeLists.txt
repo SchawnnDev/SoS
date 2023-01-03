@@ -30,18 +30,21 @@ add_library(
         src/compilation.c
         src/listIden.c
         src/listRangeVar.c
-        src/listTmp.c
         src/utils.c
         src/listInstructionMips.c
         src/asm.c
         src/labels.c
         mips/header.asm.c
         mips/functions/atoi.asm.c
+        mips/functions/strcmp.asm.c
         mips/functions/bufferWrite.asm.c
         mips/functions/bufferLen.asm.c
         mips/functions.asm.c
         mips/functions/saveRegistersToStack.asm.c
         mips/functions/loadRegistersFromStack.asm.c
+        mips/functions/strcmp.asm.c
+        mips/functions/displayString.asm.c
+        src/memory.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
 
@@ -49,20 +52,23 @@ add_library(
         include/compilation.h
         include/listIden.h
         include/listRangeVar.h
-        include/listTmp.h
         include/utils.h
         include/variable.h
         include/boolExpr.h
         include/listInstructionMips.h
         include/asm.h
         include/labels.h
+        include/memory.h
         mips/functions/atoi.asm.h
+        mips/functions/strcmp.asm.h
         mips/header.asm.h
+        mips/functions.asm.h
         mips/functions/bufferWrite.asm.h
         mips/functions/bufferLen.asm.h
-        mips/functions.asm.h
         mips/functions/saveRegistersToStack.asm.h
-        mips/functions/loadRegistersFromStack.asm.h)
+        mips/functions/loadRegistersFromStack.asm.h
+        mips/functions/strcmp.asm.h
+        mips/functions/displayString.asm.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include mips mips/functions "${BIN_DIR}")

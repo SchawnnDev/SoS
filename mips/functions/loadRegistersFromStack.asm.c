@@ -23,6 +23,8 @@ int asm_writeLoadRegistersFromStackFunction()
     }
 
     asm_code_printf("\t\taddi $sp, $sp, 64\n")
+    // TODO: fix this ($t0 should not be written in this fct)
+//    asm_subtractInternalOffset(16);
     asm_code_printf("\t\tjr $ra\n")
 
     return RETURN_SUCCESS;

@@ -30,6 +30,8 @@ Code initCode(Code previousCode)
     addr->nextCode = NULL;
     addr->numberCode = 0;
     addr->numberGoto = 0;
+    addr->numberTrue = 0;
+    addr->numberFalse = 0;
     return addr;
 }
 
@@ -118,7 +120,7 @@ void addStructData(ListInstruction addr)
 */
 void addIntoData(ListInstruction addr, char *data)
 {
-    log_trace("addIntoData (ListInstruction %p, char* %s)", addr, data)
+   // log_trace("addIntoData (ListInstruction %p, char* %s)", addr, data)
     CHECKPOINTER(addr);
     CHECKPOINTER(data);
 
@@ -176,7 +178,7 @@ void addIntoCode(ListInstruction addr, char *code)
 */
 int addIntoCodeWithIndex(Code addr, char *code, int index)
 {
-    log_trace("addIntoCode (ListInstruction %p, char* %s)", addr, code)
+//    log_trace("addIntoCode (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
 
@@ -195,17 +197,117 @@ int addIntoCodeWithIndex(Code addr, char *code, int index)
 }
 
 /*!
+ * \fn void addIntoTrueList( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute à la trueList
+*/
+void addIntoTrueList(ListInstruction addr, char* code)
+{
+    log_trace("addIntoTrueList (ListInstruction %p, char* %s)", addr, code)
+    CHECKPOINTER(addr);
+
+    addr->cursorCode->trueList[addr->cursorCode->numberTrue] = addr->cursorCode->numberCode;
+    addr->cursorCode->numberTrue++;
+    addIntoCode(addr, code);
+}
+
+/*!
+ * \fn void addIntoFalseList( ListInstruction addr, char* code)
+ * \brief Fonction qui permet d'ajoute à la falseList
+*/
+void addIntoFalseList(ListInstruction addr, char* code)
+{
+    log_trace("addIntoFalseList (ListInstruction %p, char* %s)", addr, code)
+    CHECKPOINTER(addr);
+
+    addr->cursorCode->falseList[addr->cursorCode->numberFalse] = addr->cursorCode->numberCode;
+    addr->cursorCode->numberFalse++;
+    addIntoCode(addr, code);
+}
+
+/*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
  * \brief Fonction qui permet d'ajoute un goto indéterminé
 */
-void addIntoUnDefineGoto(ListInstruction addr)
+void addIntoUnDefineGoto(ListInstruction addr, char* code)
 {
-    log_trace("addIntoUnDefineGoto (ListInstruction %p)", addr)
+    log_trace("addIntoUnDefineGoto (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
 
     addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto] = addr->cursorCode->numberCode;
     addr->cursorCode->numberGoto++;
-    addr->cursorCode->numberCode++;
+    addIntoCode(addr, code);
+}
+/*!
+ * \fn void completeTrueList( ListInstruction addr, char* code )
+ * \brief Fonction qui permet complete une ligne de la trueList
+*/
+void completeTrueList(ListInstruction addr, char *code)
+{
+    log_trace("completeTrueList (ListInstruction %p, char* %s)", addr, code)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(code);
+
+    if(addr->cursorCode->numberTrue == 0){
+        log_trace("completeTrueList : there is no goto to complete")
+        return;
+    }
+
+    int size2 = strlen(code)+1;
+    addr->cursorCode->numberTrue--;
+    if(size2 == 1){
+        log_trace("completeTrueList : code is empty")
+        return;
+    }
+
+    int size1 = strlen(addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]]);
+    size1 = size1 + size2 + 2;
+
+    char * newCode;
+    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+    CHECK(sprintf(newCode,addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]]))
+    CHECKPOINTER(strcat(newCode," "))
+    CHECKPOINTER(strcat(newCode,code))
+
+    free(addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]]);
+    addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]] = newCode;
+
+}
+
+
+/*!
+ * \fn void completeFalseList( ListInstruction addr, char* code )
+ * \brief Fonction qui permet complete une ligne de la falseList
+*/
+void completeFalseList(ListInstruction addr, char *code)
+{
+    log_trace("completeFalseList (ListInstruction %p, char* %s)", addr, code)
+    CHECKPOINTER(addr);
+    CHECKPOINTER(code);
+
+    if(addr->cursorCode->numberFalse == 0){
+        log_trace("completeFalseList : there is no goto to complete")
+        return;
+    }
+
+    int size2 = strlen(code)+1;
+    addr->cursorCode->numberFalse--;
+    if(size2 == 1){
+        log_trace("completeFalseList : code is empty")
+        return;
+    }
+
+    int size1 = strlen(addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]]);
+    size1 = size1 + size2 + 2;
+
+    char * newCode;
+    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+    CHECK(sprintf(newCode,addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]]))
+    CHECKPOINTER(strcat(newCode," "))
+    CHECKPOINTER(strcat(newCode,code))
+
+    free(addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]]);
+    addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]] = newCode;
+
 }
 
 /*!
@@ -218,21 +320,30 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
 
-    int index;
-    Code addrTmp = addr->cursorCode;
-    while (addrTmp != NULL)
-    {
-        if (addrTmp->numberGoto != 0)
-        {
-            for (index = 0; index < addrTmp->numberGoto; index++)
-            {
-                addIntoCodeWithIndex(addrTmp, code,
-                                     addrTmp->unDefineGoto[index]);
-            }
-        }
-        addrTmp->numberGoto = 0;
-        addrTmp = addrTmp->previousCode;
+    if(addr->cursorCode->numberGoto == 0){
+        log_trace("completeUnDefineGoto : there is no goto to complete")
+        return;
     }
+
+    int size2 = strlen(code)+1;
+    addr->cursorCode->numberGoto--;
+    if(size2 == 1){
+        log_trace("completeUnDefineGoto : code is empty")
+        return;
+    }
+
+    int size1 = strlen(addr->cursorCode->lineCode[addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto]]);
+    size1 = size1 + size2 + 2;
+
+    char * newCode;
+    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+    CHECK(sprintf(newCode,addr->cursorCode->lineCode[addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto]]))
+    CHECKPOINTER(strcat(newCode," "))
+    CHECKPOINTER(strcat(newCode,code))
+
+    free(addr->cursorCode->lineCode[addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto]]);
+    addr->cursorCode->lineCode[addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto]] = newCode;
+
 }
 
 Data getFirstDataCursor(Data cursor)
