@@ -99,10 +99,13 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 MemorySlotList appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
 {
     // TODO CHANGE HERE FROM BOTTOM TO END ;;;;
-    if(memorySlotList == NULL) return NULL;
+    if(memorySlotList == NULL){
+        return NULL;
+    }
     MemorySlotList m = newMemorySlotList(slot);
     m->previous = memorySlotList;
     memorySlotList->next = m;
+
     return m;
 }
 

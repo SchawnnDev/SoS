@@ -106,9 +106,15 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
     // Calculate size
     while(temp != NULL)
     {
-        asm_readFromStack("$t0", getMipsOffset(temp->slot));
-        asm_useBufferLenFunction("$t0", "$t1");
-        asm_code_printf("\tadd $t0, $t0, $t1\n")
+        // slot should not be null
+        if(temp->slot == NULL) {
+            log_error("concatenation: slot in slotlist is null")
+            temp = temp->next;
+            continue;
+        }
+        asm_readFromStack("$t1", getMipsOffset(temp->slot));
+        asm_useBufferLenFunction("$t1", "$t2");
+        asm_code_printf("\tadd $t0, $t0, $t2\n")
         temp = temp->next;
     }
 
@@ -122,6 +128,12 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
     temp = first;
 
     while (temp != NULL) {
+        // slot should not be null
+        if(temp->slot == NULL) {
+            log_error("concatenation: slot in slotlist is null")
+            temp = temp->next;
+            continue;
+        }
         asm_readFromStack("$t1", getMipsOffset(temp->slot));
         asm_useBufferWriteFunction("$t1", "$t0", "$t0");
         asm_code_printf("\taddi $t0, $t0, 1\n")
