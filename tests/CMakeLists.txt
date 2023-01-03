@@ -1,10 +1,8 @@
 set(
         TEST_SRC_LIST
         "listIden-test.c"
-        "listTmp-test.c"
         "listRangeVar-test.c"
         "compilation-test.c"
-        "listIdentifierOrder-test.c"
         "listInstructionMips-test.c"
 )
 

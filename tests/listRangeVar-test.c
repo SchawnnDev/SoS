@@ -1,5 +1,4 @@
 #include <greatest.h>
-#include <curses.h>
 #include "listRangeVar.h"
 
 char* names[IDEN_MAX] = {"test0","test1","test2","test3","test4","test5","test6","test7","test8","test9",
@@ -12,12 +11,13 @@ char* names[IDEN_MAX] = {"test0","test1","test2","test3","test4","test5","test6"
                          "test70","test71","test72","test73","test74","test75","test76","test77","test78","test79",
                          "test80","test81","test82","test83","test84","test85","test86","test87","test88","test89",
                          "test90","test91","test92","test93","test94","test95","test96","test97","test98","test99"};
+ListInstruction listInstruction;
 
 //-------------------//
 // initRangeVariable //
 //-------------------//
 TEST initRangeVariableLvlZeroTest(void) {
-    RangeVariable addr = initRangeVariable(0,0,NULL);
+    RangeVariable addr = initRangeVariable(0,NULL);
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(0, addr->rangeLevel,"%d");
@@ -28,8 +28,8 @@ TEST initRangeVariableLvlZeroTest(void) {
 }
 
 TEST initRangeVariableLvlNTest(void) {
-    RangeVariable addr1 = initRangeVariable(0,0,NULL);
-    RangeVariable addr = initRangeVariable(10,0,addr1);
+    RangeVariable addr1 = initRangeVariable(0,NULL);
+    RangeVariable addr = initRangeVariable(10,addr1);
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(10, addr->rangeLevel,"%d");
@@ -52,7 +52,7 @@ TEST initVariablePositionWithoutIdentifierFoundTest(void) {
 }
 
 TEST initVariablePositionWithIdentifierFoundTest(void) {
-    RangeVariable rangeVariable = initRangeVariable(0,0,NULL);
+    RangeVariable rangeVariable = initRangeVariable(0,NULL);
     VariablePosition addr = initVariablePosition(rangeVariable,10);
 
     ASSERT_NEQ(NULL, addr);
@@ -251,7 +251,8 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
-    log_set_quiet(true); // No logs in tests
+    log_set_quiet(false); // No logs in tests
+    listInstruction = initListInstruction();
 
     RUN_TEST(initRangeVariableLvlZeroTest);
     RUN_TEST(initRangeVariableLvlNTest);

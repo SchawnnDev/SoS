@@ -112,7 +112,7 @@ test_instruction : concatenation ASSIGN concatenation
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
-    | WORD { log_debug("operand : WORD (%s)", $1); addValueIntoListTmp($1); }
+    | WORD { log_debug("operand : WORD (%s)", $1); }
     | DOLLAR int
     | DOLLAR MULT
     | DOLLAR QMARK

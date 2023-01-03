@@ -7,8 +7,6 @@
 
 /* Tailles */
 #define IDEN_MAX 100
-#define TMP_TAB_MAX 100
-#define TEXT_TAB_MAX 100
 #define DATA_TAB_MAX 100
 #define CODE_TAB_MAX 100
 #define ASM_PRINTF_BUF_MAX 256
@@ -33,7 +31,6 @@
 #define MULT_OPE 3
 #define DIV_OPE 4
 #define MOD_OPE 5
-#define SIZE_INT_STR 12
 
 /* ASM Generation */
 #define START_STACK 32

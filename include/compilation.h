@@ -10,29 +10,7 @@
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return EXIT_FAILURE; } } while (0);
 
-#define CHECK_VALUE_NOT_ZERO(function_name) \
-    CHECKPOINTER(listTmp)                   \
-    CHECKPOINTER(listTmp->cursor)                   \
-    if (listTmp->cursor->numberValues == 0) \
-    { \
-        log_error("%s: numberValues : %d", function_name, listTmp->cursor->numberValues) \
-        return RETURN_FAILURE; \
-    } \
-
-#define CHECK_IDENTIFIER_NOT_ZERO(function_name) \
-    CHECKPOINTER(listIdentifierOrder)                   \
-    CHECKPOINTER(listIdentifierOrder->cursor)                   \
-    if (listIdentifierOrder->cursor->index  == 0) \
-    { \
-        log_error("%s: you must have one identifier.", function_name) \
-        return RETURN_FAILURE; \
-    } \
-
 void initStruct();
-
-void addIdOrder(char *name);
-
-void setTypeOrder(int type);
 
 /*!
  * \fn void setCurrentOperation(int operation)
@@ -46,20 +24,12 @@ void setCurrentOperation(int operation);
  */
 void setCurrentBooleanExpression(boolExpr_t expr);
 
-/*!
- * \fn void addTmpValuesListTmp
- * \brief Fonction qui ajoute une structure de valeur temporaire
-*/
-void addTmpValuesListTmp();
-
 /**
  *
  * @param name
  * @return
  */
 MemorySlot assign(char* name, MemorySlotList list);
-
-void addValueIntoListTmp(char *value);
 
 /**
  *

@@ -30,7 +30,6 @@ add_library(
         src/compilation.c
         src/listIden.c
         src/listRangeVar.c
-        src/listTmp.c
         src/utils.c
         src/listInstructionMips.c
         src/asm.c
@@ -53,7 +52,6 @@ add_library(
         include/compilation.h
         include/listIden.h
         include/listRangeVar.h
-        include/listTmp.h
         include/utils.h
         include/variable.h
         include/boolExpr.h
