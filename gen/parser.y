@@ -42,7 +42,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 
 instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
-    | DECLARE id LBRACKET int RBRACKET { doDeclareStaticArray(); }
+    | DECLARE id LBRACKET WORD RBRACKET { CHECK_TYPE(checkWordIsInt($4)); doDeclareStaticArray($2, $4); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
@@ -56,8 +56,8 @@ instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", 
     | function_call
     | RETURN
     | RETURN operand_int
-    | EXIT
-    | EXIT operand_int
+    | EXIT { doExit(NULL); }
+    | EXIT operand_int { doExit($2); }
     ;
 
 else_part : ELIF test_block THEN list_instructions else_part

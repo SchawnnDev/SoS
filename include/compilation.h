@@ -52,7 +52,7 @@ int doOperationAddInt();
  *
  * @return
  */
-int doDeclareStaticArray();
+int doDeclareStaticArray(char *id, MemorySlot slot);
 
 /**
  *
@@ -88,6 +88,13 @@ int setMarker();
  * @return
  */
 int doBoolExpression();
+
+/**
+ *
+ * @param slot NULL if no exit code
+ * @return
+ */
+int doExit(MemorySlot slot);
 
 /**
  *

@@ -134,7 +134,6 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
         }
         asm_readFromStack("$t1", getMipsOffset(temp->slot));
         asm_useBufferWriteFunction("$t1", "$t0", "$t0");
-        //asm_code_printf("\taddi $t0, $t0, 1\n")
 
         // Free memory
         if (temp->slot->temp)
@@ -182,6 +181,19 @@ MemorySlot assign(char* name, MemorySlotList list)
 void assignArray()
 {
 
+}
+
+int doExit(MemorySlot slot)
+{
+    if(slot == NULL)
+    {
+        asm_syscall(SYS_EXIT);
+        return RETURN_SUCCESS;
+    }
+
+    asm_readFromStack("$a0", getMipsOffset(slot));
+
+    return asm_syscall(SYS_EXIT2);
 }
 
 MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
