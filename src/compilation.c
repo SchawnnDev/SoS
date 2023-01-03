@@ -16,8 +16,6 @@
 #include "memory.h"
 
 ListRangeVariable listRangeVariable;
-ListIdentifierOrder listIdentifierOrder;
-ListTmp listTmp;
 ListInstruction listInstruction;
 int currentOperation;
 boolExpr_t currentBooleanExpression;
@@ -47,8 +45,6 @@ void initStruct()
 {
     log_trace("Started initStruct")
     listRangeVariable = initListRangeVariable();
-    listIdentifierOrder = initListIdentifierOrder();
-    listTmp = initListTmp();
     listInstruction = initListInstruction();
     currentOperation = UNSET;
 }
@@ -188,50 +184,6 @@ void assignArray()
 
 }
 
-
-/*!
- * \fn void addIdOrder(char * name)
- * \brief Fonction qui ajoute l'identifiant à la liste des ordes d'appartion des identificateurs
- *
- * \param name : char*, le nom de l'identificateur
-*/
-void addIdOrder(char *name)
-{
-    addIdentifierOrder(listIdentifierOrder, name);
-}
-
-/*!
- * \fn void setTypeOrder(int type)
- * \brief Fonction qui modfifie le type de l'identifiant contenu dans la liste des ordes d'appartion des identificateurs
- *
- * \param name : char*, le nom de l'identificateur
-*/
-void setTypeOrder(int type)
-{
-    log_trace("setTypeOrder (int %d)", type);
-    setTypeIdentifierOrder(listIdentifierOrder, type);
-}
-
-/*!
- * \fn void addTmpValuesListTmp
- * \brief Fonction qui ajoute une structure de valeur temporaire
-*/
-void addTmpValuesListTmp()
-{
-    addListTmp(listTmp, initTmpValues(listTmp->cursor));
-}
-
-/*!
- * \fn void setTypeOrder(int type)
- * \brief Fonction qui remplie la liste temporaire
- *
- * \param value : char*, le contenue
-*/
-void addValueIntoListTmp(char *value)
-{
-    addIntoListTmp(listTmp, value);
-}
-
 MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
 {
     asm_code_printf("\n\t#Start of operation code\n\n")
@@ -276,20 +228,12 @@ int doOperationAddInt()
     return RETURN_SUCCESS;
 }
 
-int getValues()
-{
-    return getValuesFromIdentifier(listRangeVariable,
-                                   listIdentifierOrder->cursor->name, listTmp);
-}
-
 int doEcho(MemorySlotList list)
 {
     log_trace("doEcho")
     asm_code_printf("\n\t# Do echo section\n\n")
 
     log_trace("doConcatenation")
-    CHECKPOINTER(listTmp)
-    CHECKPOINTER(listTmp->cursor)
 
     list = firstMemorySlotList(list);
     if(list == NULL) { log_error("list == NULL;") return RETURN_FAILURE; }
@@ -327,41 +271,27 @@ int setMarker(){
 
 int doBoolExpression()
 {
-    log_trace("doBoolExpression (ListTmp %p, int %d)", listTmp,
-              currentBooleanExpression)
-    CHECKPOINTER(listTmp);
-    CHECKPOINTER(listTmp->cursor);
-
-    if (listTmp->cursor->numberValues < 2)
-    {
-        log_error("numberValues : %d", listTmp->cursor->numberValues)
-        perror("doBoolExpression : you must have two values.");
-        return RETURN_FAILURE;
-    }
+    log_trace("doBoolExpression (int %d)", currentBooleanExpression)
 
     asm_code_printf("\n\t# Start of Test block of ope %d\n", currentBooleanExpression)
 
-    int index;
-    for (index = listTmp->cursor->numberValues - 2;
-         index < listTmp->cursor->numberValues; index++){
-
-        if (currentBooleanExpression == BOOL_EQ ||
-            currentBooleanExpression == BOOL_NEQ
-            || currentBooleanExpression == BOOL_GT ||
-            currentBooleanExpression == BOOL_GE
-            || currentBooleanExpression == BOOL_LT ||
-            currentBooleanExpression == BOOL_LE)
+    if (currentBooleanExpression == BOOL_EQ ||
+        currentBooleanExpression == BOOL_NEQ
+        || currentBooleanExpression == BOOL_GT ||
+        currentBooleanExpression == BOOL_GE
+        || currentBooleanExpression == BOOL_LT ||
+        currentBooleanExpression == BOOL_LE)
+    {
+        /*
+        if (listTmp->cursor->types[index] == TYPE_STACK)
         {
-
-            if (listTmp->cursor->types[index] == TYPE_STACK)
-            {
-                asm_readFromStack("$t1", listTmp->cursor->values[index]);
-                // ToDo Call Mips ATOI
-            } else
-            {
-                asm_code_printf("\tli $t2, %s\n", listTmp->cursor->values[index])
-            }
+            asm_readFromStack("$t1", listTmp->cursor->values[index]);
+            // ToDo Call Mips ATOI
+        } else
+        {
+            asm_code_printf("\tli $t2, %s\n", listTmp->cursor->values[index])
         }
+         */
     }
 
     /*
@@ -416,26 +346,12 @@ int doBoolExpression()
     return RETURN_SUCCESS;
 }
 
-int doDeclareStaticArray()
+int doDeclareStaticArray(char* id)
 {
     log_trace("doDeclareStaticArray")
-    CHECKPOINTER(listTmp)
-    CHECKPOINTER(listTmp->cursor)
-    CHECKPOINTER(listIdentifierOrder)
+    CHECKPOINTER(id)
 
-    if (listIdentifierOrder->cursor->index == 0)
-    {
-        perror("doDeclareStaticArray : you must have one identifier.");
-        return RETURN_FAILURE;
-    }
-
-    if (listTmp->cursor->numberValues == 0)
-    {
-        log_error("numberValues : %d", listTmp->cursor->numberValues)
-        perror("doDeclareStaticArray : you must have one value.");
-        return RETURN_FAILURE;
-    }
-
+    /* ToDo
     const int size = atoi(listTmp->cursor->values[0]);
 
     if (size <= 0)
@@ -454,11 +370,9 @@ int doDeclareStaticArray()
 
     free(id);
     setArraySize(listRangeVariable, name, size);
-    deleteListTmp(listTmp);
-    addListTmp(listTmp, initTmpValues(listTmp->cursor));
     addIdentifier(listRangeVariable, name);
     deleteIdentifierOrder(listIdentifierOrder);
-
+    */
     return RETURN_SUCCESS;
 }
 
@@ -485,25 +399,6 @@ MemorySlot addStringToMemory(const char *str) {
 int doArrayRead()
 {
     log_trace("doArrayRead")
-    CHECK_IDENTIFIER_NOT_ZERO("doArrayRead")
-    CHECK_VALUE_NOT_ZERO("doArrayRead")
-
-    char *id = listIdentifierOrder->cursor->name;
-    const int index = listIdentifierOrder->cursor->index;
-
-
-    //const int size = atoi(listTmp->cursor->values[0]);
-
-    const int type = listTmp->cursor->types[listTmp->cursor->numberValues - 1];
-
-    if (type == TYPE_STACK)
-    {
-        // read from stack
-    } else
-    {
-        // load li
-    }
-
 
     return RETURN_SUCCESS;
 }
@@ -590,7 +485,6 @@ int checkWordIsInt(const char *word)
 MemorySlot doWriteInt(const char *val)
 {
     MemorySlot mem = reserveMemorySlot();
-    setTypeOrder(INTEGER);
     asm_getStackAddress("$t0", getMipsOffset(mem));
     int parsed;
     if((parsed = parseInt32(val))== RETURN_FAILURE) return NULL;

@@ -51,7 +51,6 @@ Identifier initIdentifier(char* name)
     ulong size = strlen( name ) + 1;
     CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size));
     CHECKPOINTER(strcpy(addr->name,name));
-    addr->values = NULL;
     addr->memory = NULL;
     addr->type = UNSET;
     addr->arraySize = 1;
@@ -68,15 +67,6 @@ void cleanIdentifier(Identifier addr)
     log_trace("cleanIdentifier (Identifier %p)",addr)
     CHECKPOINTER(addr);
 
-    if(addr->values != NULL){
-        int index;
-        int size = addr->arraySize;
-        for(index = 0; index < size; index++){
-            free(addr->values[index]);
-        }
-    }
-
-    free(addr->values);
     free(addr);
 }
 
@@ -114,6 +104,7 @@ int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset)
     log_trace("addIntoListIdentifier (ListIdentifier %p, char* %s)",addr,name)
     CHECKPOINTER(addr);
     CHECKPOINTER(name);
+    CHECKPOINTER(offset);
 
     if(addr->numberIdentifiers == IDEN_MAX){
         log_error("numberIdentifiers : %d, %d",addr->numberIdentifiers,IDEN_MAX)
@@ -162,91 +153,6 @@ int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
 }
 
 /*!
- * \fn int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
- * \brief Fonction remplie le tableau des valeurs de l'identificateur depuis à la liste temporaire
-*/
-int setValuesOfIdentifierFromListTmp(ListIdentifier addr, int position, ListTmp addrTmp)
-{
-    log_trace("setValuesOfIdentifierFromListTmp (ListIdentifier %p, int %d, ListTmp %p)",addr,position,addrTmp)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addrTmp);
-    CHECKPOINTER(addrTmp->cursor);
-
-    if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
-        log_error("Position out of range : position : %d",position)
-        perror("setValuesOfIdentifierFromListTmp : can not set type of non-existent identifier.");
-        return RETURN_FAILURE;
-    }
-
-    ulong index;
-    ulong size;
-    if(addr->Identifiers[position]->values != NULL){
-        log_info("Identifier will be freed.")
-
-        size = addr->Identifiers[position]->arraySize;
-        for(index = 0; index < size; index++){
-            free(addr->Identifiers[position]->values[index]);
-        }
-        free(addr->Identifiers[position]->values);
-    }
-
-    char** newAddr;
-    CHECKPOINTER(newAddr = (char**)malloc(sizeof(char*) * (addr->Identifiers[position]->arraySize)));
-    size = addrTmp->cursor->numberValues;
-    ulong sizeStr;
-
-    for(index = 0; index < size; index ++){
-        sizeStr = strlen( addrTmp->cursor->values[index]) + 1;
-        CHECKPOINTER(newAddr[index] = (char*)malloc(sizeof(char) * sizeStr));
-        CHECKPOINTER(addrTmp->cursor->values[index]);
-        CHECKPOINTER(strcpy(newAddr[index],addrTmp->cursor->values[index]));
-    }
-
-    addr->Identifiers[position]->values = newAddr;
-
-    return RETURN_SUCCESS;
-}
-
-/*!
- * \fn int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int index, ListTmp addrTmp)
- * \brief Fonction remplie liste temporaire depuis le tableau des valeurs de l'identificateur
-*/
-int getValuesFromIdentifierToListTmp(ListIdentifier addr, int position, int index, ListTmp addrTmp)
-{
-    log_trace("getValuesFromIdentifierToListTmp (ListIdentifier %p, int %d, int %d, ListTmp %p)", addr, position, index, addrTmp)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addrTmp);
-    CHECKPOINTER(addrTmp->cursor);
-
-    if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
-        log_error("Position out of range : position : %d",position)
-        perror("getValuesFromIdentifierToListTmp : can not get values of non-existent identifier.");
-        return RETURN_FAILURE;
-    }
-
-    if (index == -1){
-        int size = addr->Identifiers[position]->arraySize;
-        for(index = 0; index < size; index ++){
-            CHECKPOINTER(addr->Identifiers[position]->values[index]);
-            if(RETURN_FAILURE == addIntoListTmp(addrTmp,addr->Identifiers[position]->values[index])){
-                return RETURN_FAILURE;
-            }
-        }
-    } else {
-
-        if(index >= addr->Identifiers[position]->arraySize){
-            log_error("Index out of range : index : %d",index)
-            perror("getValuesFromIdentifierToListTmp : can not copy a out of range value.");
-            return RETURN_FAILURE;
-        }
-
-        return addIntoListTmp(addrTmp,addr->Identifiers[position]->values[index]);
-    }
-
-    return RETURN_SUCCESS;
-}
-
-/*!
  * \fn ListIdentifier setTypeOfIdentifier(ListIdentifier addr, int position, int type)
  * \brief Fonction qui modifie le type de l'identificateur
 */
@@ -280,6 +186,7 @@ int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySlot offset)
 {
     log_trace("setOffsetOfIdentifier (ListIdentifier %p, int %d, int %d)",addr,position,offset)
     CHECKPOINTER(addr);
+    CHECKPOINTER(offset);
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
@@ -325,14 +232,7 @@ int printIdentifier(ListIdentifier addr,int position)
         return RETURN_FAILURE;
     }
 
-    printf("position : %d, name %s, values : %s",position,addr->Identifiers[position]->name,addr->Identifiers[position]->values[0]);
-
-    int index;
-    int numberValues = addr->Identifiers[position]->arraySize;
-    for(index = 1; index < numberValues; index++){
-        printf(", %s",addr->Identifiers[position]->values[index]);
-    }
-    printf("\n");
+    printf("position : %d, name %s\n",position,addr->Identifiers[position]->name);
 
     return RETURN_SUCCESS;
 }
