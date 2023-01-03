@@ -6,5 +6,5 @@ e=-4;
 f= $( expr ${a} + ${b} * ${c} + ${e});
 echo ${d};
 echo "\n";
-echo ${e};
+echo ${f};
 exit
