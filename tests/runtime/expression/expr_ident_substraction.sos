@@ -1,0 +1,8 @@
+a=60;
+b=50;
+c= $( expr ${a} - ${b} );
+d= $( expr ${b} - ${a} );
+echo ${c};
+echo "\n";
+echo ${d};
+exit
