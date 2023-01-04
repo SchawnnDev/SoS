@@ -143,7 +143,7 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
     }
 
     // At the end write $zero
-    asm_code_printf("\tsb $zero, 0($t1)\n")
+    asm_code_printf("\tsb $zero, 0($t0)\n")
 
     asm_code_printf("\t# end of concatenation\n")
 
@@ -199,11 +199,11 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
             asm_code_printf("\tmul $t0, $t0, $t1\n")
             break;
         case DIV_OPE:
-            asm_code_printf("\tmul $t0, $t1\n")
+            asm_code_printf("\tdiv $t0, $t1\n")
             asm_code_printf("\tmflo $t0\n")
             break;
         case MOD_OPE:
-            asm_code_printf("\tmul $t0, $t1\n")
+            asm_code_printf("\tdiv $t0, $t1\n")
             asm_code_printf("\tmfhi $t0\n")
             break;
         default:

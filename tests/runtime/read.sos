@@ -1,3 +1,5 @@
-read ee;
-echo '\n' ${ee} '\n';
+a="Hello";
+c="World";
+b= ${a} ' ' ${c};
+echo ${b} ' ' '!';
 exit
