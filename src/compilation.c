@@ -154,27 +154,12 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-MemorySlot assign(char* name, MemorySlotList list)
+MemorySlot assign(char *name, MemorySlotList list)
 {
     log_trace("assign (void)")
     asm_code_printf("\n\t# assign of %s\n", name)
-    addIdentifier(listRangeVariable, name);
-    VariablePosition pos = searchIdentifierPosition(listRangeVariable, name);
-
-    if(pos->indexIdentifier == NOTFOUND)
-    {
-        log_error("Identifier not found at assignation.")
-        return NULL;
-    }
-
-    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
-
-    if(slot == NULL)
-    {
-        log_error("MemorySlot of identifier not found at assignation")
-        return slot;
-    }
-
+    MemorySlot slot = getOrCreateMemorySlot(name);
+    if (slot == NULL) return slot;
     return doConcatenation(slot, list);
 }
 
@@ -358,17 +343,15 @@ int doBoolExpression()
     return RETURN_SUCCESS;
 }
 
-int doDeclareStaticArray(char *id, int size)
+MemorySlot getOrCreateMemorySlot(char* id)
 {
-    log_trace("doDeclareStaticArray(%s, %d)", id, size)
-
     addIdentifier(listRangeVariable, id);
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
 
     if (pos->indexIdentifier == NOTFOUND)
     {
-        log_error("Identifier not found at assignation.")
-        return RETURN_FAILURE;
+        log_error("Identifier not found.")
+        return NULL;
     }
 
     MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier,
@@ -376,9 +359,19 @@ int doDeclareStaticArray(char *id, int size)
 
     if (slot == NULL)
     {
-        log_error("MemorySlot of identifier not found at assignation")
-        return RETURN_FAILURE;
+        log_error("MemorySlot of identifier not found")
+        return NULL;
     }
+
+    return slot;
+}
+
+int doDeclareStaticArray(char *id, int size)
+{
+    log_trace("doDeclareStaticArray(%s, %d)", id, size)
+
+    MemorySlot slot = getOrCreateMemorySlot(id);
+    if(slot == NULL) return RETURN_FAILURE;
 
     const char *label = createNewLabel();
     asm_writeStaticArray(label, size);
@@ -532,4 +525,34 @@ int doParseTableInt(const char *val)
     }
 
     return parsedSize;
+}
+
+int doStringRead(const char *id)
+{
+    log_trace("doStringRead(%s)", id)
+    MemorySlot slot = getOrCreateMemorySlot((char*)id);
+    if(slot == NULL) return RETURN_FAILURE;
+
+    asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)
+    asm_code_printf("\tla $a1, %d\n", ASM_VAR_GLOBAL_READ_BUFFER_SIZE)
+    asm_syscall(READ_STRING);
+
+    // string is in ASM_VAR_GLOBAL_READ_BUFFER_NAME
+    // init a size counter
+    asm_loadLabelIntoRegister(ASM_VAR_GLOBAL_READ_BUFFER_NAME, "$t0");
+    asm_useBufferLenFunction("$t0", "$t1");
+    asm_code_printf("\taddi $t1, $t1, 1 # Add NUL char\n")
+
+    asm_code_printf("\tmove $a0, $t1\n")
+    asm_syscall(SBRK);
+    asm_code_printf("\tmove $t1, $v0\n") // move start address to v0
+    // write heap address to stack
+    asm_getStackAddress("$t2", getMipsOffset(slot));
+    asm_code_printf("\tsw $t1, 0($t2)\n")
+    asm_useBufferWriteFunction("$t0", "$t1", "$t1");
+
+    // At the end write $zero
+    asm_code_printf("\tsb $zero, 0($t1)\n")
+
+    return RETURN_SUCCESS;
 }

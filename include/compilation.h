@@ -84,6 +84,14 @@ MemorySlot doWriteInt(const char *val);
 
 /**
  *
+ * @param id
+ * @return
+ */
+int doStringRead(const char *id);
+
+
+/**
+ *
  * @return
  */
 int getValues();
@@ -132,6 +140,13 @@ int checkWordIsId(const char *word);
 int checkWordIsInt(const char *word);
 
 int parseInt32(const char *word);
+
+/**
+ *
+ * @param id
+ * @return
+ */
+MemorySlot getOrCreateMemorySlot(char* id);
 
 /**
  *

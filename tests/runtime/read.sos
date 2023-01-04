@@ -1,0 +1,3 @@
+read ee;
+echo '\n' ${ee} '\n';
+exit
