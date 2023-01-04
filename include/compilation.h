@@ -155,4 +155,11 @@ MemorySlot getOrCreateMemorySlot(char* id);
  */
 MemorySlot addStringToMemory(const char *str);
 
+/**
+ *
+ * @param str
+ * @return
+ */
+MemorySlot addWordToMemory(const char *str);
+
 #endif //SOS_COMPILATION_H

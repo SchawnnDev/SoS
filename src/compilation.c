@@ -388,8 +388,6 @@ MemorySlot addStringToMemory(const char *str) {
     CHECKPOINTER(copy = malloc(len))
     CHECKPOINTER(strncpy(copy, str + 1, len - 1));
     copy[len - 1] = '\0'; // add nul char
-    // Don't forget to add label to tmp list
-    // addValueIntoListTmp(copy);
     MemorySlot slot = reserveMemorySlot();
     const char* label = createNewLabel();
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, copy)
@@ -399,6 +397,18 @@ MemorySlot addStringToMemory(const char *str) {
     asm_getStackAddress("$t1", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t1)\n")
     free(copy);
+    return slot;
+}
+
+MemorySlot addWordToMemory(const char *str) {
+    MemorySlot slot = reserveMemorySlot();
+    const char* label = createNewLabel();
+    asm_data_printf("\t%s: .asciiz \"%s\"\n", label, str)
+    asm_loadLabelIntoRegister(label, "$t0");
+    //asm_allocateOnHeap("$t1", (int)len - 1);
+    //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
+    asm_getStackAddress("$t1", getMipsOffset(slot));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
     return slot;
 }
 
