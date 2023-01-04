@@ -2,6 +2,6 @@ a="Hello";
 c="World";
 d=99;
 b= ${a} ' ' ${c};
-z= ${b} ${d}
+z= ${b} ${d};
 echo ${z};
 exit
