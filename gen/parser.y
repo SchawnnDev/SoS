@@ -50,7 +50,7 @@ instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", 
     | UNTIL test_block DO list_instructions DONE
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho($2); }
-    | READ id
+    | READ id { doStringRead($2); }
     | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
     | declare_fct
     | function_call

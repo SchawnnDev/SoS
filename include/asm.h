@@ -33,7 +33,7 @@ typedef enum
     PRINT_INT = 1, // reads $a0
     PRINT_STRING = 4, // reads $a0
     READ_INT = 5, // writes $v0
-    READ_STRING = 6, // writes $a0 = buffer, $a1 = length
+    READ_STRING = 8, // writes $a0 = buffer, $a1 = length
     SBRK = 9, // reads $a0 = amount, writes $v0 = address
     SYS_EXIT = 10,
     PRINT_CHAR = 11, // reads $a0 = character
