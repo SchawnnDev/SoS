@@ -88,11 +88,12 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
     RangeVariable newCursor = initRangeVariable(0, addr->cursorGlobal);
     if(addr->cursorGlobal->nextLevel != NULL){
         newCursor->nextLevel = addr->cursorGlobal->nextLevel;
+    } else {
+        addr->cursor = newCursor;
     }
 
     addr->cursorGlobal->nextLevel = newCursor;
     addr->cursorGlobal = newCursor;
-    addr->cursor = newCursor;
 
     return RETURN_SUCCESS;
 }
@@ -231,7 +232,7 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
 
     if(addr->cursor->rangeLevel == 0){
         log_error("You can't add local variable into a global context : rangeLevel %d", addr->cursor->rangeLevel)
-        perror("addLocalIdentifier : add into global context.");
+        perror("addLocalIdentifier : you try to add into global context.");
         return RETURN_FAILURE;
     }
 
