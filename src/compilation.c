@@ -21,13 +21,6 @@ ListRangeVariable listRangeVariable;
 ListInstruction listInstruction;
 int marker;
 
-
-int errorType(const char *msg, ...)
-{
-
-    return (EXIT_FAILURE);
-}
-
 /*!
  * \fn void initStruct()
  * \brief Fonction qui initialise les structures
@@ -150,11 +143,11 @@ MemorySlot doConcatenation(MemorySlotList slotList)
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-MemorySlot assign(char *name, MemorySlot memorySlot)
+MemorySlot assign(char *name, MemorySlot memorySlot, bool local)
 {
     log_trace("assign (void)")
     asm_code_printf("\n\t# assign of %s\n", name)
-    MemorySlot slot = getIdentifier(name, true)->memory;
+    MemorySlot slot = getIdentifier(name, true, false)->memory;
     if (slot == NULL) return slot;
 
     asm_readFromStack("$t0", getMipsOffset(memorySlot));
@@ -170,7 +163,7 @@ MemorySlot assign(char *name, MemorySlot memorySlot)
 int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
 {
     log_trace("assignArrayValue(%s)", name)
-    Identifier iden = getIdentifier(name, false);
+    Identifier iden = getIdentifier(name, false, false);
 
     if (iden == NULL)
     {
@@ -314,7 +307,10 @@ int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
-    completeTrueList(listInstruction,"");
+    if((listInstruction->cursorCode->numberTrue > 1)
+    || ((listInstruction->cursorCode->previousCode != NULL) && (listInstruction->cursorCode->previousCode->numberTrue != 0))){
+        completeTrueList(listInstruction,"");
+    }
     completeTrueList(listInstruction,then);
 
     return RETURN_SUCCESS;
@@ -351,12 +347,13 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 
     asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
 
-    if (left == NULL || right == NULL) {
-        log_error("Cant do bool expr on null")
-        return NULL;
-    }
-
     if((boolExpr != L_AND) && (boolExpr != L_OR)){
+
+        if (left == NULL || right == NULL) {
+            log_error("Cant do bool expr on null")
+            return NULL;
+        }
+
         asm_readFromStack("$t0", getMipsOffset(left));
         asm_readFromStack("$t1", getMipsOffset(right));
     }
@@ -369,61 +366,72 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     }
 
     char* block;
+    char* block1;
     switch (boolExpr)
     {
         case STR_EQ:
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
             addIntoTrueList(listInstruction,"\tbeq $t0, 1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case STR_NEQ:
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
             addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_NEQ:
             addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_GT:
             addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_GE:
             addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_LT:
             addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_LE:
             addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case L_AND:
             asm_code_printf("\n\t# Start of Test block of AND\n")
 
             block = (char*)createNewLabel();
+            completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
+
+            block = (char*)createNewLabel();
+            completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
+
+            block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
-
-            completeTrueList(listInstruction,block);
-            completeTrueList(listInstruction,block);
-
-            completeTrueList(listInstruction,block);
-            completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
 
@@ -439,11 +447,12 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\n\t# Start of Test block of OR\n")
 
             block = (char*)createNewLabel();
+            block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
             completeTrueList(listInstruction,"");
             completeTrueList(listInstruction,block);
 
-            completeTrueList(listInstruction,"");
+            completeTrueList(listInstruction,block1);
             completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
@@ -451,7 +460,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
             completeFalseList(listInstruction, block);
-            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block1);
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
@@ -461,8 +470,8 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     }
     asm_code_printf("\n")
 
-    if (right->temp) freeMemory(right);
-    if (left->temp) freeMemory(left);
+    if (right != NULL && right->temp) freeMemory(right);
+    if (left != NULL && left->temp) freeMemory(left);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
     return NULL;
@@ -506,7 +515,7 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     return NULL;
 }
 
-Identifier getIdentifier(char *id, bool create)
+Identifier getIdentifier(char *id, bool create, bool local)
 {
 
     if(create)
@@ -546,7 +555,7 @@ int doDeclareStaticArray(char *id, int size)
 {
     log_trace("doDeclareStaticArray(%s, %d)", id, size)
 
-    Identifier iden = getIdentifier(id, false);
+    Identifier iden = getIdentifier(id, false, false);
 
     if(iden != NULL)
     {
@@ -556,7 +565,7 @@ int doDeclareStaticArray(char *id, int size)
     asm_code_printf("\t# Start of declaration of table %s : %d\n", id, size)
 
     // Now create identifier
-    iden = getIdentifier(id, true);
+    iden = getIdentifier(id, true, false);
 
     // add array size & type of identifier
     iden->arraySize = size;
@@ -608,7 +617,7 @@ MemorySlot addWordToMemory(const char *str) {
 int doArrayRead(char *id, MemorySlot offset)
 {
     log_trace("doStringRead(%s)", id)
-    Identifier iden = getIdentifier(id, false);
+    Identifier iden = getIdentifier(id, false, false);
 
     if (iden == NULL)
     {
@@ -904,7 +913,7 @@ int doParseTableInt(const char *val)
 int doStringRead(const char *id)
 {
     log_trace("doStringRead(%s)", id)
-    MemorySlot slot = getIdentifier((char *) id, true)->memory;
+    MemorySlot slot = getIdentifier((char *) id, true, false)->memory;
     if(slot == NULL) return RETURN_FAILURE;
 
     asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)

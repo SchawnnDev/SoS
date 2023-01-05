@@ -1,0 +1,8 @@
+if test ("hello" = "hello") -o ("world" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test ("halo" = "hello") -o ("world" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test ("hello" = "hello") -o ("wArld" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test ("halo" = "hello") -o ("wArld" = "world") then echo "1" else echo "0" fi;
+exit

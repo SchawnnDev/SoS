@@ -12,24 +12,12 @@
 
 void initStruct();
 
-/*!
- * \fn void setCurrentOperation(int operation)
- * @param operation Current operation
- */
-void setCurrentOperation(int operation);
-
-/**
- *
- * @param expr
- */
-void setCurrentBooleanExpression(boolExpr_t expr);
-
 /**
  *
  * @param name
  * @return
  */
-MemorySlot assign(char* name, MemorySlot memorySlot);
+MemorySlot assign(char *name, MemorySlot memorySlot, bool local);
 
 /**
  *
@@ -190,7 +178,7 @@ int parseInt32(const char *word, int *err);
  * @param id
  * @return
  */
-Identifier getIdentifier(char *id, bool create);
+Identifier getIdentifier(char *id, bool create, bool local);
 
 /**
  *
