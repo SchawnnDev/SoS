@@ -53,18 +53,15 @@ test_loop()
 
 compilation_error_tests()
 {
-  test_type=$1
-
   for f in $(ls tests/compilation/${test_type})
   do
     test_name=$(echo $f | sed -e 's/.sos*//')
 
-    $EXEC_FILE "tests/runtime/${test_type}/${test_name}.sos" -o "$temp_asm_file"
+    $EXEC_FILE "tests/compilation/${test_name}.sos" -o "$temp_asm_file" &>/dev/null
     rcode=$?
     # Checking that it returns an error
     if [ ! $rcode == 0 ]; then
       echo -e "${GREEN}[V] Error test ${test_name} successfully passed ! (Returned a compiler failure of code $rcode)${NC}"
-      echo -e "${RED}Compiler failure (exit code $rcode).${NC}"
     else
       echo -e "${RED}[X] Test ${test_name} failed. It shouldn't compile.${NC}"
     fi
@@ -76,11 +73,11 @@ compilation_error_tests()
 # Tests
 # ------
 # Compilation
-#compilation_error_tests
+compilation_error_tests
 # Concatenation
 test_loop "concatenation"
 # Expression
-#test_loop "expression"
+test_loop "expression"
 
 # Clean
 rm "${temp_asm_file}"
