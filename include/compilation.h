@@ -73,7 +73,7 @@ int doArrayRead();
  *
  * @return
  */
-MemorySlot doGetVariableAddress(char* id);
+MemorySlot doGetVariableAddress(char *id, bool negative);
 
 /**
  *
@@ -81,6 +81,14 @@ MemorySlot doGetVariableAddress(char* id);
  * @return
  */
 MemorySlot doWriteInt(const char *val);
+
+/**
+ *
+ * @param slot
+ * @param negative
+ * @return
+ */
+MemorySlot doUnaryCheck(MemorySlot slot, bool negative);
 
 /**
  *
@@ -104,7 +112,7 @@ int setMarker();
  * @param boolExpr
  * @return
  */
-int doBoolExpression();
+int doBoolExpression(boolExpr_t boolExpr);
 
 /**
  *
@@ -154,5 +162,19 @@ MemorySlot getOrCreateMemorySlot(char* id);
  * @return
  */
 MemorySlot addStringToMemory(const char *str);
+
+/**
+ *
+ * @param str
+ * @return
+ */
+MemorySlot addWordToMemory(const char *str);
+
+/**
+ *
+ * @param slot
+ * @return
+ */
+MemorySlot convertIntToString(MemorySlot slot);
 
 #endif //SOS_COMPILATION_H

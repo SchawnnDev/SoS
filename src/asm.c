@@ -109,6 +109,14 @@ int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *in
     return RETURN_SUCCESS;
 }
 
+int asm_useIntToStringFunction(const char *intAddressRegister, const char*into)
+{
+    asm_code_printf("\tmove $a0, %s\n", intAddressRegister)
+    // TODO: asm_jal();
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+}
+
 int asm_appendInternalOffset(int words)
 {
     if(words == 0) return RETURN_SUCCESS;

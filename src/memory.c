@@ -30,6 +30,7 @@ MemorySlot reserveMemorySlot() {
 }
 
 MemorySlot newMemorySlot() {
+    log_trace("newMemorySlot()")
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
 
@@ -88,6 +89,7 @@ void freeMemory(MemorySlot mem)
  */
 MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 {
+    log_trace("newMemorySlotList(%d)", memorySlot->offset)
     MemorySlotList list;
     CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)));
     list->slot = memorySlot;
@@ -98,8 +100,8 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 
 MemorySlotList appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
 {
-    // TODO CHANGE HERE FROM BOTTOM TO END ;;;;
-    if(memorySlotList == NULL){
+    log_trace("appendMemorySlot(%d)", slot->offset)
+    if(memorySlotList == NULL) {
         return NULL;
     }
     MemorySlotList m = newMemorySlotList(slot);
