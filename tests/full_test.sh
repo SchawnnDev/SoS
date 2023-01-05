@@ -74,6 +74,8 @@ compilation_error_tests()
 # ------
 # Compilation
 compilation_error_tests
+# Assign
+test_loop "assign"
 # Concatenation
 test_loop "concatenation"
 # Expression

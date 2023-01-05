@@ -4,5 +4,9 @@ echo $( expr 10 % 3 );
 echo "\n";
 echo $( expr -10 % 3 );
 echo "\n";
+echo $( expr -30 % 3 );
+echo "\n";
+echo $( expr 10 % -3 );
+echo "\n";
 echo $( expr -10 % -3 );
 exit
