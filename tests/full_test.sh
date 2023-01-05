@@ -93,9 +93,15 @@ echo "${BOLD}-- Concatenation tests --"
 # Expression
 echo "${BOLD}-- Expression tests --"
 #test_loop "expression"
-# Test_block
-echo "${BOLD}-- Test block tests --"
-test_loop "test_block"
+# General test_block
+echo "${BOLD}-- General test block tests --"
+test_loop "general_test_block"
+# Relational test_block
+echo "${BOLD}-- Relational test block tests --"
+test_loop "relational_test_block"
+# Conditional test_block
+echo "${BOLD}-- Conditional test block tests --"
+test_loop "conditional_test_block"
 # If
 echo "${BOLD}-- If tests --"
 test_loop "if"
