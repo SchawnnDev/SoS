@@ -704,8 +704,8 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
     // check if array element is not allocated (-1)
     asm_code_printf("\tli $t4, -1\n")
-    asm_code_printf("\tbeq $t3, $t4, %s\n", "ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME")
-    // TODO: ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME
+    asm_code_printf("\tbeq $t3, $t4, %s\n", ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME)
+
     if(!isOperandInt)
     {
         // set value to a new stack address
