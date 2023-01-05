@@ -106,6 +106,8 @@ int getValues();
 
 int setMarker();
 
+int doMarkerThen();
+int doMarkerElse();
 /**
  *
  * @param addr

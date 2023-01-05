@@ -267,26 +267,27 @@ int setMarker(){
     return RETURN_SUCCESS;
 }
 
+int doMarkerThen()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s\n",then)
+    completeTrueList(listInstruction,then);
+
+    return RETURN_SUCCESS;
+}
+
+
+int doMarkerElse()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s\n",then)
+    completeFalseList(listInstruction,then);
+
+    return RETURN_SUCCESS;
+}
+
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
 {
-
-
-    switch (op)
-    {
-        case BOOL_EQ:
-            asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            break;
-        case BOOL_NEQ:
-            asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            break;
-    }
-
-
-    asm_code_printf("\tsw $t0, 0($t1)\n")
-
-
-
-
     log_trace("doBoolExpression (int %d)", boolExpr)
 
     asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
@@ -302,34 +303,35 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
-
+        asm_useAtoiFunction("$t0","$t0");
+        asm_useAtoiFunction("$t1","$t1");
     }
 
     char* else_lab;
     switch (boolExpr)
     {
         case BOOL_EQ:
-            addIntoTrueList(listInstruction,"\tbeq $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_NEQ:
-            addIntoTrueList(listInstruction,"\tbne $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_GT:
-            addIntoTrueList(listInstruction,"\tbgt $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_GE:
-            addIntoTrueList(listInstruction,"\tbge $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_LT:
-            addIntoTrueList(listInstruction,"\tblt $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_LE:
-            addIntoTrueList(listInstruction,"\tble $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case L_AND:
@@ -339,11 +341,11 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             break;
         case L_OR:
             asm_code_printf("%s", "ligne OU\n")
-            else_lab = (char*)createNewLabel();
-            completeTrueList(listInstruction,else_lab);
-            completeTrueList(listInstruction,else_lab);
+            //else_lab = (char*)createNewLabel();
+            //completeTrueList(listInstruction,else_lab);
+            //completeTrueList(listInstruction,else_lab);
             //completeFalseList(listInstruction, );
-            completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
+            //completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
             break;
     }
 

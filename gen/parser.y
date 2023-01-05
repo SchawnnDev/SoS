@@ -27,7 +27,8 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 marker
+%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1
+%type <strval> marker marker_then marker_else
 %type <memval> operand operand_int int sum_int mult_int final_concatenation
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
@@ -45,7 +46,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
-    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
+    | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions else_part FI { log_debug("leaveing if block");}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
@@ -62,8 +63,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | EXIT operand_int { doExit($2); }
     ;
 
-else_part : ELIF test_block THEN list_instructions else_part
-    | ELSE list_instructions
+else_part : marker_else ELIF test_block THEN list_instructions else_part
+    | marker_else ELSE list_instructions
     | { log_debug("else_part empty"); }
     ;
 
@@ -189,6 +190,10 @@ int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWrit
 table_int : WORD { $$ = doParseTableInt($1); }
 
 marker : {$$ = ""; setMarker();}
+
+marker_then : {$$ = ""; doMarkerThen();}
+
+marker_else : {$$ = ""; doMarkerElse();}
 
 %%
 
