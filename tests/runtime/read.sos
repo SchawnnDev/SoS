@@ -1,3 +1,7 @@
 declare bla[5];
-echo ${bla[0]};
+bla[0] = 1;
+bla[2] = "hellooooooo";
+echo ${bla[0]} ${bla[0]} ${bla[0]} ${bla[2]};
+echo "\n";
+echo $(expr ${bla[0]} + 1);
 exit
