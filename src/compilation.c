@@ -431,6 +431,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
+            block = (char*)createNewLabel();
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
