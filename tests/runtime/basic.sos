@@ -1,7 +1,7 @@
 a=1;
 b=2;
 
-if test (${a} -gt 10) then
-    c=3
+if test (${a} -lt 10) then
+    echo "Yeah"
 fi ;
 exit

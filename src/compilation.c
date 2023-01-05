@@ -270,17 +270,25 @@ int setMarker(){
 int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
-    asm_code_printf("\t%s\n",then)
+    asm_code_printf("\t%s:\n",then)
     completeTrueList(listInstruction,then);
 
     return RETURN_SUCCESS;
 }
 
-
 int doMarkerElse()
 {
     char* then = (char*)createNewLabel();
-    asm_code_printf("\t%s\n",then)
+    asm_code_printf("\t%s:\n",then)
+    completeFalseList(listInstruction,then);
+
+    return RETURN_SUCCESS;
+}
+
+int doMarkerFi()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
 
     return RETURN_SUCCESS;
@@ -348,6 +356,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             //completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
             break;
     }
+    asm_code_printf("\n")
 
     if (right->temp) freeMemory(right);
     if (!left->temp) left = reserveMemorySlot();

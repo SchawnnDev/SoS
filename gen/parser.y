@@ -27,9 +27,9 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1
+%type <strval> id operator1
 %type <strval> marker marker_then marker_else
-%type <memval> operand operand_int int sum_int mult_int final_concatenation
+%type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
 %type <boolexprval> operator2
@@ -46,7 +46,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
-    | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions else_part FI { log_debug("leaveing if block");}
+    | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions else_part FI { log_debug("leaveing if block"); doMarkerFi();}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
@@ -96,11 +96,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O marker test_expr2 { doBoolExpression($1, L_OR, $4);}
+test_expr : test_expr ARG_O marker test_expr2 { $$ = doBoolExpression($1, L_OR, $4);}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A marker test_expr3 { doBoolExpression($1,L_AND,$4);}
+test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND,$4);}
     | test_expr3
     ;
 
@@ -110,10 +110,10 @@ test_expr3 : LPAREN test_expr RPAREN
     | EXCL test_instruction
     ;
 
-test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doConcatBoolExpr($1, BOOL_EQ, $3); }
-    | final_concatenation NEQ final_concatenation { $$ = doConcatBoolExpr($1, BOOL_NEQ, $3); }
+test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, BOOL_EQ, $3); }
+    | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, BOOL_NEQ, $3); }
     | operator1 final_concatenation
-    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($1, $2, $3); }
+    | operand operator2 operand { log_debug("operand operator2 operand"); $$ = doBoolExpression($1, $2, $3); }
     ;
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); }
