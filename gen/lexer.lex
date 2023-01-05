@@ -95,8 +95,8 @@ WORD [+-]?[0-9]+|[a-zA-Z][a-zA-Z0-9_]*
 {EXPR} { return EXPR; }
 {LBRACKET} { yylval.strval = yytext; return LBRACKET; }
 {RBRACKET} { yylval.strval = yytext; return RBRACKET; }
-{LPAREN} { yylval.strval = yytext; return LPAREN; }
-{RPAREN} { yylval.strval = yytext; log_debug("RPAREN"); return RPAREN; }
+{LPAREN} { return LPAREN; }
+{RPAREN} { return RPAREN; }
 {LBRACE} { yylval.strval = yytext; log_debug("LBRACE"); return LBRACE; }
 {RBRACE} { yylval.strval = yytext; log_debug("RBRACE"); return RBRACE; }
 {QUOTE} { return QUOTE; }

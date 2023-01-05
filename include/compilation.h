@@ -12,18 +12,6 @@
 
 void initStruct();
 
-/*!
- * \fn void setCurrentOperation(int operation)
- * @param operation Current operation
- */
-void setCurrentOperation(int operation);
-
-/**
- *
- * @param expr
- */
-void setCurrentBooleanExpression(boolExpr_t expr);
-
 /**
  *
  * @param name

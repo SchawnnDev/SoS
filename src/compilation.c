@@ -21,13 +21,6 @@ ListRangeVariable listRangeVariable;
 ListInstruction listInstruction;
 int marker;
 
-
-int errorType(const char *msg, ...)
-{
-
-    return (EXIT_FAILURE);
-}
-
 /*!
  * \fn void initStruct()
  * \brief Fonction qui initialise les structures
@@ -353,12 +346,13 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 
     asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
 
-    if (left == NULL || right == NULL) {
-        log_error("Cant do bool expr on null")
-        return NULL;
-    }
-
     if((boolExpr != L_AND) && (boolExpr != L_OR)){
+
+        if (left == NULL || right == NULL) {
+            log_error("Cant do bool expr on null")
+            return NULL;
+        }
+
         asm_readFromStack("$t0", getMipsOffset(left));
         asm_readFromStack("$t1", getMipsOffset(right));
     }
@@ -472,8 +466,8 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     }
     asm_code_printf("\n")
 
-    if (right->temp) freeMemory(right);
-    if (left->temp) freeMemory(left);
+    if (right != NULL && right->temp) freeMemory(right);
+    if (left != NULL && left->temp) freeMemory(left);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
     return NULL;
