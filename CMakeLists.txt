@@ -45,6 +45,7 @@ add_library(
         mips/functions/strcmp.asm.c
         mips/functions/displayString.asm.c
         mips/functions/intToString.asm.c
+        mips/functions/errorManager.asm.c
         src/memory.c
         "${LEXER_OUT}"
         "${PARSER_OUT}"
@@ -70,7 +71,8 @@ add_library(
         mips/functions/loadRegistersFromStack.asm.h
         mips/functions/strcmp.asm.h
         mips/functions/displayString.asm.h
-        mips/functions/intToString.asm.h)
+        mips/functions/intToString.asm.h
+        mips/functions/errorManager.asm.h)
 
 target_link_libraries(libsos PUBLIC argtable3::argtable3 logc)
 target_include_directories(libsos PUBLIC "${LIBS_DIR}/argtable3/src/" src include mips mips/functions "${BIN_DIR}")
