@@ -73,7 +73,7 @@ int doArrayRead();
  *
  * @return
  */
-MemorySlot doGetVariableAddress(char* id);
+MemorySlot doGetVariableAddress(char *id, bool negative);
 
 /**
  *
@@ -81,6 +81,14 @@ MemorySlot doGetVariableAddress(char* id);
  * @return
  */
 MemorySlot doWriteInt(const char *val);
+
+/**
+ *
+ * @param slot
+ * @param negative
+ * @return
+ */
+MemorySlot doUnaryCheck(MemorySlot slot, bool negative);
 
 /**
  *

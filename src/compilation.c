@@ -403,7 +403,7 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetVariableAddress(char* id)
+MemorySlot doGetVariableAddress(char *id, bool negative)
 {
     log_trace("doGetVariableAddress")
 
@@ -414,7 +414,20 @@ MemorySlot doGetVariableAddress(char* id)
         return NULL;
     }
 
-    return getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+
+    // No modification if positive
+    if(!negative) return slot;
+    asm_readFromStack("$t0", getMipsOffset(slot));
+    if(!slot->temp) slot = reserveMemorySlot();
+
+    asm_code_printf("\tli $t1, -1\n")
+    asm_code_printf("\tmul $t0, $t0, $t1\n")
+
+    asm_getStackAddress("$t2", getMipsOffset(slot));
+    asm_code_printf("\tsw $t0, 0($t2)\n")
+
+    return slot;
 }
 
 // Utils
@@ -554,8 +567,7 @@ int doStringRead(const char *id)
 MemorySlot convertIntToString(MemorySlot slot)
 {
     log_trace("doStringRead(%s)", slot)
-    // slot should always be temp (but it is always better to check)
-    slot = slot->temp ? slot : reserveMemorySlot();
+    // /!\ slot not reallocated because it should always be temp
 
     asm_getStackAddress("$t0", getMipsOffset(slot));
     asm_code_printf("\tla $t1, 0($t0)\n")
@@ -565,5 +577,17 @@ MemorySlot convertIntToString(MemorySlot slot)
     // rewrite stack to new address
     asm_code_printf("\tsw $t1, 0($t0)\n")
 
+    return slot;
+}
+
+MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
+{
+    if(!negative) return slot;
+    // /!\ slot not reallocated because it should always be temp
+    asm_getStackAddress("$t0", getMipsOffset(slot));
+    asm_code_printf("\tlw $t1, 0($t0)\n")
+    asm_code_printf("\tli $t2, -1\n")
+    asm_code_printf("\tmul $t1, $t1, $t2\n")
+    asm_code_printf("\tsw $t1, 0($t0)\n")
     return slot;
 }
