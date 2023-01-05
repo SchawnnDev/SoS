@@ -314,7 +314,8 @@ int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
-    if(listInstruction->cursorCode->numberTrue > 1){
+    if((listInstruction->cursorCode->numberTrue > 1)
+    || ((listInstruction->cursorCode->previousCode != NULL) && (listInstruction->cursorCode->previousCode->numberTrue != 0))){
         completeTrueList(listInstruction,"");
     }
     completeTrueList(listInstruction,then);
