@@ -1,0 +1,9 @@
+if test 50 -eq 50 -o 80 -eq 80 then echo "1" else echo "0" fi;
+echo "\n";
+if test 10 -eq 50 -o 80 -eq 80 then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq 50 -o 10 -eq 80 then echo "1" else echo "0" fi;
+echo "\n";
+if test 10 -eq 50 -o 10 -eq 80 then echo "1" else echo "0" fi;
+echo "\n";
+exit
