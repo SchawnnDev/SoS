@@ -71,9 +71,12 @@ int doArrayRead();
 
 /**
  *
+ * @param id
+ * @param negative
+ * @param isOperandInt
  * @return
  */
-MemorySlot doGetVariableAddress(char *id, bool negative);
+MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt);
 
 /**
  *

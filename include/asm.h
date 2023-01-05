@@ -174,6 +174,15 @@ int asm_useIntToStringFunction(const char *intAddressRegister, const char *into)
  * @return
  */
 int asm_useStrCmpFunction(const char *leftStrAddressRegister, const char *rightStrAddressRegister, const char * into);
+
+/**
+ *
+ * @param strAddressRegister
+ * @param into
+ * @return
+ */
+int asm_useAtoiFunction(const char *strAddressRegister, const char * into);
+
 /**
  *
  * @param label
