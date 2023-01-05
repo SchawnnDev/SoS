@@ -47,6 +47,10 @@
 #define ASM_STRCMP_FUNCTION_NAME "_fct_strcmp"
 #define ASM_DISPLAY_STRING_FUNCTION_NAME "_fct_display_string"
 #define ASM_INT_TO_STRING_FUNCTION_NAME "_fct_int_to_string"
+#define ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME "_fct_out_of_bounds_error"
+#define ASM_NOT_A_NUMBER_ERROR_FUNCTION_NAME "_fct_not_a_number_error"
+#define ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME "_fct_array_element_not_allocated_error"
+#define ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME "_fct_print_and_exit_error"
 
 /* ASM MIPS Variables */
 #define ASM_VAR_OFFSET_NAME "_offset"
@@ -54,5 +58,7 @@
 #define ASM_VAR_GLOBAL_READ_BUFFER_NAME "_global_read_buffer"
 #define ASM_VAR_GLOBAL_READ_BUFFER_SIZE 255 // -1 fort NUL char
 #define ASM_VAR_ERROR_NAN "_error_nan"
+#define ASM_VAR_ERROR_OUTOFBOUNDS "_error_outofbounds"
+#define ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED "_error_array_element_not_allocated"
 
 #endif
