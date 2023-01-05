@@ -307,7 +307,8 @@ int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
-    if(listInstruction->cursorCode->numberTrue > 1){
+    if((listInstruction->cursorCode->numberTrue > 1)
+    || ((listInstruction->cursorCode->previousCode != NULL) && (listInstruction->cursorCode->previousCode->numberTrue != 0))){
         completeTrueList(listInstruction,"");
     }
     completeTrueList(listInstruction,then);
@@ -365,6 +366,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     }
 
     char* block;
+    char* block1;
     switch (boolExpr)
     {
         case STR_EQ:
@@ -424,6 +426,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
+            block = (char*)createNewLabel();
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
@@ -444,11 +447,12 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\n\t# Start of Test block of OR\n")
 
             block = (char*)createNewLabel();
+            block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
             completeTrueList(listInstruction,"");
             completeTrueList(listInstruction,block);
 
-            completeTrueList(listInstruction,"");
+            completeTrueList(listInstruction,block1);
             completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
@@ -456,7 +460,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
             completeFalseList(listInstruction, block);
-            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block1);
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
