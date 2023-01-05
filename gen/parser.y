@@ -164,7 +164,7 @@ plus_or_minus : PLUS { $$ = PLUS_OPE; }
 
 mult_div_mod : MULT { $$ = MULT_OPE; }
      | DIV { $$ = DIV_OPE; }
-     | MOD { $$ = MULT_OPE;}
+     | MOD { $$ = MOD_OPE;}
      ;
 
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
