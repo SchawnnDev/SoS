@@ -1,0 +1,25 @@
+a="Hello"
+b="World"
+c="Goodbye"
+d=88
+e=50
+if test ${a} ${b} = "Hello World" then echo "1" echo "0" fi;
+echo "\n";
+if test ${c} ${b} = "Goodbye world" then echo "1" echo "0" fi;
+echo "\n";
+if test ${a} ${d} = "Hello88" then echo "1" echo "0" fi;
+echo "\n";
+if test ${d} ${e} = 8850 then echo "1" echo "0" fi;
+echo "\n";
+if test ${d} ${e} = 8800 then echo "1" echo "0" fi;
+echo "\n";
+if test ${a} ${b} != "Hello World" then echo "1" echo "0" fi;
+echo "\n";
+if test ${c} ${b} != "Goodbye world" then echo "1" echo "0" fi;
+echo "\n";
+if test ${a} ${d} != "Hello88" then echo "1" echo "0" fi;
+echo "\n";
+if test ${d} ${e} != 8850 then echo "1" echo "0" fi;
+echo "\n";
+if test ${d} ${e} != 8800 then echo "1" echo "0" fi;
+exit

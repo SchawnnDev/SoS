@@ -9,6 +9,7 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
+BOLD=$(tput bold)
 
 # Creates a temporary file
 temp_asm_file=$(mktemp)
@@ -73,13 +74,20 @@ compilation_error_tests()
 # Tests
 # ------
 # Compilation
+echo "${BOLD}-- Compilation tests --"
 compilation_error_tests
 # Assign
+echo "${BOLD}-- Assignement tests --"
 test_loop "assign"
 # Concatenation
+echo "${BOLD}-- Concatenation tests --"
 test_loop "concatenation"
 # Expression
+echo "${BOLD}-- Expression tests --"
 test_loop "expression"
+# Test_block
+echo "${BOLD}-- Test block tests --"
+test_loop "test_block"
 
 # Clean
 rm "${temp_asm_file}"

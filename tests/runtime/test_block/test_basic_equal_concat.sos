@@ -1,0 +1,33 @@
+if test "Hello" "Worldo" = "HelloWorldo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" = "Hello" "Worldo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" 85 = "Hello" "Worldo" 85 then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" = "HelloWorldoduo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" = "Hello" "Worldoduo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" 85 = "Hello" "Worldo" 88 then echo "1" echo "0" fi;
+echo "\n";
+if test 75 85 = 75 85 then echo "1" echo "0" fi;
+echo "\n";
+if test 75 85 = 75 88 then echo "1" echo "0" fi;
+echo "\n";
+
+if test "Hello" "Worldo" != "HelloWorldo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" != "Hello" "Worldo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" 85 != "Hello" "Worldo" 85 then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" != "HelloWorldoduo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" != "Hello" "Worldoduo" then echo "1" echo "0" fi;
+echo "\n";
+if test "Hello" "Worldo" 85 != "Hello" "Worldo" 88 then echo "1" echo "0" fi;
+echo "\n";
+if test 75 85 != 75 85 then echo "1" echo "0" fi;
+echo "\n";
+if test 75 85 != 75 88 then echo "1" echo "0" fi;
+exit
