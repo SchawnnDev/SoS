@@ -1,12 +1,12 @@
-if test "HelloWorld" = "HelloWorld" then echo "1" echo "0" fi;
+if test "HelloWorld" = "HelloWorld" then echo "1" else echo "0" fi;
 echo "\n";
-if test "HelloWorld" = "HelloWorldA" then echo "1" echo "0" fi;
+if test "HelloWorld" = "HelloWorldA" then echo "1" else echo "0" fi;
 echo "\n";
-if test "HelloWorld 85" = "HelloWorld 85" then echo "1" echo "0" fi;
+if test "HelloWorld 85" = "HelloWorld 85" then echo "1" else echo "0" fi;
 echo "\n";
-if test "HelloWorld" != "HelloWorld" then echo "1" echo "0" fi;
+if test "HelloWorld" != "HelloWorld" then echo "1" else echo "0" fi;
 echo "\n";
-if test "HelloWorld" != "HelloWorldA" then echo "1" echo "0" fi;
+if test "HelloWorld" != "HelloWorldA" then echo "1" else echo "0" fi;
 echo "\n";
-if test "HelloWorld 85" != "HelloWorld 85" then echo "1" echo "0" fi;
+if test "HelloWorld 85" != "HelloWorld 85" then echo "1" else echo "0" fi;
 exit

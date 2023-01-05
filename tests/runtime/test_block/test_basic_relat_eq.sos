@@ -1,0 +1,14 @@
+if test 50 -eq 50 then echo "1" else echo "0" fi;
+echo "\n";
+if test -50 -eq 50 then echo "1" else echo "0" fi;
+echo "\n";
+if test -50 -eq -50 then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq 100 then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq -100 then echo "1" else echo "0" fi;
+echo "\n";
+if test -50 -eq 100 then echo "1" else echo "0" fi;
+echo "\n";
+if test $( expr 10 * 10) -eq 100 then echo "1" else echo "0" fi;
+exit

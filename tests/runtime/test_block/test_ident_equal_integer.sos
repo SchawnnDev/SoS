@@ -1,15 +1,15 @@
 a=50;
 b=60;
-if test ${a} = 50 then echo "1" echo "0" fi;
+if test ${a} = 50 then echo "1" else echo "0" fi;
 echo "\n";
-if test ${a} = 60 then echo "1" echo "0" fi;
+if test ${a} = 60 then echo "1" else echo "0" fi;
 echo "\n";
-if test ${a} = ${b} then echo "1" echo "0" fi;
+if test ${a} = ${b} then echo "1" else echo "0" fi;
 echo "\n";
-if test ${a} != 50 then echo "1" echo "0" fi;
+if test ${a} != 50 then echo "1" else echo "0" fi;
 echo "\n";
-if test ${a} != 60 then echo "1" echo "0" fi;
+if test ${a} != 60 then echo "1" else echo "0" fi;
 echo "\n";
-if test ${a} != ${b} then echo "1" echo "0" fi;
+if test ${a} != ${b} then echo "1" else echo "0" fi;
 echo "\n";
 exit

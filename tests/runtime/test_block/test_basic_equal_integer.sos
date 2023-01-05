@@ -1,8 +1,8 @@
-if test 50 = 50 then echo "1" echo "0" fi;
+if test 50 = 50 then echo "1" else echo "0" fi;
 echo "\n";
-if test 50 = 60 then echo "1" echo "0" fi;
+if test 50 = 60 then echo "1" else echo "0" fi;
 echo "\n";
-if test 50 != 50 then echo "1" echo "0" fi;
+if test 50 != 50 then echo "1" else echo "0" fi;
 echo "\n";
-if test 50 != 60 then echo "1" echo "0" fi;
+if test 50 != 60 then echo "1" else echo "0" fi;
 exit
