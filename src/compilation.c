@@ -314,6 +314,7 @@ int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
+    completeTrueList(listInstruction,"");
     completeTrueList(listInstruction,then);
 
     return RETURN_SUCCESS;
@@ -355,12 +356,14 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         return NULL;
     }
 
+    if((boolExpr != L_AND) && (boolExpr != L_OR)){
+        asm_readFromStack("$t0", getMipsOffset(left));
+        asm_readFromStack("$t1", getMipsOffset(right));
+    }
+
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
-        asm_readFromStack("$t0", getMipsOffset(left));
-        asm_readFromStack("$t1", getMipsOffset(right));
-
         asm_useAtoiFunction("$t0","$t0");
         asm_useAtoiFunction("$t1","$t1");
     }
@@ -481,13 +484,13 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     {
         case EMPTY:
             addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
-            addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
+            addIntoTrueList(listInstruction,"\n\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             addIntoTrueList(listInstruction,"\n\t");
             break;
         case NOT_EMPTY:
             addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
-            addIntoTrueList(listInstruction,"\tbne $t0, $zero,");
+            addIntoTrueList(listInstruction,"\n\tbne $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             addIntoTrueList(listInstruction,"\n\t");
             break;
