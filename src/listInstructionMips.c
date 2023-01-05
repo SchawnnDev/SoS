@@ -205,6 +205,13 @@ void addIntoTrueList(ListInstruction addr, char* code)
     log_trace("addIntoTrueList (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
 
+    if (addr->cursorCode->numberCode >= CODE_TAB_MAX)
+    {
+        log_info("struct Code is full, numberCode %d",
+                 addr->cursorCode->numberCode)
+        addStructCode(addr);
+    }
+
     addr->cursorCode->trueList[addr->cursorCode->numberTrue] = addr->cursorCode->numberCode;
     addr->cursorCode->numberTrue++;
     addIntoCode(addr, code);
@@ -219,6 +226,13 @@ void addIntoFalseList(ListInstruction addr, char* code)
     log_trace("addIntoFalseList (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
 
+    if (addr->cursorCode->numberCode >= CODE_TAB_MAX)
+    {
+        log_info("struct Code is full, numberCode %d",
+                 addr->cursorCode->numberCode)
+        addStructCode(addr);
+    }
+
     addr->cursorCode->falseList[addr->cursorCode->numberFalse] = addr->cursorCode->numberCode;
     addr->cursorCode->numberFalse++;
     addIntoCode(addr, code);
@@ -232,6 +246,13 @@ void addIntoUnDefineGoto(ListInstruction addr, char* code)
 {
     log_trace("addIntoUnDefineGoto (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
+
+    if (addr->cursorCode->numberCode >= CODE_TAB_MAX)
+    {
+        log_info("struct Code is full, numberCode %d",
+                 addr->cursorCode->numberCode)
+        addStructCode(addr);
+    }
 
     addr->cursorCode->unDefineGoto[addr->cursorCode->numberGoto] = addr->cursorCode->numberCode;
     addr->cursorCode->numberGoto++;
