@@ -1,5 +1,5 @@
-a=$(expr -10 + 1);
-c="World";
-b= ${a} ' ' ${c};
-echo ${b} ' ' '!';
+a=10;
+b=50;
+c= $( expr ${a} + ${b} );
+echo ${c};
 exit

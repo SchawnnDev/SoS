@@ -115,7 +115,7 @@ test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doConca
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($2); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0); }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); }
     | DOLLAR int
@@ -147,10 +147,10 @@ mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s |
     | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
-operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0); }
+operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0, 1); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
     | DOLLAR int
-    | plus_or_minus DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, $1 == MINUS_OPE); }
+    | plus_or_minus DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, $1 == MINUS_OPE, 1); }
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
     | plus_or_minus DOLLAR int
     | int
