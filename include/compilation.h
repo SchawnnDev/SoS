@@ -114,6 +114,8 @@ int doMarkerThen();
 int doMarkerElse();
 
 int doMarkerFi();
+
+int doMarkerEndInstruction();
 /**
  *
  * @param addr
