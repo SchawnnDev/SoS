@@ -128,8 +128,8 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | DOLLAR LPAREN function_call RPAREN
     ;
 
-operator1 : ARG_N { $$ = EMPTY; }
-    | ARG_Z { $$ = NOT_EMPTY; }
+operator1 : ARG_N { $$ = NOT_EMPTY; }
+    | ARG_Z { $$ = EMPTY; }
     ;
 
 operator2 : ARG_EQ { $$ = BOOL_EQ; }
