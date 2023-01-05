@@ -29,7 +29,7 @@ void setCurrentBooleanExpression(boolExpr_t expr);
  * @param name
  * @return
  */
-MemorySlot assign(char* name, MemorySlotList list);
+MemorySlot assign(char* name, MemorySlot memorySlot);
 
 /**
  *
@@ -127,7 +127,7 @@ int doExit(MemorySlot slot);
  * @param memorySlot Skip offset in listTmp
  * @return
  */
-MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList);
+MemorySlot doConcatenation(MemorySlotList slotList);
 
 // Utils
 
@@ -176,5 +176,14 @@ MemorySlot addWordToMemory(const char *str);
  * @return
  */
 MemorySlot convertIntToString(MemorySlot slot);
+
+/**
+ *
+ * @param left
+ * @param op
+ * @param right
+ * @return
+ */
+MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right);
 
 #endif //SOS_COMPILATION_H

@@ -112,7 +112,17 @@ int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *in
 int asm_useIntToStringFunction(const char *intAddressRegister, const char*into)
 {
     asm_code_printf("\tmove $a0, %s\n", intAddressRegister)
-    // TODO: asm_jal();
+    asm_jal(ASM_INT_TO_STRING_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+}
+
+
+int asm_useStrCmpFunction(const char *leftStrAddressRegister, const char *rightStrAddressRegister, const char * into)
+{
+    asm_code_printf("\tmove $a0, %s\n", leftStrAddressRegister)
+    asm_code_printf("\tmove $a1, %s\n", rightStrAddressRegister)
+    asm_jal(ASM_STRCMP_FUNCTION_NAME);
     asm_code_printf("\tmove %s, $v0\n", into)
     return RETURN_SUCCESS;
 }

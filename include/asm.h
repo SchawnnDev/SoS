@@ -165,6 +165,15 @@ int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *in
  * @return
  */
 int asm_useIntToStringFunction(const char *intAddressRegister, const char *into);
+
+/**
+ *
+ * @param leftStrAddressRegister
+ * @param rightStrAddressRegister
+ * @param into
+ * @return
+ */
+int asm_useStrCmpFunction(const char *leftStrAddressRegister, const char *rightStrAddressRegister, const char * into);
 /**
  *
  * @param label
