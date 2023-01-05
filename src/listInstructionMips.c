@@ -284,29 +284,34 @@ void completeFalseList(ListInstruction addr, char *code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
 
-    if(addr->cursorCode->numberFalse == 0){
+    Code tmp = addr->cursorCode;
+    while ((tmp != NULL) && (tmp->numberFalse == 0)){
+        tmp = tmp->previousCode;
+    }
+
+    if(tmp == NULL){
         log_trace("completeFalseList : there is no goto to complete")
         return;
     }
 
     int size2 = strlen(code)+1;
-    addr->cursorCode->numberFalse--;
+    tmp->numberFalse--;
     if(size2 == 1){
         log_trace("completeFalseList : code is empty")
         return;
     }
 
-    int size1 = strlen(addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]]);
+    int size1 = strlen(tmp->lineCode[tmp->falseList[tmp->numberFalse]]);
     size1 = size1 + size2 + 2;
 
     char * newCode;
     CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-    CHECK(sprintf(newCode,addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]]))
+    CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->falseList[tmp->numberFalse]]))
     CHECKPOINTER(strcat(newCode," "))
     CHECKPOINTER(strcat(newCode,code))
 
-    free(addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]]);
-    addr->cursorCode->lineCode[addr->cursorCode->falseList[addr->cursorCode->numberFalse]] = newCode;
+    free(tmp->lineCode[tmp->falseList[tmp->numberFalse]]);
+    tmp->lineCode[tmp->falseList[tmp->numberFalse]] = newCode;
 
 }
 
