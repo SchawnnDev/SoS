@@ -38,7 +38,7 @@ MemorySlot assign(char* name, MemorySlot memorySlot);
  * @param concat
  * @return
  */
-MemorySlot assignArrayValue(char* name, MemorySlot offset, MemorySlot concat);
+int assignArrayValue(char* name, MemorySlot offset, MemorySlot concat);
 
 /**
  *
@@ -50,12 +50,6 @@ int doEcho(MemorySlotList list);
  *
  */
 MemorySlot doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
-
-/**
- *
- * @return
- */
-int doOperationAddInt();
 
 /**
  *
@@ -182,7 +176,7 @@ int parseInt32(const char *word, int *err);
  * @param id
  * @return
  */
-Identifier getOrCreateIdentifier(char *id, bool errorIfExists);
+Identifier getIdentifier(char *id, bool create);
 
 /**
  *

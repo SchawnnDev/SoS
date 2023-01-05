@@ -149,7 +149,7 @@ MemorySlot assign(char *name, MemorySlot memorySlot)
 {
     log_trace("assign (void)")
     asm_code_printf("\n\t# assign of %s\n", name)
-    MemorySlot slot = getOrCreateIdentifier(name, false)->memory;
+    MemorySlot slot = getIdentifier(name, true)->memory;
     if (slot == NULL) return slot;
 
     asm_readFromStack("$t0", getMipsOffset(memorySlot));
@@ -162,9 +162,54 @@ MemorySlot assign(char *name, MemorySlot memorySlot)
     return slot;
 }
 
-void assignArray()
+int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
 {
+    log_trace("assignArrayValue(%s)", name)
+    Identifier iden = getIdentifier(name, false);
 
+    if (iden == NULL)
+    {
+        log_error("Array %s was not set, cant assign.", name)
+        return RETURN_FAILURE;
+    }
+
+    if(iden->type != ARRAY)
+    {
+        log_error("Can't access to a non array variable (%s).", name)
+        return RETURN_FAILURE;
+    }
+
+    if(offset == NULL || concat == NULL) {
+        return RETURN_FAILURE;
+    }
+
+    // slot -> address of table
+    MemorySlot slot = iden->memory;
+    // offset -> address of offset
+    asm_readFromStack("$t0", getMipsOffset(offset));
+    // convert offset to int
+    asm_useAtoiFunction("$t0", "$t0");
+
+    // check if array out of bounds
+    asm_code_printf("\tli $t1, %d\n", iden->arraySize)
+    // error management
+    asm_code_printf("\tbge $t0, $t1, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
+    asm_code_printf("\tblt $t0, $zero, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
+
+    // load address of table
+    asm_readFromStack("$t1", getMipsOffset(slot));
+    asm_code_printf("\tmul $t2, $t0, %d\n", ASM_INTEGER_SIZE)
+    // access to $t1[$t0] address
+    asm_code_printf("\tadd $t1, $t1, $t2\n")
+
+    // read start address from concatenation from stack into $t5
+    asm_readFromStack("$t5", getMipsOffset(concat));
+    asm_code_printf("\tsw $t5, 0($t1)\n")
+
+    if(offset->temp) freeMemory(offset);
+    if(concat->temp) freeMemory(concat);
+
+    return RETURN_SUCCESS;
 }
 
 int doExit(MemorySlot slot)
@@ -219,11 +264,6 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
     asm_code_printf("\n\t#End of operation code\n\n")
 
     return left;
-}
-
-int doOperationAddInt()
-{
-    return RETURN_SUCCESS;
 }
 
 int doEcho(MemorySlotList list)
@@ -383,10 +423,14 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     return left;
 }
 
-Identifier getOrCreateIdentifier(char *id, bool errorIfExists)
+Identifier getIdentifier(char *id, bool create)
 {
-    // TODO: CHECK IF ARRAY ALREADYS EXISTS (add boolean errorIfExists)
-    addIdentifier(listRangeVariable, id);
+
+    if(create)
+    {
+        addIdentifier(listRangeVariable, id);
+    }
+
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
 
     if (pos->indexIdentifier == NOTFOUND)
@@ -419,7 +463,20 @@ int doDeclareStaticArray(char *id, int size)
 {
     log_trace("doDeclareStaticArray(%s, %d)", id, size)
 
-    Identifier iden = getOrCreateIdentifier(id, false);
+    Identifier iden = getIdentifier(id, false);
+
+    if(iden != NULL)
+    {
+        log_error("Array %s was already declared.", id)
+        return RETURN_FAILURE;
+    }
+    // Now create identifier
+    iden = getIdentifier(id, true);
+
+    // add array size & type of identifier
+    iden->arraySize = size;
+    iden->type = ARRAY;
+
     MemorySlot slot = iden->memory;
     if(slot == NULL) return RETURN_FAILURE;
 
@@ -429,9 +486,6 @@ int doDeclareStaticArray(char *id, int size)
     asm_loadLabelIntoRegister(label, "$t1");
     asm_code_printf("\tsw $t1, 0($t0)\n")
     free((char*)label);
-    // add array size & type of identifier
-    iden->arraySize = size;
-    iden->type = ARRAY;
     return RETURN_SUCCESS;
 }
 
@@ -699,7 +753,7 @@ int doParseTableInt(const char *val)
 int doStringRead(const char *id)
 {
     log_trace("doStringRead(%s)", id)
-    MemorySlot slot = getOrCreateIdentifier((char *) id, false);
+    MemorySlot slot = getIdentifier((char *) id, true)->memory;
     if(slot == NULL) return RETURN_FAILURE;
 
     asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)
