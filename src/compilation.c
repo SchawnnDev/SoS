@@ -358,12 +358,14 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         return NULL;
     }
 
+    if((boolExpr != L_AND) && (boolExpr != L_OR)){
+        asm_readFromStack("$t0", getMipsOffset(left));
+        asm_readFromStack("$t1", getMipsOffset(right));
+    }
+
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
-        asm_readFromStack("$t0", getMipsOffset(left));
-        asm_readFromStack("$t1", getMipsOffset(right));
-
         asm_useAtoiFunction("$t0","$t0");
         asm_useAtoiFunction("$t1","$t1");
     }
