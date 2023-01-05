@@ -1,4 +1,3 @@
-e=-4;
-f= $( expr 1 + ${e});
-echo ${f} "\n";
+declare bla[5];
+echo ${bla[0]};
 exit
