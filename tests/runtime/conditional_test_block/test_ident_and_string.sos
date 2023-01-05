@@ -1,0 +1,12 @@
+a="hello";
+b="world";
+c="halo";
+d="wArld";
+if test (${a} = ${a}) -a (${b} = ${b}) then echo "1" else echo "0" fi;
+echo "\n";
+if test (${c} = ${a}) -a (${b} = ${b}) then echo "1" else echo "0" fi;
+echo "\n";
+if test (${a} = ${a}) -a (${d} = ${b}) then echo "1" else echo "0" fi;
+echo "\n";
+if test (${c} = ${a}) -a (${d} = ${b}) then echo "1" else echo "0" fi;
+exit
