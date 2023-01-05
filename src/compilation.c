@@ -315,7 +315,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         asm_useAtoiFunction("$t1","$t1");
     }
 
-    char* else_lab;
+    char* block;
     switch (boolExpr)
     {
         case BOOL_EQ:
@@ -348,12 +348,21 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 
             break;
         case L_OR:
-            asm_code_printf("%s", "ligne OU\n")
-            //else_lab = (char*)createNewLabel();
-            //completeTrueList(listInstruction,else_lab);
-            //completeTrueList(listInstruction,else_lab);
-            //completeFalseList(listInstruction, );
-            //completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
+            asm_code_printf("\n\t# Start of Test block of OR\n")
+
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+            completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
+            addIntoTrueList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block);
+            addIntoFalseList(listInstruction,"\tj");
+            asm_code_printf("\n\t# End of Test block of OR\n")
             break;
     }
     asm_code_printf("\n")

@@ -237,6 +237,7 @@ void addIntoUnDefineGoto(ListInstruction addr, char* code)
     addr->cursorCode->numberGoto++;
     addIntoCode(addr, code);
 }
+
 /*!
  * \fn void completeTrueList( ListInstruction addr, char* code )
  * \brief Fonction qui permet complete une ligne de la trueList
@@ -247,32 +248,35 @@ void completeTrueList(ListInstruction addr, char *code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
 
-    if(addr->cursorCode->numberTrue == 0){
+    Code tmp = addr->cursorCode;
+    while ((tmp != NULL) && (tmp->numberTrue == 0)){
+        tmp = tmp->previousCode;
+    }
+
+    if(tmp == NULL){
         log_trace("completeTrueList : there is no goto to complete")
         return;
     }
 
     int size2 = strlen(code)+1;
-    addr->cursorCode->numberTrue--;
+    tmp->numberTrue--;
     if(size2 == 1){
         log_trace("completeTrueList : code is empty")
         return;
     }
 
-    int size1 = strlen(addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]]);
+    int size1 = strlen(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
     size1 = size1 + size2 + 2;
 
     char * newCode;
     CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-    CHECK(sprintf(newCode,addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]]))
+    CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
     CHECKPOINTER(strcat(newCode," "))
     CHECKPOINTER(strcat(newCode,code))
 
-    free(addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]]);
-    addr->cursorCode->lineCode[addr->cursorCode->trueList[addr->cursorCode->numberTrue]] = newCode;
-
+    free(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
+    tmp->lineCode[tmp->trueList[tmp->numberTrue]] = newCode;
 }
-
 
 /*!
  * \fn void completeFalseList( ListInstruction addr, char* code )
