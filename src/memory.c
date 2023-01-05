@@ -9,9 +9,9 @@ MemorySlot reserveMemorySlot() {
 
     if (memory == NULL)
     {
-        mem = newMemorySlot();
-        mem->used = true;
-        return mem;
+        memory = newMemorySlot();
+        memory->used = true;
+        return memory;
     }
 
     do {
