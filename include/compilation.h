@@ -109,13 +109,18 @@ int getValues();
 
 int setMarker();
 
+int doMarkerThen();
+
+int doMarkerElse();
+
+int doMarkerFi();
 /**
  *
  * @param addr
  * @param boolExpr
  * @return
  */
-int doBoolExpression(boolExpr_t boolExpr);
+MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right);
 
 /**
  *
@@ -179,14 +184,5 @@ MemorySlot addWordToMemory(const char *str);
  * @return
  */
 MemorySlot convertIntToString(MemorySlot slot);
-
-/**
- *
- * @param left
- * @param op
- * @param right
- * @return
- */
-MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right);
 
 #endif //SOS_COMPILATION_H
