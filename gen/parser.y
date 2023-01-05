@@ -151,7 +151,7 @@ operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0); }
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
     | plus_or_minus DOLLAR int
     | int
-    | plus_or_minus int { $$ = doUnaryCheck($2, $1 == MINUS_OPE); }
+   /* plus_or_minus is already parsed in int | plus_or_minus int { $$ = $2; } */
     | LPAREN sum_int RPAREN { $$ = $2; }
     ;
 
