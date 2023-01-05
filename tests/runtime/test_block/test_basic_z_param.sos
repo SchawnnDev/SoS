@@ -1,0 +1,8 @@
+if test -z "HelloWorld" then echo "1" else echo "0" fi;
+echo "\n";
+if test -z "" then echo "1" else echo "0" fi;
+echo "\n";
+if test -z " " then echo "1" else echo "0" fi;
+echo "\n";
+if test -z 89 then echo "1" else echo "0" fi;
+exit

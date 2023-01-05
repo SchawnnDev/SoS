@@ -128,13 +128,25 @@ int doMarkerElse();
 int doMarkerFi();
 
 int doMarkerEndInstruction();
+
 /**
  *
- * @param addr
+ * @param left
  * @param boolExpr
+ * @param right
  * @return
  */
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right);
+
+/**
+ *
+ * @param left
+ * @param boolExpr
+ * @param right
+ * @return
+ */
+MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right);
+
 
 /**
  *

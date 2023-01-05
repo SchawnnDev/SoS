@@ -352,12 +352,12 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         return NULL;
     }
 
-    asm_readFromStack("$t0", getMipsOffset(left));
-    asm_readFromStack("$t1", getMipsOffset(right));
-
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
+        asm_readFromStack("$t0", getMipsOffset(left));
+        asm_readFromStack("$t1", getMipsOffset(right));
+
         asm_useAtoiFunction("$t0","$t0");
         asm_useAtoiFunction("$t1","$t1");
     }
@@ -365,41 +365,85 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     char* block;
     switch (boolExpr)
     {
+        case STR_EQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            addIntoTrueList(listInstruction,"\tbeq $t0, 1,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
+        case STR_NEQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_NEQ:
             addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_GT:
             addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_GE:
             addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_LT:
             addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_LE:
             addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case L_AND:
-            asm_code_printf("%s", "ligne ET\n")
-            //else_lab = createNewLabel();
+            asm_code_printf("\n\t# Start of Test block of AND\n")
 
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+
+            char * blockLabel;
+            int size = strlen(block)+2;
+            CHECKPOINTER(blockLabel = (char*) malloc(sizeof (char) * size))
+            CHECK(sprintf(blockLabel,"%s", block))
+            CHECKPOINTER(strcat(blockLabel,":"))
+
+            completeTrueList(listInstruction,blockLabel);
+            completeTrueList(listInstruction,block);
+
+            completeTrueList(listInstruction,blockLabel);
+            completeTrueList(listInstruction,block);
+            addIntoTrueList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block);
+            addIntoFalseList(listInstruction,"\tj");
+
+            asm_code_printf("\n\t# End of Test block of AND\n")
             break;
         case L_OR:
             asm_code_printf("\n\t# Start of Test block of OR\n")
 
             block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
+            completeTrueList(listInstruction,"");
             completeTrueList(listInstruction,block);
+
+            completeTrueList(listInstruction,"");
             completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
@@ -411,16 +455,55 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
+        default:
+            log_error("Operation not allow %d",boolExpr)
+            break;
     }
     asm_code_printf("\n")
 
     if (right->temp) freeMemory(right);
-    if (!left->temp) left = reserveMemorySlot();
-
-    asm_getStackAddress("$t1", getMipsOffset(left));
+    if (left->temp) freeMemory(left);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
-    return left;
+    return NULL;
+}
+
+MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
+{
+    log_trace("doEmptyBoolExpression (int %d)", boolExpr)
+
+    asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
+
+    if ( right == NULL) {
+        log_error("Cant do bool expr on null")
+        return NULL;
+    }
+    asm_readFromStack("$t1", getMipsOffset(right));
+
+    switch (boolExpr)
+    {
+        case EMPTY:
+            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
+        case NOT_EMPTY:
+            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            addIntoTrueList(listInstruction,"\tbne $t0, $zero,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
+        default:
+            log_error("Operation not allow %d",boolExpr)
+            break;
+    }
+    asm_code_printf("\n")
+
+    if (right->temp) freeMemory(right);
+
+    asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
+    return NULL;
 }
 
 Identifier getIdentifier(char *id, bool create)
