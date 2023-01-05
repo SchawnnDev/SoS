@@ -267,33 +267,44 @@ int setMarker(){
     return RETURN_SUCCESS;
 }
 
-int doBoolExpression(boolExpr_t boolExpr)
+MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
 {
+
+
+    switch (op)
+    {
+        case BOOL_EQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            break;
+        case BOOL_NEQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            break;
+    }
+
+
+    asm_code_printf("\tsw $t0, 0($t1)\n")
+
+
+
+
     log_trace("doBoolExpression (int %d)", boolExpr)
 
     asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
 
+    if (left == NULL || right == NULL) {
+        log_error("Cant do bool expr on null")
+        return NULL;
+    }
+
+    asm_getStackAddress("$t0", getMipsOffset(left));
+    asm_getStackAddress("$t1", getMipsOffset(right));
+
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
-        /*
-        if (listTmp->cursor->types[index] == TYPE_STACK)
-        {
-            asm_readFromStack("$t1", listTmp->cursor->values[index]);
-            // ToDo Call Mips ATOI
-        } else
-        {
-            asm_code_printf("\tli $t2, %s\n", listTmp->cursor->values[index])
-        }
-         */
+
     }
 
-    /*
-    int reg1 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues - 2]);
-    int reg2 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues - 1]);
-    deleteListTmp(listTmp);
-    addListTmp(listTmp, initTmpValues(listTmp->cursor));
-    */
     char* else_lab;
     switch (boolExpr)
     {
@@ -336,8 +347,13 @@ int doBoolExpression(boolExpr_t boolExpr)
             break;
     }
 
+    if (right->temp) freeMemory(right);
+    if (!left->temp) left = reserveMemorySlot();
+
+    asm_getStackAddress("$t1", getMipsOffset(left));
+
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
-    return RETURN_SUCCESS;
+    return left;
 }
 
 MemorySlot getOrCreateMemorySlot(char* id)

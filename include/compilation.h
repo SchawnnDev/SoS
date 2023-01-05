@@ -112,7 +112,7 @@ int setMarker();
  * @param boolExpr
  * @return
  */
-int doBoolExpression(boolExpr_t boolExpr);
+MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right);
 
 /**
  *

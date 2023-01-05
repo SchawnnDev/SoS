@@ -95,11 +95,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O marker test_expr2 { doBoolExpression(L_OR);}
+test_expr : test_expr ARG_O marker test_expr2 { doBoolExpression($1, L_OR, $4);}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A marker test_expr3 { doBoolExpression(L_AND);}
+test_expr2 : test_expr2 ARG_A marker test_expr3 { doBoolExpression($1,L_AND,$4);}
     | test_expr3
     ;
 
@@ -112,7 +112,7 @@ test_expr3 : LPAREN test_expr RPAREN
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doConcatBoolExpr($1, BOOL_EQ, $3); }
     | final_concatenation NEQ final_concatenation { $$ = doConcatBoolExpr($1, BOOL_NEQ, $3); }
     | operator1 final_concatenation
-    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($2); }
+    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($1, $2, $3); }
     ;
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0); }
