@@ -26,7 +26,7 @@ MemorySlot reserveMemorySlot() {
     mem->next = newMemorySlot();
     mem->next->used = true;
 
-    return mem;
+    return mem->next;
 }
 
 MemorySlot newMemorySlot() {
