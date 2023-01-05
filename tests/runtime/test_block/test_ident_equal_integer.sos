@@ -11,5 +11,4 @@ echo "\n";
 if test ${a} != 60 then echo "1" else echo "0" fi;
 echo "\n";
 if test ${a} != ${b} then echo "1" else echo "0" fi;
-echo "\n";
 exit
