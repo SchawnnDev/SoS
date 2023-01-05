@@ -1,0 +1,20 @@
+if test 50 -gt 50 then echo "1" else echo "0" fi;
+echo "\n";
+if test -50 -gt -50 then echo "1" else echo "0" fi;
+echo "\n";
+if test -70 -gt 50 then echo "1" else echo "0" fi;
+echo "\n";
+if test -50 -gt -40 then echo "1" else echo "0" fi;
+echo "\n";
+if test -30 -gt -40 then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -gt 100 then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -gt -100 then echo "1" else echo "0" fi;
+echo "\n";
+if test 100 -gt 50 then echo "1" else echo "0" fi;
+echo "\n";
+if test -50 -gt 100 then echo "1" else echo "0" fi;
+echo "\n";
+if test $( expr 10 * -10) -gt -110 then echo "1" else echo "0" fi;
+exit
