@@ -626,35 +626,3 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return slot;
 }
-
-MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right)
-{
-    log_trace("doConcatenation")
-    asm_code_printf("\t# start of concatenation\n")
-
-    if (left == NULL || right == NULL) {
-        log_error("Cant do bool expr on null")
-        return NULL;
-    }
-
-    asm_getStackAddress("$t0", getMipsOffset(left));
-    asm_getStackAddress("$t1", getMipsOffset(right));
-
-    switch (op)
-    {
-        case BOOL_EQ:
-            asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            break;
-        case BOOL_NEQ:
-            asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            break;
-    }
-
-    if (right->temp) freeMemory(right);
-    if (!left->temp) left = reserveMemorySlot();
-
-    asm_getStackAddress("$t1", getMipsOffset(left));
-    asm_code_printf("\tsw $t0, 0($t1)\n")
-
-    return left;
-}

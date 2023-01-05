@@ -180,13 +180,4 @@ MemorySlot addWordToMemory(const char *str);
  */
 MemorySlot convertIntToString(MemorySlot slot);
 
-/**
- *
- * @param left
- * @param op
- * @param right
- * @return
- */
-MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right);
-
 #endif //SOS_COMPILATION_H
