@@ -290,8 +290,15 @@ int doMarkerFi()
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
+    completeUnDefineGoto(listInstruction,then);
 
     return RETURN_SUCCESS;
+}
+
+int doMarkerEndInstruction()
+{
+    addIntoUnDefineGoto(listInstruction,"\tj");
+    asm_code_printf("\n")
 }
 
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
@@ -305,8 +312,8 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         return NULL;
     }
 
-    asm_getStackAddress("$t0", getMipsOffset(left));
-    asm_getStackAddress("$t1", getMipsOffset(right));
+    asm_readFromStack("$t0", getMipsOffset(left));
+    asm_readFromStack("$t1", getMipsOffset(right));
 
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
@@ -315,7 +322,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         asm_useAtoiFunction("$t1","$t1");
     }
 
-    char* else_lab;
+    char* block;
     switch (boolExpr)
     {
         case BOOL_EQ:
@@ -348,12 +355,21 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 
             break;
         case L_OR:
-            asm_code_printf("%s", "ligne OU\n")
-            //else_lab = (char*)createNewLabel();
-            //completeTrueList(listInstruction,else_lab);
-            //completeTrueList(listInstruction,else_lab);
-            //completeFalseList(listInstruction, );
-            //completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
+            asm_code_printf("\n\t# Start of Test block of OR\n")
+
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+            completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
+            addIntoTrueList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block);
+            addIntoFalseList(listInstruction,"\tj");
+            asm_code_printf("\n\t# End of Test block of OR\n")
             break;
     }
     asm_code_printf("\n")
@@ -652,36 +668,4 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
     asm_code_printf("\tmul $t1, $t1, $t2\n")
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return slot;
-}
-
-MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right)
-{
-    log_trace("doConcatenation")
-    asm_code_printf("\t# start of concatenation\n")
-
-    if (left == NULL || right == NULL) {
-        log_error("Cant do bool expr on null")
-        return NULL;
-    }
-
-    asm_getStackAddress("$t0", getMipsOffset(left));
-    asm_getStackAddress("$t1", getMipsOffset(right));
-
-    switch (op)
-    {
-        case BOOL_EQ:
-            asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            break;
-        case BOOL_NEQ:
-            asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            break;
-    }
-
-    if (right->temp) freeMemory(right);
-    if (!left->temp) left = reserveMemorySlot();
-
-    asm_getStackAddress("$t1", getMipsOffset(left));
-    asm_code_printf("\tsw $t0, 0($t1)\n")
-
-    return left;
 }

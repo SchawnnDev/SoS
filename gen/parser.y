@@ -28,7 +28,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id operator1
-%type <strval> marker marker_then marker_else
+%type <strval> marker marker_then marker_else marker_end_instruction
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
@@ -46,7 +46,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
-    | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions else_part FI { log_debug("leaveing if block"); doMarkerFi();}
+    | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions marker_end_instruction else_part FI { log_debug("leaveing if block"); doMarkerFi();}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
@@ -63,8 +63,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | EXIT operand_int { doExit($2); }
     ;
 
-else_part : marker_else ELIF test_block THEN list_instructions else_part
-    | marker_else ELSE list_instructions
+else_part : marker_else ELIF test_block THEN list_instructions marker_end_instruction else_part
+    | marker_else ELSE list_instructions marker_end_instruction
     | { log_debug("else_part empty"); }
     ;
 
@@ -194,6 +194,8 @@ marker : {$$ = ""; setMarker();}
 marker_then : {$$ = ""; doMarkerThen();}
 
 marker_else : {$$ = ""; doMarkerElse();}
+
+marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
 
 %%
 

@@ -114,6 +114,8 @@ int doMarkerThen();
 int doMarkerElse();
 
 int doMarkerFi();
+
+int doMarkerEndInstruction();
 /**
  *
  * @param addr
@@ -184,14 +186,5 @@ MemorySlot addWordToMemory(const char *str);
  * @return
  */
 MemorySlot convertIntToString(MemorySlot slot);
-
-/**
- *
- * @param left
- * @param op
- * @param right
- * @return
- */
-MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right);
 
 #endif //SOS_COMPILATION_H

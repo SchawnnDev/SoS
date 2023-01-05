@@ -1,7 +1,7 @@
 a=1;
 b=2;
 
-if test (${a} -lt 10) then
+if test (((${a} -lt 10) -o (${b} -lt 10)) -o ((${a} -lt 10) -o (${b} -lt 10))) then
     echo "Yeah"
 fi ;
 exit
