@@ -54,7 +54,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho($2); }
     | READ id { doStringRead($2); }
-    | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
+    | READ id LBRACKET operand_int RBRACKET { doArrayRead($2,$4); }
     | declare_fct
     | function_call
     | RETURN

@@ -618,9 +618,69 @@ MemorySlot addWordToMemory(const char *str) {
     return slot;
 }
 
-int doArrayRead()
+int doArrayRead(char *id, MemorySlot offset)
 {
-    log_trace("doArrayRead")
+    log_trace("doStringRead(%s)", id)
+    Identifier iden = getIdentifier(id, false);
+
+    if (iden == NULL)
+    {
+        log_error("Array %s was not set, cant assign.", id)
+        return RETURN_FAILURE;
+    }
+
+    if(iden->type != ARRAY)
+    {
+        log_error("Can't access to a non array variable (%s).", id)
+        return RETURN_FAILURE;
+    }
+
+    if(offset == NULL) {
+        return RETURN_FAILURE;
+    }
+
+    // slot -> address of table
+    MemorySlot slot = iden->memory;
+    // offset -> address of offset
+    asm_readFromStack("$t0", getMipsOffset(offset));
+
+    // check if array out of bounds
+    asm_code_printf("\tli $t1, %d\n", iden->arraySize)
+    // error management
+    asm_code_printf("\tbge $t0, $t1, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
+    asm_code_printf("\tblt $t0, $zero, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
+
+    // load address of table
+    asm_readFromStack("$t1", getMipsOffset(slot));
+    asm_code_printf("\tmul $t2, $t0, %d\n", ASM_INTEGER_SIZE)
+    // access to $t1[$t0] address
+    asm_code_printf("\tadd $t1, $t1, $t2\n")
+
+    // START READ
+
+    // read start address from concatenation from stack into $t5
+    asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)
+    asm_code_printf("\tla $a1, %d\n", ASM_VAR_GLOBAL_READ_BUFFER_SIZE)
+    asm_syscall(READ_STRING);
+
+    // string is in ASM_VAR_GLOBAL_READ_BUFFER_NAME
+    // init a size counter
+    asm_loadLabelIntoRegister(ASM_VAR_GLOBAL_READ_BUFFER_NAME, "$t3");
+    asm_useBufferLenFunction("$t3", "$t2");
+    asm_code_printf("\taddi $t2, $t2, 1 # Add NUL char\n")
+
+    asm_code_printf("\tmove $a0, $t2\n")
+    asm_syscall(SBRK);
+    asm_code_printf("\tmove $t2, $v0\n") // move start address to t2
+
+    // write heap address to stack
+    asm_code_printf("\tsw $t2, 0($t1)\n")
+    asm_useBufferWriteFunction("$t3", "$t2", "$t2");
+
+    // At the end write $zero
+    asm_code_printf("\tsb $zero, 0($t2)\n")
+
+    if(offset->temp) freeMemory(offset);
 
     return RETURN_SUCCESS;
 }
