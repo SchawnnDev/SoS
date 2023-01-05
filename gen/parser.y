@@ -27,12 +27,12 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id operator1
+%type <strval> id
 %type <strval> marker marker_then marker_else marker_end_instruction
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <boolexprval> operator2
+%type <boolexprval> operator1 operator2
 %start program
 
 %%
@@ -112,7 +112,7 @@ test_expr3 : LPAREN test_expr RPAREN
 
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, BOOL_EQ, $3); }
     | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, BOOL_NEQ, $3); }
-    | operator1 final_concatenation
+    | operator1 final_concatenation {$$ = doEmptyBoolExpression($1,$2);}
     | operand operator2 operand { log_debug("operand operator2 operand"); $$ = doBoolExpression($1, $2, $3); }
     ;
 
@@ -128,8 +128,8 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | DOLLAR LPAREN function_call RPAREN
     ;
 
-operator1 : ARG_N
-    | ARG_Z
+operator1 : ARG_N { $$ = EMPTY; }
+    | ARG_Z { $$ = NOT_EMPTY; }
     ;
 
 operator2 : ARG_EQ { $$ = BOOL_EQ; }
