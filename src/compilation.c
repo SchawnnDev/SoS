@@ -333,7 +333,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             break;
         case STR_NEQ:
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
-            addIntoTrueList(listInstruction,"\tbeq $t0, 0,");
+            addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             addIntoTrueList(listInstruction,"\n\t");
             break;
@@ -415,6 +415,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
+        default:
+            log_error("Operation not allow %d",boolExpr)
+            break;
     }
     asm_code_printf("\n")
 
@@ -425,6 +428,47 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
     return left;
+}
+
+MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
+{
+    log_trace("doEmptyBoolExpression (int %d)", boolExpr)
+
+    asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
+
+    if ( right == NULL) {
+        log_error("Cant do bool expr on null")
+        return NULL;
+    }
+    asm_readFromStack("$t1", getMipsOffset(right));
+
+    switch (boolExpr)
+    {
+        case EMPTY:
+            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
+        case NOT_EMPTY:
+            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            addIntoTrueList(listInstruction,"\tbne $t0, $zero,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
+        default:
+            log_error("Operation not allow %d",boolExpr)
+            break;
+    }
+    asm_code_printf("\n")
+
+    if (!right->temp) right = reserveMemorySlot();
+
+    asm_getStackAddress("$t1", getMipsOffset(right));
+    asm_code_printf("\tsw \n")
+
+    asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
+    return right;
 }
 
 MemorySlot getOrCreateMemorySlot(char* id)

@@ -16,6 +16,9 @@
  //
  = : string equals
  != : string not equals
+ //
+ -n : string is empty
+ -z : string isn't empty
  */
 typedef enum {
     BOOL_EQ,
@@ -29,7 +32,10 @@ typedef enum {
     L_OR,
     //
     STR_EQ,
-    STR_NEQ
+    STR_NEQ,
+    //
+    EMPTY,
+    NOT_EMPTY
 } boolExpr_t;
 
 #endif //SOS_BOOLEXPR_H
