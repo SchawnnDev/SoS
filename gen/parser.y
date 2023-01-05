@@ -44,7 +44,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
     ;
 
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
-    | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
+    | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions else_part FI { log_debug("leaveing if block"); doMarkerFi();}
     | FOR id DO list_instructions DONE
@@ -117,7 +117,7 @@ test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolE
     ;
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); }
-    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 0); }
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); }
     | DOLLAR int
     | DOLLAR MULT
@@ -149,10 +149,10 @@ mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s |
     ;
 
 operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0, 1); }
-    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($4, $6, 0, 1); }
     | DOLLAR int
-    | plus_or_minus DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($4, $1 == MINUS_OPE, 1); }
-    | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | plus_or_minus DOLLAR LBRACE id RBRACE { log_debug("doGetVariableAddress(%d, %s)", $1, $4); $$ = doGetVariableAddress($4, $1 == MINUS_OPE, 1); }
+    | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($4, $6, $1 == MINUS_OPE, 1); }
     | plus_or_minus DOLLAR int
     | int
     | plus_or_minus int { $$ = doUnaryCheck($2, $1 == MINUS_OPE); }

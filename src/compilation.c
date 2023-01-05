@@ -149,7 +149,7 @@ MemorySlot assign(char *name, MemorySlot memorySlot)
 {
     log_trace("assign (void)")
     asm_code_printf("\n\t# assign of %s\n", name)
-    MemorySlot slot = getOrCreateMemorySlot(name);
+    MemorySlot slot = getOrCreateIdentifier(name, false)->memory;
     if (slot == NULL) return slot;
 
     asm_readFromStack("$t0", getMipsOffset(memorySlot));
@@ -367,8 +367,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     return left;
 }
 
-MemorySlot getOrCreateMemorySlot(char* id)
+Identifier getOrCreateIdentifier(char *id, bool errorIfExists)
 {
+    // TODO: CHECK IF ARRAY ALREADYS EXISTS (add boolean errorIfExists)
     addIdentifier(listRangeVariable, id);
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
 
@@ -378,23 +379,32 @@ MemorySlot getOrCreateMemorySlot(char* id)
         return NULL;
     }
 
-    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier,
-                                            pos->indexIdentifier);
+    int position = pos->indexIdentifier;
+    ListIdentifier listIdentifier = pos->rangePosition->listIdentifier;
 
-    if (slot == NULL)
+    if (position <= NOTFOUND || position >= listIdentifier->numberIdentifiers)
     {
-        log_error("MemorySlot of identifier not found")
+        log_error("Position out of range : position : %d", position)
         return NULL;
     }
 
-    return slot;
+    Identifier iden = listIdentifier->Identifiers[position];
+
+    if (iden == NULL)
+    {
+        log_error("Identifier not found in listIdentifiers")
+        return NULL;
+    }
+
+    return iden;
 }
 
 int doDeclareStaticArray(char *id, int size)
 {
     log_trace("doDeclareStaticArray(%s, %d)", id, size)
 
-    MemorySlot slot = getOrCreateMemorySlot(id);
+    Identifier iden = getOrCreateIdentifier(id, false);
+    MemorySlot slot = iden->memory;
     if(slot == NULL) return RETURN_FAILURE;
 
     const char *label = createNewLabel();
@@ -403,6 +413,9 @@ int doDeclareStaticArray(char *id, int size)
     asm_loadLabelIntoRegister(label, "$t1");
     asm_code_printf("\tsw $t1, 0($t0)\n")
     free((char*)label);
+    // add array size & type of identifier
+    iden->arraySize = size;
+    iden->type = ARRAY;
     return RETURN_SUCCESS;
 }
 
@@ -487,6 +500,78 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
     asm_code_printf("\tsw $t0, 0($t2)\n")
 
     return slot;
+}
+
+MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
+                             bool isOperandInt)
+{
+    log_trace("doGetVariableAddress")
+
+    VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
+
+    if(pos->indexIdentifier == NOTFOUND) {
+        log_error("The variable was not found.")
+        return NULL;
+    }
+
+    Identifier iden = pos->rangePosition->listIdentifier->Identifiers[pos->indexIdentifier];
+
+    if(iden->type != ARRAY)
+    {
+        log_error("Can't access to a non array variable.")
+        return NULL;
+    }
+
+    // slot -> address of table
+    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+    // offset -> address of offset
+    asm_readFromStack("$t0", getMipsOffset(offset));
+    // convert offset to int
+    asm_useAtoiFunction("$t0", "$t0");
+
+    // check if not array out of bounds
+    asm_code_printf("\tli $t1, %d\n", iden->arraySize)
+    // error management
+    asm_code_printf("\tbge $t0, $t1, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
+    asm_code_printf("\tblt $t0, $zero, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
+
+    // load address of table
+    asm_readFromStack("$t1", getMipsOffset(slot));
+    asm_code_printf("\tmul $t2, $t0, %d\n", ASM_INTEGER_SIZE)
+    // access to $t1[$t0] address
+    asm_code_printf("\tadd $t1, $t1, $t2\n")
+
+    // load value of $t1[$t0] -> address pointer to heap
+    asm_code_printf("\tlw $t3, 0($t1)\n")
+
+    // check if array element is not allocated (-1)
+    asm_code_printf("\tli $t4, -1\n")
+    asm_code_printf("\tbeq $t3, $t4, %s\n", "ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME")
+    // TODO: ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME
+    if(!isOperandInt)
+    {
+        // set value to a new stack address
+        offset = offset->temp ? offset : reserveMemorySlot();
+        asm_getStackAddress("$t3", getMipsOffset(offset));
+        asm_code_printf("\tsw $t2, 0($t3)\n")
+        return offset;
+    }
+
+    // $t1 = atoi($t1[$t0]])
+    asm_useAtoiFunction("$t3", "t0");
+
+    // set value to a new stack address
+    offset = offset->temp ? offset : reserveMemorySlot();
+
+    asm_getStackAddress("$t1", getMipsOffset(offset));
+
+    if(negative) {
+        asm_code_printf("\tli $t2, -1\n")
+        asm_code_printf("\tmul $t0, $t0, $t2\n")
+    }
+
+    asm_code_printf("\tsw $t0, 0($t1)\n")
+    return offset;
 }
 
 // Utils
@@ -598,7 +683,7 @@ int doParseTableInt(const char *val)
 int doStringRead(const char *id)
 {
     log_trace("doStringRead(%s)", id)
-    MemorySlot slot = getOrCreateMemorySlot((char*)id);
+    MemorySlot slot = getOrCreateIdentifier((char *) id, false);
     if(slot == NULL) return RETURN_FAILURE;
 
     asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)

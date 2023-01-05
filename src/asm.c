@@ -49,10 +49,11 @@ int asm_writeAsciiz(const char *label, const char *content, int addQuotes)
 
 int asm_writeStaticArray(const char *label, int size)
 {
+    // -1 => value not allocated
     asm_data_printf("\t%s: .space %d\n", label, size * ASM_INTEGER_SIZE)
-    asm_data_printf("\t\t.word 0");
+    asm_data_printf("\t\t.word -1");
     for (int i = 1; i < size; ++i)
-        asm_data_printf(",0")
+        asm_data_printf(",-1")
     asm_data_printf("\n")
     return RETURN_SUCCESS;
 }
