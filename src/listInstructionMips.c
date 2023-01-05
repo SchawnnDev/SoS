@@ -286,14 +286,23 @@ void completeTrueList(ListInstruction addr, char *code)
         return;
     }
 
-    int size1 = strlen(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
-    size1 = size1 + size2 + 2;
-
     char * newCode;
-    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-    CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
-    CHECKPOINTER(strcat(newCode," "))
-    CHECKPOINTER(strcat(newCode,code))
+    int size1 = strlen(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
+    if(size1 >= 2){
+        size1 = size1 + size2 + 2;
+
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
+        CHECKPOINTER(strcat(newCode," "))
+        CHECKPOINTER(strcat(newCode,code))
+    } else {
+        size1 = size2 + 4;
+
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
+        CHECKPOINTER(strcat(newCode,code))
+        CHECKPOINTER(strcat(newCode,":"))
+    }
 
     free(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
     tmp->lineCode[tmp->trueList[tmp->numberTrue]] = newCode;
@@ -326,18 +335,26 @@ void completeFalseList(ListInstruction addr, char *code)
         return;
     }
 
-    int size1 = strlen(tmp->lineCode[tmp->falseList[tmp->numberFalse]]);
-    size1 = size1 + size2 + 2;
-
     char * newCode;
-    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-    CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->falseList[tmp->numberFalse]]))
-    CHECKPOINTER(strcat(newCode," "))
-    CHECKPOINTER(strcat(newCode,code))
+    int size1 = strlen(tmp->lineCode[tmp->falseList[tmp->numberFalse]]);
+    if(size1 >= 2){
+        size1 = size1 + size2 + 2;
+
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->falseList[tmp->numberFalse]]))
+        CHECKPOINTER(strcat(newCode," "))
+        CHECKPOINTER(strcat(newCode,code))
+    } else {
+        size1 = size2 + 4;
+
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->falseList[tmp->numberFalse]]))
+        CHECKPOINTER(strcat(newCode,code))
+        CHECKPOINTER(strcat(newCode,":"))
+    }
 
     free(tmp->lineCode[tmp->falseList[tmp->numberFalse]]);
     tmp->lineCode[tmp->falseList[tmp->numberFalse]] = newCode;
-
 }
 
 /*!
@@ -368,14 +385,23 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
             return;
         }
 
-        int size1 = strlen(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
-        size1 = size1 + size2 + 2;
-
         char * newCode;
-        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-        CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))
-        CHECKPOINTER(strcat(newCode," "))
-        CHECKPOINTER(strcat(newCode,code))
+        int size1 = strlen(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
+        if(size1 >= 2){
+            size1 = size1 + size2 + 2;
+
+            CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+            CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))
+            CHECKPOINTER(strcat(newCode," "))
+            CHECKPOINTER(strcat(newCode,code))
+        } else {
+            size1 = size2 + 4;
+
+            CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+            CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))
+            CHECKPOINTER(strcat(newCode,code))
+            CHECKPOINTER(strcat(newCode,":"))
+        }
 
         free(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
         tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]] = newCode;
