@@ -10,6 +10,12 @@
  -ge : supérieur ou égal
  -lt : strictement inférieur
  -le : inférieur ou égal
+ //
+ -a : and
+ -o : or
+ //
+ = : string equals
+ != : string not equals
  */
 typedef enum {
     BOOL_EQ,
@@ -20,7 +26,10 @@ typedef enum {
     BOOL_LE,
     //
     L_AND,
-    L_OR
+    L_OR,
+    //
+    STR_EQ,
+    STR_NEQ
 } boolExpr_t;
 
 #endif //SOS_BOOLEXPR_H

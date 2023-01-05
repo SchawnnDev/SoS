@@ -325,41 +325,85 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     char* block;
     switch (boolExpr)
     {
+        case STR_EQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            addIntoTrueList(listInstruction,"\tbeq $t0, 1,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
+        case STR_NEQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            addIntoTrueList(listInstruction,"\tbeq $t0, 0,");
+            addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
+            break;
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_NEQ:
             addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_GT:
             addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_GE:
             addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_LT:
             addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case BOOL_LE:
             addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
+            addIntoTrueList(listInstruction,"\n\t");
             break;
         case L_AND:
-            asm_code_printf("%s", "ligne ET\n")
-            //else_lab = createNewLabel();
+            asm_code_printf("\n\t# Start of Test block of AND\n")
 
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+
+            char * blockLabel;
+            int size = strlen(block)+2;
+            CHECKPOINTER(blockLabel = (char*) malloc(sizeof (char) * size))
+            CHECK(sprintf(blockLabel,"%s", block))
+            CHECKPOINTER(strcat(blockLabel,":"))
+
+            completeTrueList(listInstruction,blockLabel);
+            completeTrueList(listInstruction,block);
+
+            completeTrueList(listInstruction,blockLabel);
+            completeTrueList(listInstruction,block);
+            addIntoTrueList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            block = (char*)createNewLabel();
+            asm_code_printf("\t%s:\n",block)
+            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block);
+            addIntoFalseList(listInstruction,"\tj");
+
+            asm_code_printf("\n\t# End of Test block of AND\n")
             break;
         case L_OR:
             asm_code_printf("\n\t# Start of Test block of OR\n")
 
             block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
+            completeTrueList(listInstruction,"");
             completeTrueList(listInstruction,block);
+
+            completeTrueList(listInstruction,"");
             completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
