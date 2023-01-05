@@ -5,6 +5,8 @@ global_read_buffer:
     .asciiz "This is a static string in MIPS that is 256 bytes long." 
 
 global_test: .asciiz "a1005"
+_error_nan: .asciiz "Nan"
+test_int_string: .word 123456
 
 .text
 
@@ -23,7 +25,7 @@ print_string_loop:
     # Print the character at the current address
     lbu $t2, 0($t0) # $t2 = value of byte at address in $t0
     beq $t2, $zero, print_string_done # If character is null terminator, exit loop
-    addi $t0, $t0, 4 # Increment address
+    addi $t0, $t0, 1 # Increment address
     li $v0, 11 # System call for printing character
     syscall # Print character
     j print_string_loop # Loop until null terminator is encountered
@@ -32,58 +34,6 @@ print_string_done:
     # Return to caller
     jr $ra
 
-# atoi - convert a string to an integer
-#
-# $a0 - address of the string to be converted
-#
-# returns: integer value of the string in $v0
-fct_atoi:
-  # Initialize the result to 0
-  li $v0, 0
-
-  # Initialize the index to 0
-  li $t0, 0
-
-  # Get the first character in the string
-  lb $t1, 0($a0)
-
-  # Loop until we reach the end of the string
-  fct_atoi_loop:
-    # Check if the character is a digit
-    beq $t1, '0', fct_atoi_digit
-    bgt $t1, '9', fct_atoi_not_digit
-    subu $t1, $t1, '0'
-
-    # Add the digit to the result
-    sll $t2, $t0, 2
-    addu $v0, $v0, $t2
-    addu $v0, $v0, $t1
-
-    # Increment the index
-    addiu $t0, $t0, 1
-
-    # Get the next character in the string
-    lb $t1, 0($a0)
-    j fct_atoi_loop
-
-  # We have reached the end of the string, so return the result
-  jr $ra
-
-fct_atoi_digit:
-  # The character is a digit, so add it to the result
-  subu $t1, $t1, '0'
-  addu $v0, $v0, $t1
-
-  # Increment the index
-  addiu $t0, $t0, 1
-
-  # Get the next character in the string
-  # lb $t1, $t0($a0)
-  j fct_atoi_loop
-
-fct_atoi_not_digit:
-  # The character is not a digit, so return the result
-  jr $ra
 
 # Function to save values from temporary registers to stack
 #
@@ -95,22 +45,20 @@ fct_atoi_not_digit:
 fct_save_temp_values:
     # $t0-7 + $s0-7 => 64
     addi $sp, $sp, -64
-    sw $t0, 0($sp)
-    sw $t1, 4($sp)
-    sw $t2, 8($sp)
-    sw $t3, 12($sp)
-    sw $t4, 16($sp)
-    sw $t5, 20($sp)
-    sw $t6, 24($sp)
-    sw $t7, 28($sp)
-    sw $s0, 32($sp)
-    sw $s1, 36($sp)
-    sw $s2, 40($sp)
-    sw $s3, 44($sp)
-    sw $s4, 48($sp)
-    sw $s5, 52($sp)
-    sw $s6, 56($sp)
-    sw $s7, 60($sp)
+        sw $t0, 0($sp)
+        sw $t1, 4($sp)
+        sw $t2, 8($sp)
+        sw $t3, 12($sp)
+        sw $t4, 16($sp)
+        sw $t5, 20($sp)
+        sw $t6, 24($sp)
+        sw $s0, 28($sp)
+        sw $s1, 32($sp)
+        sw $s2, 36($sp)
+        sw $s3, 40($sp)
+        sw $s4, 44($sp)
+        sw $s5, 48($sp)
+        sw $s6, 52($sp)
     jr $ra
 
 # Function to load values from stack to temporary registers
@@ -122,7 +70,22 @@ fct_save_temp_values:
 #   Nothing
 fct_load_temp_values:
     
-    jr $ra
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+        lw $t2, 8($sp)
+        lw $t3, 12($sp)
+        lw $t4, 16($sp)
+        lw $t5, 20($sp)
+        lw $t6, 24($sp)
+        lw $s0, 28($sp)
+        lw $s1, 32($sp)
+        lw $s2, 36($sp)
+        lw $s3, 40($sp)
+        lw $s4, 44($sp)
+        lw $s5, 48($sp)
+        lw $s6, 52($sp)
+        addi $sp, $sp, 64
+        jr $ra
 
 # Function to count the number of characters in a buffer until the Nul ('\0') character
 #
@@ -286,6 +249,75 @@ fct_atoi:
         addi $sp, $sp, 4
         jr $ra
 
+# Convert an integer to a string
+#
+# Arguments:
+#   $a0 - adress of the integer
+#
+# Returns: 
+#   $v0 - the string representation of the integer
+fct_int_to_string:
+	addi $sp, $sp, -4
+    	sw $ra, 0($sp)
+    	jal fct_save_temp_values
+    	
+    	# Initialize variables
+    	lw $s0, 0($a0) # To compute
+    	lw $s1, 0($a0) # Saving the integer
+    	addi $t0, $zero, 10 # 10
+    	addi $t1, $zero, 1 # Serves as a counter
+    	
+    	# Check if negative integer
+    	slt $t3, $s1, $zero # t3 : 1 if negative number, 0 if not
+    	
+    	# Count number of digits
+    _fct_int_to_string_count:
+    	div $s0, $t0
+    	mflo $t2
+    	beqz $t2, _fct_int_to_string_allocate
+    	move $s0, $t2
+    	addi $t1, $t1, 1 # Add counter
+    	j _fct_int_to_string_count
+    	
+    	# Allocate stack
+    _fct_int_to_string_allocate:
+    	move $a0, $t1 # Size to allocate = counter
+    	addi $a0, $a0, 1 # Adding 1 for the \0
+    	add $a0, $a0, $t3 # Adds 1 if negative (to store de "-" sign)
+    	li $v0, 9
+    	syscall
+    	move $s0, $s1 # Restore the integer value
+    	move $s2, $v0 # /!/ s2 iterator on address
+    	add $s2, $s2, $t1 # -> starting at the end !!
+    	add $s2, $s2, $t3 # End + 1 if negative number
+    	
+    	sb $zero, 0($s2) # Adding the \0
+    	addi $s2, $s2, -1
+    	
+    	# Writing in the heap the number string
+    _fct_int_to_string_writing_heap:
+    	abs $s0, $s0 # Abs(s0)
+    	divu $s0, $t0
+    	mfhi $t4 # t4 the current digit
+    	addi $t4, $t4, '0' # Transform integer in ASCII
+    	sb $t4, 0($s2) 
+    	mflo $s0 # Update the number to divide
+    	addi $t1, $t1, -1 # Iterator - 1
+    	addi $s2, $s2, -1 # Offset - 1
+    	bgtz $t1, _fct_int_to_string_writing_heap # Looping
+    	
+    	# Check if negative number
+    	beqz $t3, _fct_int_to_string_end # If 0 then positive, jump to end
+    	li $t5, '-' 
+    	sb $t5, 0($s2)
+    	
+    _fct_int_to_string_end:
+	jal fct_load_temp_values
+        lw $ra, 0($sp)
+        addi $sp, $sp, 4
+        jr $ra
+
+
 # Compares two strings
 #
 # Arguments:
@@ -351,8 +383,9 @@ fct_strcmp:
 main:
 
     
-    la $a0, global_test
-    li $v0, 4
-    syscall
+    la $a0, test_int_string
+    jal fct_int_to_string
+    move $a0, $v0
+    jal print_string
 
 

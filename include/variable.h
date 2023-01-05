@@ -46,6 +46,7 @@
 #define ASM_ATOI_FUNCTION_NAME "_fct_atoi"
 #define ASM_STRCMP_FUNCTION_NAME "_fct_strcmp"
 #define ASM_DISPLAY_STRING_FUNCTION_NAME "_fct_display_string"
+#define ASM_INT_TO_STRING_FUNCTION_NAME "_fct_int_to_string"
 
 /* ASM MIPS Variables */
 #define ASM_VAR_OFFSET_NAME "_offset"
