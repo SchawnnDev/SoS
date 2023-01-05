@@ -1,0 +1,2 @@
+if test 50 -eq "abcd50" then echo "1" else echo "0" fi;
+exit

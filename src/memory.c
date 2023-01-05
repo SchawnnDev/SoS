@@ -9,9 +9,9 @@ MemorySlot reserveMemorySlot() {
 
     if (memory == NULL)
     {
-        mem = newMemorySlot();
-        mem->used = true;
-        return mem;
+        memory = newMemorySlot();
+        memory->used = true;
+        return memory;
     }
 
     do {
@@ -26,7 +26,7 @@ MemorySlot reserveMemorySlot() {
     mem->next = newMemorySlot();
     mem->next->used = true;
 
-    return mem;
+    return mem->next;
 }
 
 MemorySlot newMemorySlot() {

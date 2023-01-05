@@ -27,11 +27,12 @@
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
-%type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 marker
-%type <memval> operand operand_int int sum_int mult_int final_concatenation
+%type <strval> id
+%type <strval> marker marker_then marker_else marker_end_instruction
+%type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <boolexprval> operator2
+%type <boolexprval> operator1 operator2
 %start program
 
 %%
@@ -43,9 +44,9 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
     ;
 
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
-    | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
+    | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
-    | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
+    | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions marker_end_instruction else_part FI { log_debug("leaveing if block"); doMarkerFi();}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
     | WHILE test_block DO list_instructions DONE
@@ -53,7 +54,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho($2); }
     | READ id { doStringRead($2); }
-    | READ id LBRACKET operand_int RBRACKET { doArrayRead(); }
+    | READ id LBRACKET operand_int RBRACKET { doArrayRead($2,$4); }
     | declare_fct
     | function_call
     | RETURN
@@ -62,8 +63,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | EXIT operand_int { doExit($2); }
     ;
 
-else_part : ELIF test_block THEN list_instructions else_part
-    | ELSE list_instructions
+else_part : marker_else ELIF test_block THEN list_instructions marker_end_instruction else_part
+    | marker_else ELSE list_instructions marker_end_instruction
     | { log_debug("else_part empty"); }
     ;
 
@@ -95,11 +96,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O marker test_expr2 { doBoolExpression(L_OR);}
+test_expr : test_expr ARG_O marker test_expr2 { $$ = doBoolExpression($1, L_OR, $4);}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A marker test_expr3 { doBoolExpression(L_AND);}
+test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND,$4);}
     | test_expr3
     ;
 
@@ -109,14 +110,14 @@ test_expr3 : LPAREN test_expr RPAREN
     | EXCL test_instruction
     ;
 
-test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doConcatBoolExpr($1, BOOL_EQ, $3); }
-    | final_concatenation NEQ final_concatenation { $$ = doConcatBoolExpr($1, BOOL_NEQ, $3); }
-    | operator1 final_concatenation
-    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($2); }
+test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }
+    | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, STR_NEQ, $3); }
+    | operator1 final_concatenation {$$ = doEmptyBoolExpression($1,$2);}
+    | operand operator2 operand { log_debug("operand operator2 operand"); $$ = doBoolExpression($1, $2, $3); }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0); }
-    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); }
+    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 0); }
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); }
     | DOLLAR int
     | DOLLAR MULT
@@ -127,8 +128,8 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | DOLLAR LPAREN function_call RPAREN
     ;
 
-operator1 : ARG_N
-    | ARG_Z
+operator1 : ARG_N { $$ = NOT_EMPTY; }
+    | ARG_Z { $$ = EMPTY; }
     ;
 
 operator2 : ARG_EQ { $$ = BOOL_EQ; }
@@ -147,11 +148,11 @@ mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s |
     | operand_int {log_debug("mult_int : operand_int"); }
     ;
 
-operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0); }
-    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE
+operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0, 1); }
+    | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 1); }
     | DOLLAR int
-    | plus_or_minus DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, $1 == MINUS_OPE); }
-    | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
+    | plus_or_minus DOLLAR LBRACE id RBRACE { log_debug("doGetVariableAddress(%d, %s)", $1, $4); $$ = doGetVariableAddress($4, $1 == MINUS_OPE, 1); }
+    | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($4, $6, $1 == MINUS_OPE, 1); }
     | plus_or_minus DOLLAR int
     | int
     | plus_or_minus int { $$ = doUnaryCheck($2, $1 == MINUS_OPE); }
@@ -164,7 +165,7 @@ plus_or_minus : PLUS { $$ = PLUS_OPE; }
 
 mult_div_mod : MULT { $$ = MULT_OPE; }
      | DIV { $$ = DIV_OPE; }
-     | MOD { $$ = MULT_OPE;}
+     | MOD { $$ = MOD_OPE;}
      ;
 
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
@@ -189,6 +190,12 @@ int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWrit
 table_int : WORD { $$ = doParseTableInt($1); }
 
 marker : {$$ = ""; setMarker();}
+
+marker_then : {$$ = ""; doMarkerThen();}
+
+marker_else : {$$ = ""; doMarkerElse();}
+
+marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
 
 %%
 

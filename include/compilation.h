@@ -33,6 +33,15 @@ MemorySlot assign(char* name, MemorySlot memorySlot);
 
 /**
  *
+ * @param name
+ * @param offset
+ * @param concat
+ * @return
+ */
+int assignArrayValue(char* name, MemorySlot offset, MemorySlot concat);
+
+/**
+ *
  * @return
  */
 int doEcho(MemorySlotList list);
@@ -41,12 +50,6 @@ int doEcho(MemorySlotList list);
  *
  */
 MemorySlot doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
-
-/**
- *
- * @return
- */
-int doOperationAddInt();
 
 /**
  *
@@ -65,15 +68,29 @@ int doDeclareStaticArray(char *id, int size);
 
 /**
  *
+ * @param id
+ * @param offset
  * @return
  */
-int doArrayRead();
+int doArrayRead(char *id, MemorySlot offset);
 
 /**
  *
+ * @param id
+ * @param negative
+ * @param isOperandInt
  * @return
  */
-MemorySlot doGetVariableAddress(char *id, bool negative);
+MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt);
+
+/**
+ *
+ * @param id
+ * @param offset
+ * @return
+ */
+MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
+                             bool isOperandInt);
 
 /**
  *
@@ -106,13 +123,32 @@ int getValues();
 
 int setMarker();
 
+int doMarkerThen();
+
+int doMarkerElse();
+
+int doMarkerFi();
+
+int doMarkerEndInstruction();
+
 /**
  *
- * @param addr
+ * @param left
  * @param boolExpr
+ * @param right
  * @return
  */
-int doBoolExpression(boolExpr_t boolExpr);
+MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right);
+
+/**
+ *
+ * @param left
+ * @param boolExpr
+ * @param right
+ * @return
+ */
+MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right);
+
 
 /**
  *
@@ -154,7 +190,7 @@ int parseInt32(const char *word, int *err);
  * @param id
  * @return
  */
-MemorySlot getOrCreateMemorySlot(char* id);
+Identifier getIdentifier(char *id, bool create);
 
 /**
  *
@@ -176,14 +212,5 @@ MemorySlot addWordToMemory(const char *str);
  * @return
  */
 MemorySlot convertIntToString(MemorySlot slot);
-
-/**
- *
- * @param left
- * @param op
- * @param right
- * @return
- */
-MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right);
 
 #endif //SOS_COMPILATION_H

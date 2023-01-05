@@ -1,5 +1,4 @@
-a=$(expr -10 + 1);
-c="World";
-b= ${a} ' ' ${c};
-echo ${b} ' ' '!';
+declare tab[4];
+read tab[0];
+echo ${tab[0]};
 exit

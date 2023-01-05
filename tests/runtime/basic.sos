@@ -1,11 +1,7 @@
 a=1;
 b=2;
 
-echo $(expr 1 + 1);
-
-
-if test ((${a} -gt 10) -o (${a} -lt -1)) -a ((${b} -gt 11) -o (${b} -lt 33)) then
-    c=3
-    #echo "Les valeurs doivent etre strictement positives !\n"
+if test (((${a} -lt 10) -a (${b} -lt 10)) -a ((${a} -lt 10) -o (${b} -lt 10))) then
+    echo "Yeah"
 fi ;
 exit

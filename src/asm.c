@@ -49,10 +49,11 @@ int asm_writeAsciiz(const char *label, const char *content, int addQuotes)
 
 int asm_writeStaticArray(const char *label, int size)
 {
-    asm_data_printf("\t%s: .space %d\n", label, size * ASM_INTEGER_SIZE)
-    asm_data_printf("\t\t.word 0");
+    // -1 => value not allocated
+    if(size < 1) return RETURN_FAILURE;
+    asm_data_printf("\t%s: .word -1", label)
     for (int i = 1; i < size; ++i)
-        asm_data_printf(",0")
+        asm_data_printf(",-1")
     asm_data_printf("\n")
     return RETURN_SUCCESS;
 }
@@ -98,7 +99,6 @@ int asm_useBufferWriteFunction(const char* source, const char* destination, cons
     asm_jal(ASM_BUFFER_WRITE_FUNCTION_NAME);
     asm_code_printf("\tmove %s, $v0\n", into)
     return RETURN_SUCCESS;
-    //return asm_syscall(PRINT_STRING);
 }
 
 int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into)
@@ -117,12 +117,19 @@ int asm_useIntToStringFunction(const char *intAddressRegister, const char*into)
     return RETURN_SUCCESS;
 }
 
-
 int asm_useStrCmpFunction(const char *leftStrAddressRegister, const char *rightStrAddressRegister, const char * into)
 {
     asm_code_printf("\tmove $a0, %s\n", leftStrAddressRegister)
     asm_code_printf("\tmove $a1, %s\n", rightStrAddressRegister)
     asm_jal(ASM_STRCMP_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+}
+
+int asm_useAtoiFunction(const char *strAddressRegister, const char * into)
+{
+    asm_code_printf("\tmove $a0, %s\n", strAddressRegister)
+    asm_jal(ASM_ATOI_FUNCTION_NAME);
     asm_code_printf("\tmove %s, $v0\n", into)
     return RETURN_SUCCESS;
 }

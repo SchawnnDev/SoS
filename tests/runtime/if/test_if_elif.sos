@@ -1,0 +1,14 @@
+if test 50 -ne 50
+    then echo "Shouldn't print that"
+elif test 50 -e 50
+    then echo "Should print that"
+fi;
+echo "\n";
+if test 50 -ne 50
+    then echo "Shouldn't print that"
+elif test 80 -e 50
+    then echo "Shouldn't print that"
+else
+    then echo "Should print that"
+fi;
+exit
