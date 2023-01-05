@@ -463,8 +463,8 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     }
     asm_code_printf("\n")
 
-    if (right->temp) freeMemory(right);
-    if (left->temp) freeMemory(left);
+    //if (right->temp) freeMemory(right);
+    //if (left->temp) freeMemory(left);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
     return NULL;
