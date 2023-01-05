@@ -1,6 +1,6 @@
-a="HelloWorld"
-b="HelloWorld"
-c="GoodbyeWorld"
+a="HelloWorld";
+b="HelloWorld";
+c="GoodbyeWorld";
 if test ${a} = ${a} then echo "1" else echo "0" fi;
 echo "\n";
 if test ${a} = ${b} then echo "1" else echo "0" fi;

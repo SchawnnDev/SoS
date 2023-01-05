@@ -3,4 +3,6 @@ echo "\n";
 if test -n "" then echo "1" else echo "0" fi;
 echo "\n";
 if test -n " " then echo "1" else echo "0" fi;
+echo "\n";
+if test -n 89 then echo "1" else echo "0" fi;
 exit

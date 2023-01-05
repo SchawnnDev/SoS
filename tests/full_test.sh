@@ -11,6 +11,10 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 BOLD=$(tput bold)
 
+# Counters
+passed=0
+failed=0
+
 # Creates a temporary file
 temp_asm_file=$(mktemp)
 
@@ -42,12 +46,14 @@ test_loop()
     if [ $? == 0 ];
     then
       echo -e "${GREEN}[V] Test ${test_name} successfully passed !${NC}"
+      passed=$((passed+1))
     else
       echo -e "${RED}[X] Test ${test_name} failed.${NC}"
       echo -e "Expected:"
       cat "tests/expected_result/${test_type}/${test_name}_result"
       echo -e "Got:"
       cat "tests/tmp/${test_name}_result"
+      failed=$((failed+1))
     fi
   done
 }
@@ -63,8 +69,10 @@ compilation_error_tests()
     # Checking that it returns an error
     if [ ! $rcode == 0 ]; then
       echo -e "${GREEN}[V] Error test ${test_name} successfully passed ! (Returned a compiler failure of code $rcode)${NC}"
+      passed=$((passed+1))
     else
       echo -e "${RED}[X] Test ${test_name} failed. It shouldn't compile.${NC}"
+      failed=$((failed+1))
     fi
   done
 }
@@ -77,7 +85,7 @@ compilation_error_tests()
 echo "${BOLD}-- Compilation tests --"
 compilation_error_tests
 # Assign
-echo "${BOLD}-- Assignement tests --"
+echo "${BOLD}-- Assignment tests --"
 test_loop "assign"
 # Concatenation
 echo "${BOLD}-- Concatenation tests --"
@@ -88,6 +96,13 @@ test_loop "expression"
 # Test_block
 echo "${BOLD}-- Test block tests --"
 test_loop "test_block"
+
+
+# Summary
+echo -e "${BOLD}-- SUMMARY --${NC}"
+echo -e "Total ${GREEN}passed${NC} test = ${passed}"
+echo -e "Total ${RED}failed${NC} test = ${failed}"
+
 
 # Clean
 rm "${temp_asm_file}"
