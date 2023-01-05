@@ -312,12 +312,12 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         return NULL;
     }
 
-    asm_readFromStack("$t0", getMipsOffset(left));
-    asm_readFromStack("$t1", getMipsOffset(right));
-
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
+        asm_readFromStack("$t0", getMipsOffset(left));
+        asm_readFromStack("$t1", getMipsOffset(right));
+
         asm_useAtoiFunction("$t0","$t0");
         asm_useAtoiFunction("$t1","$t1");
     }
@@ -422,12 +422,10 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     asm_code_printf("\n")
 
     if (right->temp) freeMemory(right);
-    if (!left->temp) left = reserveMemorySlot();
-
-    asm_getStackAddress("$t1", getMipsOffset(left));
+    if (left->temp) freeMemory(left);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
-    return left;
+    return NULL;
 }
 
 MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
@@ -462,13 +460,10 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     }
     asm_code_printf("\n")
 
-    if (!right->temp) right = reserveMemorySlot();
-
-    asm_getStackAddress("$t1", getMipsOffset(right));
-    asm_code_printf("\tsw \n")
+    if (right->temp) freeMemory(right);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
-    return right;
+    return NULL;
 }
 
 MemorySlot getOrCreateMemorySlot(char* id)
