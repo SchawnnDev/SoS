@@ -17,19 +17,8 @@
 
 ListRangeVariable listRangeVariable;
 ListInstruction listInstruction;
-int currentOperation;
-boolExpr_t currentBooleanExpression;
 int marker;
 
-void setCurrentOperation(int operation)
-{
-    currentOperation = operation;
-}
-
-void setCurrentBooleanExpression(boolExpr_t expr)
-{
-    currentBooleanExpression = expr;
-}
 
 int errorType(const char *msg, ...)
 {
@@ -46,7 +35,6 @@ void initStruct()
     log_trace("Started initStruct")
     listRangeVariable = initListRangeVariable();
     listInstruction = initListInstruction();
-    currentOperation = UNSET;
 }
 
 /*!
@@ -266,18 +254,14 @@ int setMarker(){
     return RETURN_SUCCESS;
 }
 
-int doBoolExpression()
+int doBoolExpression(boolExpr_t boolExpr)
 {
-    log_trace("doBoolExpression (int %d)", currentBooleanExpression)
+    log_trace("doBoolExpression (int %d)", boolExpr)
 
-    asm_code_printf("\n\t# Start of Test block of ope %d\n", currentBooleanExpression)
+    asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
 
-    if (currentBooleanExpression == BOOL_EQ ||
-        currentBooleanExpression == BOOL_NEQ
-        || currentBooleanExpression == BOOL_GT ||
-        currentBooleanExpression == BOOL_GE
-        || currentBooleanExpression == BOOL_LT ||
-        currentBooleanExpression == BOOL_LE)
+    if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
+        boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
         /*
         if (listTmp->cursor->types[index] == TYPE_STACK)
@@ -298,7 +282,7 @@ int doBoolExpression()
     addListTmp(listTmp, initTmpValues(listTmp->cursor));
     */
     char* else_lab;
-    switch (currentBooleanExpression)
+    switch (boolExpr)
     {
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t1, $t2,");
@@ -331,7 +315,7 @@ int doBoolExpression()
             break;
         case L_OR:
             asm_code_printf("%s", "ligne OU\n")
-            else_lab = createNewLabel();
+            else_lab = (char*)createNewLabel();
             completeTrueList(listInstruction,else_lab);
             completeTrueList(listInstruction,else_lab);
             //completeFalseList(listInstruction, );
@@ -339,7 +323,7 @@ int doBoolExpression()
             break;
     }
 
-    asm_code_printf("\n\t# End of Test block of ope %d\n", currentBooleanExpression)
+    asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
     return RETURN_SUCCESS;
 }
 
@@ -388,8 +372,6 @@ MemorySlot addStringToMemory(const char *str) {
     CHECKPOINTER(copy = malloc(len))
     CHECKPOINTER(strncpy(copy, str + 1, len - 1));
     copy[len - 1] = '\0'; // add nul char
-    // Don't forget to add label to tmp list
-    // addValueIntoListTmp(copy);
     MemorySlot slot = reserveMemorySlot();
     const char* label = createNewLabel();
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, copy)
@@ -399,6 +381,18 @@ MemorySlot addStringToMemory(const char *str) {
     asm_getStackAddress("$t1", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t1)\n")
     free(copy);
+    return slot;
+}
+
+MemorySlot addWordToMemory(const char *str) {
+    MemorySlot slot = reserveMemorySlot();
+    const char* label = createNewLabel();
+    asm_data_printf("\t%s: .asciiz \"%s\"\n", label, str)
+    asm_loadLabelIntoRegister(label, "$t0");
+    //asm_allocateOnHeap("$t1", (int)len - 1);
+    //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
+    asm_getStackAddress("$t1", getMipsOffset(slot));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
     return slot;
 }
 
@@ -555,4 +549,21 @@ int doStringRead(const char *id)
     asm_code_printf("\tsb $zero, 0($t1)\n")
 
     return RETURN_SUCCESS;
+}
+
+MemorySlot convertIntToString(MemorySlot slot)
+{
+    log_trace("doStringRead(%s)", slot)
+    // slot should always be temp (but it is always better to check)
+    slot = slot->temp ? slot : reserveMemorySlot();
+
+    asm_getStackAddress("$t0", getMipsOffset(slot));
+    asm_code_printf("\tla $t1, 0($t0)\n")
+
+    asm_useIntToStringFunction("$t1", "$t1");
+
+    // rewrite stack to new address
+    asm_code_printf("\tsw $t1, 0($t0)\n")
+
+    return slot;
 }
