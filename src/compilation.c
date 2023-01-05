@@ -316,6 +316,7 @@ int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
+    completeTrueList(listInstruction,"");
     completeTrueList(listInstruction,then);
 
     return RETURN_SUCCESS;
