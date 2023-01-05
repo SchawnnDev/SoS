@@ -108,4 +108,9 @@ if [ "$1" == "valgrind" ]; then
   exit 0
 fi
 
+if [ "$1" == "full" ]; then
+  ./tests/full_test.sh
+  exit 0
+fi
+
 helpFunction
