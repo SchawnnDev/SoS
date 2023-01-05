@@ -15,6 +15,7 @@
 #include "displayString.asm.h"
 #include "memory.h"
 #include "intToString.asm.h"
+#include "errorManager.asm.h"
 
 ListRangeVariable listRangeVariable;
 ListInstruction listInstruction;
@@ -66,6 +67,10 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeStrcmpFunction();
     asm_writeDisplayStringFunction();
     asm_writeIntToStringFunction();
+    asm_writePrintErrorAndExit();
+    asm_writeOutOfBoundsErrorFunction();
+    asm_writeNotANumberErrorFunction();
+    asm_writeArrayElementNotAllocatedErrorFunction();
     asm_code_printf("\n")
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
