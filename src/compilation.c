@@ -434,7 +434,7 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetVariableAddress(char *id, bool negative)
+MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
 {
     log_trace("doGetVariableAddress")
 
@@ -447,9 +447,28 @@ MemorySlot doGetVariableAddress(char *id, bool negative)
 
     MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
 
+    // convert to int
+    if(isOperandInt)
+    {
+        asm_readFromStack("$t0", getMipsOffset(slot));
+        // convert string to int (variables contains numbers as chars)
+        asm_useAtoiFunction("$t0", "$t0");
+        // set value to a new stack address
+        slot = slot->temp ? slot : reserveMemorySlot();
+
+        asm_getStackAddress("$t1", getMipsOffset(slot));
+
+        if(negative) {
+            asm_code_printf("\tli $t2, -1\n")
+            asm_code_printf("\tmul $t0, $t0, $t2\n")
+        }
+
+        asm_code_printf("\tsw $t0, 0($t1)\n")
+        return slot;
+    }
+
     // No modification if positive
     if(!negative) return slot;
-    asm_readFromStack("$t0", getMipsOffset(slot));
     if(!slot->temp) slot = reserveMemorySlot();
 
     asm_code_printf("\tli $t1, -1\n")
@@ -462,7 +481,6 @@ MemorySlot doGetVariableAddress(char *id, bool negative)
 }
 
 // Utils
-// TODO: CONVERT TO HANDLE +/-
 int parseInt32(const char *word, int *err)
 {
     char *endptr;
