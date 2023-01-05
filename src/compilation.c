@@ -192,8 +192,6 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
     MemorySlot slot = iden->memory;
     // offset -> address of offset
     asm_readFromStack("$t0", getMipsOffset(offset));
-    // convert offset to int
-    asm_useAtoiFunction("$t0", "$t0");
 
     // check if array out of bounds
     asm_code_printf("\tli $t1, %d\n", iden->arraySize)
@@ -517,7 +515,7 @@ Identifier getIdentifier(char *id, bool create)
 
     if (pos->indexIdentifier == NOTFOUND)
     {
-        log_error("Identifier not found.")
+        log_debug("Identifier not found.")
         return NULL;
     }
 
@@ -526,7 +524,7 @@ Identifier getIdentifier(char *id, bool create)
 
     if (position <= NOTFOUND || position >= listIdentifier->numberIdentifiers)
     {
-        log_error("Position out of range : position : %d", position)
+        log_debug("Position out of range : position : %d", position)
         return NULL;
     }
 
@@ -552,6 +550,8 @@ int doDeclareStaticArray(char *id, int size)
         log_error("Array %s was already declared.", id)
         return RETURN_FAILURE;
     }
+    asm_code_printf("\t# Start of declaration of table %s : %d\n", id, size)
+
     // Now create identifier
     iden = getIdentifier(id, true);
 
@@ -568,6 +568,7 @@ int doDeclareStaticArray(char *id, int size)
     asm_loadLabelIntoRegister(label, "$t1");
     asm_code_printf("\tsw $t1, 0($t0)\n")
     free((char*)label);
+    asm_code_printf("\t# end of declaration of table %s\n", id)
     return RETURN_SUCCESS;
 }
 
@@ -657,7 +658,7 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
 MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
                              bool isOperandInt)
 {
-    log_trace("doGetVariableAddress")
+    log_trace("doGetArrayAddress(%s)", id)
 
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
 
@@ -674,12 +675,12 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
         return NULL;
     }
 
+    asm_code_printf("\t# Start of getting value of array %s\n", id)
+
     // slot -> address of table
     MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
     // offset -> address of offset
     asm_readFromStack("$t0", getMipsOffset(offset));
-    // convert offset to int
-    asm_useAtoiFunction("$t0", "$t0");
 
     // check if not array out of bounds
     asm_code_printf("\tli $t1, %d\n", iden->arraySize)
@@ -705,12 +706,16 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
         // set value to a new stack address
         offset = offset->temp ? offset : reserveMemorySlot();
         asm_getStackAddress("$t3", getMipsOffset(offset));
-        asm_code_printf("\tsw $t2, 0($t3)\n")
+        // get value -> $t1[$t0]
+        asm_code_printf("\tlw $t1, 0($t1)\n")
+        asm_code_printf("\tsw $t1, 0($t3)\n")
+
+        asm_code_printf("\t# End of getting value of array: %s\n", id)
         return offset;
     }
 
     // $t1 = atoi($t1[$t0]])
-    asm_useAtoiFunction("$t3", "t0");
+    asm_useAtoiFunction("$t3", "$t0");
 
     // set value to a new stack address
     offset = offset->temp ? offset : reserveMemorySlot();
@@ -723,6 +728,7 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     }
 
     asm_code_printf("\tsw $t0, 0($t1)\n")
+    asm_code_printf("\t# End of getting value of array: %s\n", id)
     return offset;
 }
 
