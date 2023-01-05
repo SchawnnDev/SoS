@@ -290,8 +290,15 @@ int doMarkerFi()
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
+    completeUnDefineGoto(listInstruction,then);
 
     return RETURN_SUCCESS;
+}
+
+int doMarkerEndInstruction()
+{
+    addIntoUnDefineGoto(listInstruction,"\tj");
+    asm_code_printf("\n")
 }
 
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
