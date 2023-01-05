@@ -106,6 +106,55 @@ TEST addRangeVariableTest(void) {
     PASS();
 }
 
+//-----------------------------//
+// increaseGlobalRangeVariable //
+//-----------------------------//
+TEST increaseGlobalRangeVariableTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    RangeVariable lastCursor = addr->cursor;
+    RangeVariable lastGlobalCursor = addr->cursorGlobal;
+    int lastLvl = addr->cursor->rangeLevel;
+    int lastGlobalLvl = addr->cursorGlobal->rangeLevel;
+
+    ASSERT_EQ_FMT(RETURN_SUCCESS, increaseGlobalRangeVariable(addr),"%d");
+    ASSERT_NEQ(NULL, addr->cursor);
+    ASSERT_NEQ(NULL, addr->cursorGlobal);
+    ASSERT_NEQ(lastCursor, addr->cursor);
+    ASSERT_NEQ(lastGlobalCursor, addr->cursorGlobal);
+    ASSERT_EQ(addr->cursor, addr->cursorGlobal);
+    ASSERT_EQ( addr->cursor,lastCursor->nextLevel);
+    ASSERT_EQ( addr->cursorGlobal,lastGlobalCursor->nextLevel);
+    ASSERT_EQ( lastCursor,addr->cursor->previousLevel);
+    ASSERT_EQ( lastGlobalCursor,addr->cursorGlobal->previousLevel);
+    ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
+    ASSERT_EQ_FMT(lastGlobalLvl, addr->cursorGlobal->rangeLevel,"%d");
+    PASS();
+}
+
+TEST increaseGlobalRangeVariableWithNextLocalRangeTest(void) {
+    ListRangeVariable addr = initListRangeVariable();
+    addRangeVariable(addr);
+    RangeVariable lastCursor = addr->cursor;
+    RangeVariable lastGlobalCursor = addr->cursorGlobal;
+    int lastLvl = addr->cursor->rangeLevel;
+    int lastGlobalLvl = addr->cursorGlobal->rangeLevel;
+
+    ASSERT_EQ_FMT(RETURN_SUCCESS, increaseGlobalRangeVariable(addr),"%d");
+    ASSERT_NEQ(NULL, addr->cursor);
+    ASSERT_NEQ(NULL, addr->cursorGlobal);
+    ASSERT_EQ(lastCursor, addr->cursor);
+    ASSERT_NEQ(lastGlobalCursor, addr->cursorGlobal);
+    ASSERT_NEQ(addr->cursor, addr->cursorGlobal);
+    ASSERT_NEQ( addr->cursor,lastCursor->nextLevel);
+    ASSERT_EQ( addr->cursorGlobal,lastGlobalCursor->nextLevel);
+    ASSERT_NEQ( lastCursor,addr->cursor->previousLevel);
+    ASSERT_NEQ( addr->cursorGlobal,addr->cursor->previousLevel);
+    ASSERT_EQ( lastGlobalCursor,addr->cursorGlobal->previousLevel);
+    ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
+    ASSERT_EQ_FMT(lastGlobalLvl, addr->cursorGlobal->rangeLevel,"%d");
+    PASS();
+}
+
 //---------------------//
 // deleteRangeVariable //
 //---------------------//
@@ -359,6 +408,9 @@ int main(int argc, char **argv) {
     RUN_TEST(cleanListRangeVariableTest);
 
     RUN_TEST(addRangeVariableTest);
+
+    RUN_TEST(increaseGlobalRangeVariableTest);
+    RUN_TEST(increaseGlobalRangeVariableWithNextLocalRangeTest);
 
     RUN_TEST(deleteRangeVariableWithoutPreviousLvlTest);
     RUN_TEST(deleteRangeVariableWithNextLvlTest);
