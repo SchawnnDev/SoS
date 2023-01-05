@@ -28,7 +28,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id test_block test_expr test_expr2 test_expr3 test_instruction operator1 marker
-%type <memval> operand operand_int int sum_int mult_int
+%type <memval> operand operand_int int sum_int mult_int final_concatenation
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
 %type <boolexprval> operator2
@@ -42,8 +42,8 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
     | instructions {log_debug("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
-    | id LBRACKET operand_int RBRACKET ASSIGN concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
+instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
+    | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | { log_debug("entering if block"); } IF test_block THEN list_instructions else_part FI { log_debug("leaveing if block"); }
     | FOR id DO list_instructions DONE
@@ -85,6 +85,9 @@ list_operand : list_operand operand { $$ = appendMemorySlot($1, $2); }
     | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
     ;
 
+final_concatenation : concatenation { $$ = doConcatenation($1); }
+    ;
+
 concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ = appendMemorySlot($1, $2); }
     | operand { $$ = newMemorySlotList($1); }
     ;
@@ -106,9 +109,9 @@ test_expr3 : LPAREN test_expr RPAREN
     | EXCL test_instruction
     ;
 
-test_instruction : concatenation ASSIGN concatenation
-    | concatenation NEQ concatenation
-    | operator1 concatenation
+test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doConcatBoolExpr($1, BOOL_EQ, $3); }
+    | final_concatenation NEQ final_concatenation { $$ = doConcatBoolExpr($1, BOOL_NEQ, $3); }
+    | operator1 final_concatenation
     | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($2); }
     ;
 
@@ -151,7 +154,7 @@ operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0); }
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE
     | plus_or_minus DOLLAR int
     | int
-   /* plus_or_minus is already parsed in int | plus_or_minus int { $$ = $2; } */
+    | plus_or_minus int { $$ = doUnaryCheck($2, $1 == MINUS_OPE); }
     | LPAREN sum_int RPAREN { $$ = $2; }
     ;
 
@@ -167,7 +170,7 @@ mult_div_mod : MULT { $$ = MULT_OPE; }
 declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
     ;
 
-declare_loc : declare_loc LOCAL id ASSIGN concatenation SEMICOLON
+declare_loc : declare_loc LOCAL id ASSIGN final_concatenation SEMICOLON
     |
     ;
 

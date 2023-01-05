@@ -14,6 +14,7 @@
 #include "strcmp.asm.h"
 #include "displayString.asm.h"
 #include "memory.h"
+#include "intToString.asm.h"
 
 ListRangeVariable listRangeVariable;
 ListInstruction listInstruction;
@@ -64,6 +65,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeAtoiFunction();
     asm_writeStrcmpFunction();
     asm_writeDisplayStringFunction();
+    asm_writeIntToStringFunction();
     asm_code_printf("\n")
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
@@ -75,16 +77,17 @@ int compile(FILE *inputFile, FILE *outputFile)
     return writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
 }
 
-MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
+MemorySlot doConcatenation(MemorySlotList slotList)
 {
     log_trace("doConcatenation")
     asm_code_printf("\t# start of concatenation\n")
 
-    if (memorySlot == NULL || slotList == NULL) {
+    if (slotList == NULL) {
         log_error("Cant concatenate an empty list")
         return NULL;
     }
 
+    MemorySlot memorySlot = reserveMemorySlot();
     asm_code_printf("\taddi $t0, $zero, 1 # Size counter\n") // $t0 will be the total size of concat (start at 1 for \0)
     MemorySlotList first = firstMemorySlotList(slotList);
     MemorySlotList temp = first;
@@ -142,13 +145,21 @@ MemorySlot doConcatenation(MemorySlot memorySlot, MemorySlotList slotList)
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-MemorySlot assign(char *name, MemorySlotList list)
+MemorySlot assign(char *name, MemorySlot memorySlot)
 {
     log_trace("assign (void)")
     asm_code_printf("\n\t# assign of %s\n", name)
     MemorySlot slot = getOrCreateMemorySlot(name);
     if (slot == NULL) return slot;
-    return doConcatenation(slot, list);
+
+    asm_readFromStack("$t0", getMipsOffset(memorySlot));
+
+    asm_getStackAddress("$t1", getMipsOffset(slot));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
+
+    if(memorySlot->temp) freeMemory(memorySlot);
+
+    return slot;
 }
 
 void assignArray()
@@ -596,4 +607,36 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
     asm_code_printf("\tmul $t1, $t1, $t2\n")
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return slot;
+}
+
+MemorySlot doConcatBoolExpr(MemorySlot left, boolExpr_t op, MemorySlot right)
+{
+    log_trace("doConcatenation")
+    asm_code_printf("\t# start of concatenation\n")
+
+    if (left == NULL || right == NULL) {
+        log_error("Cant do bool expr on null")
+        return NULL;
+    }
+
+    asm_getStackAddress("$t0", getMipsOffset(left));
+    asm_getStackAddress("$t1", getMipsOffset(right));
+
+    switch (op)
+    {
+        case BOOL_EQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            break;
+        case BOOL_NEQ:
+            asm_useStrCmpFunction("$t0", "$t1", "$t0");
+            break;
+    }
+
+    if (right->temp) freeMemory(right);
+    if (!left->temp) left = reserveMemorySlot();
+
+    asm_getStackAddress("$t1", getMipsOffset(left));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
+
+    return left;
 }
