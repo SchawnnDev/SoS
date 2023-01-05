@@ -71,9 +71,12 @@ int doArrayRead();
 
 /**
  *
+ * @param id
+ * @param negative
+ * @param isOperandInt
  * @return
  */
-MemorySlot doGetVariableAddress(char *id, bool negative);
+MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt);
 
 /**
  *
@@ -106,13 +109,18 @@ int getValues();
 
 int setMarker();
 
+int doMarkerThen();
+
+int doMarkerElse();
+
+int doMarkerFi();
 /**
  *
  * @param addr
  * @param boolExpr
  * @return
  */
-int doBoolExpression(boolExpr_t boolExpr);
+MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right);
 
 /**
  *

@@ -267,58 +267,79 @@ int setMarker(){
     return RETURN_SUCCESS;
 }
 
-int doBoolExpression(boolExpr_t boolExpr)
+int doMarkerThen()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s:\n",then)
+    completeTrueList(listInstruction,then);
+
+    return RETURN_SUCCESS;
+}
+
+int doMarkerElse()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s:\n",then)
+    completeFalseList(listInstruction,then);
+
+    return RETURN_SUCCESS;
+}
+
+int doMarkerFi()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s:\n",then)
+    completeFalseList(listInstruction,then);
+
+    return RETURN_SUCCESS;
+}
+
+MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
 {
     log_trace("doBoolExpression (int %d)", boolExpr)
 
     asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
 
+    if (left == NULL || right == NULL) {
+        log_error("Cant do bool expr on null")
+        return NULL;
+    }
+
+    asm_getStackAddress("$t0", getMipsOffset(left));
+    asm_getStackAddress("$t1", getMipsOffset(right));
+
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
     {
-        /*
-        if (listTmp->cursor->types[index] == TYPE_STACK)
-        {
-            asm_readFromStack("$t1", listTmp->cursor->values[index]);
-            // ToDo Call Mips ATOI
-        } else
-        {
-            asm_code_printf("\tli $t2, %s\n", listTmp->cursor->values[index])
-        }
-         */
+        asm_useAtoiFunction("$t0","$t0");
+        asm_useAtoiFunction("$t1","$t1");
     }
 
-    /*
-    int reg1 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues - 2]);
-    int reg2 = atoi(listTmp->cursor->values[listTmp->cursor->numberValues - 1]);
-    deleteListTmp(listTmp);
-    addListTmp(listTmp, initTmpValues(listTmp->cursor));
-    */
     char* else_lab;
     switch (boolExpr)
     {
         case BOOL_EQ:
-            addIntoTrueList(listInstruction,"\tbeq $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_NEQ:
-            addIntoTrueList(listInstruction,"\tbne $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_GT:
-            addIntoTrueList(listInstruction,"\tbgt $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_GE:
-            addIntoTrueList(listInstruction,"\tbge $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_LT:
-            addIntoTrueList(listInstruction,"\tblt $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case BOOL_LE:
-            addIntoTrueList(listInstruction,"\tble $t1, $t2,");
+            addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             break;
         case L_AND:
@@ -328,16 +349,22 @@ int doBoolExpression(boolExpr_t boolExpr)
             break;
         case L_OR:
             asm_code_printf("%s", "ligne OU\n")
-            else_lab = (char*)createNewLabel();
-            completeTrueList(listInstruction,else_lab);
-            completeTrueList(listInstruction,else_lab);
+            //else_lab = (char*)createNewLabel();
+            //completeTrueList(listInstruction,else_lab);
+            //completeTrueList(listInstruction,else_lab);
             //completeFalseList(listInstruction, );
-            completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
+            //completeFalseList(listInstruction, listInstruction->cursorCode->lineCode[marker]);
             break;
     }
+    asm_code_printf("\n")
+
+    if (right->temp) freeMemory(right);
+    if (!left->temp) left = reserveMemorySlot();
+
+    asm_getStackAddress("$t1", getMipsOffset(left));
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
-    return RETURN_SUCCESS;
+    return left;
 }
 
 MemorySlot getOrCreateMemorySlot(char* id)
@@ -416,7 +443,7 @@ int doArrayRead()
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetVariableAddress(char *id, bool negative)
+MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
 {
     log_trace("doGetVariableAddress")
 
@@ -429,9 +456,28 @@ MemorySlot doGetVariableAddress(char *id, bool negative)
 
     MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
 
+    // convert to int
+    if(isOperandInt)
+    {
+        asm_readFromStack("$t0", getMipsOffset(slot));
+        // convert string to int (variables contains numbers as chars)
+        asm_useAtoiFunction("$t0", "$t0");
+        // set value to a new stack address
+        slot = slot->temp ? slot : reserveMemorySlot();
+
+        asm_getStackAddress("$t1", getMipsOffset(slot));
+
+        if(negative) {
+            asm_code_printf("\tli $t2, -1\n")
+            asm_code_printf("\tmul $t0, $t0, $t2\n")
+        }
+
+        asm_code_printf("\tsw $t0, 0($t1)\n")
+        return slot;
+    }
+
     // No modification if positive
     if(!negative) return slot;
-    asm_readFromStack("$t0", getMipsOffset(slot));
     if(!slot->temp) slot = reserveMemorySlot();
 
     asm_code_printf("\tli $t1, -1\n")
@@ -444,7 +490,6 @@ MemorySlot doGetVariableAddress(char *id, bool negative)
 }
 
 // Utils
-// TODO: CONVERT TO HANDLE +/-
 int parseInt32(const char *word, int *err)
 {
     char *endptr;
