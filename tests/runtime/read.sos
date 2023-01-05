@@ -1,5 +1,9 @@
 a=10;
 b=50;
-c= $( expr ${a} + ${b} );
-echo ${c};
+c=-10;
+d= $( expr -${a} + ${b} );
+e= $( expr -${c});
+echo ${d};
+echo "\n";
+echo ${e};
 exit
