@@ -4,9 +4,10 @@
 #include "lexer.h"
 #include "compilation.h"
 #include "memory.h"
+#include "boolExpr.h"
 %}
 
-%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; }
+%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; }
 %right ASSIGN
 %left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
@@ -21,7 +22,7 @@
 %token SEMICOLON EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK
 %token NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
 
-%type <strval> NEQ BOR ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ASSIGN CASE ESAC
+%type <strval> ASSIGN CASE ESAC
 %type <strval> EXCL DOLLAR PLUS MINUS MULT DIV MOD QMARK IF ELIF ELSE TEST THEN FI
 %type <strval> FOR WHILE UNTIL DO DONE IN RETURN EXIT ECHO_CALL READ DECLARE LOCAL INT STRING WORD EXPR
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
@@ -30,6 +31,7 @@
 %type <memval> operand operand_int int sum_int mult_int
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
+%type <boolexprval> operator2
 %start program
 
 %%
@@ -90,11 +92,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : {log_debug("entering test_block");} TEST test_expr { log_debug("TEST %s", $2); }
     ;
 
-test_expr : test_expr ARG_O marker test_expr2 { setCurrentBooleanExpression(L_OR); doBoolExpression();}
+test_expr : test_expr ARG_O marker test_expr2 { doBoolExpression(L_OR);}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A marker test_expr3 { setCurrentBooleanExpression(L_AND); doBoolExpression();}
+test_expr2 : test_expr2 ARG_A marker test_expr3 { doBoolExpression(L_AND);}
     | test_expr3
     ;
 
@@ -107,7 +109,7 @@ test_expr3 : LPAREN test_expr RPAREN
 test_instruction : concatenation ASSIGN concatenation
     | concatenation NEQ concatenation
     | operator1 concatenation
-    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression(); }
+    | operand operator2 operand { log_debug("operand operator2 operand"); doBoolExpression($2); }
     ;
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3); }
@@ -118,7 +120,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | DOLLAR QMARK
     | QUOTED_STRING { $$ = addStringToMemory($1); }
     | APOSTROPHED_STRING { $$ = addStringToMemory($1); }
-    | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = $4; }
+    | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = convertIntToString($4); }
     | DOLLAR LPAREN function_call RPAREN
     ;
 
@@ -126,12 +128,12 @@ operator1 : ARG_N
     | ARG_Z
     ;
 
-operator2 : ARG_EQ { setCurrentBooleanExpression(BOOL_EQ); }
-    | ARG_NE { setCurrentBooleanExpression(BOOL_NEQ); }
-    | ARG_GT { setCurrentBooleanExpression(BOOL_GT); }
-    | ARG_GE { setCurrentBooleanExpression(BOOL_GE); }
-    | ARG_LT { setCurrentBooleanExpression(BOOL_LT); }
-    | ARG_LE { setCurrentBooleanExpression(BOOL_LE); }
+operator2 : ARG_EQ { $$ = BOOL_EQ; }
+    | ARG_NE { $$ = BOOL_NEQ; }
+    | ARG_GT { $$ = BOOL_GT; }
+    | ARG_GE { $$ = BOOL_GE; }
+    | ARG_LT { $$ = BOOL_LT; }
+    | ARG_LE { $$ = BOOL_LE; }
     ;
 
 sum_int : sum_int plus_or_minus mult_int { log_debug("sum_int: CALCUL: %d | %d | %d", $1, $2, $3); $$ = doOperation($1, $2, $3); }

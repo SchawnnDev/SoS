@@ -104,7 +104,7 @@ int setMarker();
  * @param boolExpr
  * @return
  */
-int doBoolExpression();
+int doBoolExpression(boolExpr_t boolExpr);
 
 /**
  *
@@ -161,5 +161,12 @@ MemorySlot addStringToMemory(const char *str);
  * @return
  */
 MemorySlot addWordToMemory(const char *str);
+
+/**
+ *
+ * @param slot
+ * @return
+ */
+MemorySlot convertIntToString(MemorySlot slot);
 
 #endif //SOS_COMPILATION_H

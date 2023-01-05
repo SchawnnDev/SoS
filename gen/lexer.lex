@@ -3,6 +3,7 @@
 %{
 #define YYERROR_VERBOSE 1
 #include "memory.h"
+#include "boolExpr.h"
 #include "parser.h"
 #include "string.h"
 #include "log.h"
