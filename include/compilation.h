@@ -147,7 +147,7 @@ int checkWordIsId(const char *word);
 
 int checkWordIsInt(const char *word);
 
-int parseInt32(const char *word);
+int parseInt32(const char *word, int *err);
 
 /**
  *

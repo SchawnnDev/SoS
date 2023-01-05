@@ -199,7 +199,9 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
             break;
     }
 
-    freeMemory(right);
+    if (right->temp) freeMemory(right);
+    if (!left->temp) left = reserveMemorySlot();
+
     asm_getStackAddress("$t1", getMipsOffset(left));
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
@@ -432,7 +434,7 @@ MemorySlot doGetVariableAddress(char *id, bool negative)
 
 // Utils
 // TODO: CONVERT TO HANDLE +/-
-int parseInt32(const char *word)
+int parseInt32(const char *word, int *err)
 {
     char *endptr;
     long int parsed = strtol(word, &endptr, 10);
@@ -440,6 +442,7 @@ int parseInt32(const char *word)
     if (endptr == word || *endptr != '\0')
     {
         log_error("Invalid number for parseInt32(%s)", word);
+        *err = 1;
         return RETURN_FAILURE;
     }
 
@@ -447,6 +450,7 @@ int parseInt32(const char *word)
     {
         // The number is not within the range of a 32-bit integer
         log_error("Number is not 32-bit for parseInt32(%s)", word);
+        *err = 1;
         return RETURN_FAILURE;
     }
 
@@ -481,8 +485,7 @@ int checkRegex(const char *pattern, const char *string)
         return 0;
     }
 
-    log_error("Error executing regular expression");
-    return -1;
+    return ret;
 }
 
 int checkWordIsId(const char *word)
@@ -502,7 +505,9 @@ MemorySlot doWriteInt(const char *val)
     MemorySlot mem = reserveMemorySlot();
     asm_getStackAddress("$t0", getMipsOffset(mem));
     int parsed;
-    if((parsed = parseInt32(val))== RETURN_FAILURE) return NULL;
+    int err = 0;
+    if ((parsed = parseInt32(val, &err)) == RETURN_FAILURE && err)
+        return NULL;
     asm_code_printf("\tli $t1, %d\n", parsed)
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return mem;
@@ -519,7 +524,7 @@ int doParseTableInt(const char *val)
     }
 
     int parsedSize;
-    if ((parsedSize = parseInt32(val)) == RETURN_FAILURE)
+    if ((parsedSize = parseInt32(val, NULL)) == RETURN_FAILURE)
     {
         log_error("Cant parse int32(%s)", val)
         return parsedSize;
@@ -566,7 +571,7 @@ int doStringRead(const char *id)
 
 MemorySlot convertIntToString(MemorySlot slot)
 {
-    log_trace("doStringRead(%s)", slot)
+    log_trace("convertIntToString(%s)", slot)
     // /!\ slot not reallocated because it should always be temp
 
     asm_getStackAddress("$t0", getMipsOffset(slot));
@@ -582,6 +587,7 @@ MemorySlot convertIntToString(MemorySlot slot)
 
 MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
 {
+    log_trace("doUnaryCheck(%d, %s)", slot, negative ? "-" : "+")
     if(!negative) return slot;
     // /!\ slot not reallocated because it should always be temp
     asm_getStackAddress("$t0", getMipsOffset(slot));

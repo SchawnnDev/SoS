@@ -7,7 +7,7 @@ typedef struct memory_space_t *MemorySlot;
 struct memory_space_t {
     int used;
     int offset;
-    int temp;
+    int temp; // temp -> temporary value (identifiers are not temp values)
     // TODO: GERER IDENTIFICATEUR NE SE SUPPRIME PAS / MAIS VALEUR TEMP SI
     // TODO: Heap= true/false, heapOffset for arrays ???
     MemorySlot next;
