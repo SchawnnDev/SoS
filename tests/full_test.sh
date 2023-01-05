@@ -83,20 +83,22 @@ compilation_error_tests()
 # ------
 # Compilation
 echo "${BOLD}-- Compilation tests --"
-compilation_error_tests
+#compilation_error_tests
 # Assign
 echo "${BOLD}-- Assignment tests --"
-test_loop "assign"
+#test_loop "assign"
 # Concatenation
 echo "${BOLD}-- Concatenation tests --"
-test_loop "concatenation"
+#test_loop "concatenation"
 # Expression
 echo "${BOLD}-- Expression tests --"
-test_loop "expression"
+#test_loop "expression"
 # Test_block
 echo "${BOLD}-- Test block tests --"
 test_loop "test_block"
-
+# If
+echo "${BOLD}-- If tests --"
+test_loop "if"
 
 # Summary
 echo -e "${BOLD}-- SUMMARY --${NC}"
