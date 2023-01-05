@@ -110,8 +110,8 @@ test_expr3 : LPAREN test_expr RPAREN
     | EXCL test_instruction
     ;
 
-test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, BOOL_EQ, $3); }
-    | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, BOOL_NEQ, $3); }
+test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }
+    | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, STR_NEQ, $3); }
     | operator1 final_concatenation {$$ = doEmptyBoolExpression($1,$2);}
     | operand operator2 operand { log_debug("operand operator2 operand"); $$ = doBoolExpression($1, $2, $3); }
     ;
