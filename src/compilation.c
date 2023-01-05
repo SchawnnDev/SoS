@@ -486,13 +486,13 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     {
         case EMPTY:
             addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
-            addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
+            addIntoTrueList(listInstruction,"\n\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             addIntoTrueList(listInstruction,"\n\t");
             break;
         case NOT_EMPTY:
             addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
-            addIntoTrueList(listInstruction,"\tbne $t0, $zero,");
+            addIntoTrueList(listInstruction,"\n\tbne $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             addIntoTrueList(listInstruction,"\n\t");
             break;
