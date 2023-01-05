@@ -15,7 +15,7 @@ if test ${d} ${e} = 8800 then echo "1" else echo "0" fi;
 echo "\n";
 if test ${a} ${b} != "Hello World" then echo "1" else echo "0" fi;
 echo "\n";
-if test ${c} ' ' ${b} != "Goodbye world" then echo "1" else echo "0" fi;
+if test ${c} ' ' ${b} != "Goodbye World" then echo "1" else echo "0" fi;
 echo "\n";
 if test ${a} ${d} != "Hello88" then echo "1" else echo "0" fi;
 echo "\n";

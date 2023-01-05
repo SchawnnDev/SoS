@@ -63,7 +63,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | EXIT operand_int { doExit($2); }
     ;
 
-else_part : marker_else ELIF test_block THEN list_instructions marker_end_instruction else_part
+else_part : marker_else ELIF test_block marker_then THEN list_instructions marker_end_instruction else_part
     | marker_else ELSE list_instructions marker_end_instruction
     | { log_debug("else_part empty"); }
     ;

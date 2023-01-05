@@ -314,7 +314,9 @@ int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
-    completeTrueList(listInstruction,"");
+    if(listInstruction->cursorCode->numberTrue > 1){
+        completeTrueList(listInstruction,"");
+    }
     completeTrueList(listInstruction,then);
 
     return RETURN_SUCCESS;
@@ -375,55 +377,64 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
             addIntoTrueList(listInstruction,"\tbeq $t0, 1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case STR_NEQ:
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
             addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_NEQ:
             addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_GT:
             addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_GE:
             addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_LT:
             addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case BOOL_LE:
             addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n");
+            asm_code_printf("\n")
+            addIntoTrueList(listInstruction,"\t");
             break;
         case L_AND:
             asm_code_printf("\n\t# Start of Test block of AND\n")
 
             block = (char*)createNewLabel();
+            completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
+
+            completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
+
+            block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
-
-            completeTrueList(listInstruction,block);
-            completeTrueList(listInstruction,block);
-
-            completeTrueList(listInstruction,block);
-            completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
 
