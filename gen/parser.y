@@ -43,7 +43,7 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
     | instructions {log_debug("program : list_instructions -> instructions")}
     ;
 
-instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3); }
+instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3, 0); }
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | { log_debug("entering if block"); } IF test_block marker_then THEN list_instructions marker_end_instruction else_part FI { log_debug("leaveing if block"); doMarkerFi();}

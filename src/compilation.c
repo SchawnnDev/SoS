@@ -150,11 +150,11 @@ MemorySlot doConcatenation(MemorySlotList slotList)
  * \fn int assign()
  * \brief Fonction qui ajoute l'identifiant à la liste et transmet les données qui le compose
 */
-MemorySlot assign(char *name, MemorySlot memorySlot)
+MemorySlot assign(char *name, MemorySlot memorySlot, bool local)
 {
     log_trace("assign (void)")
     asm_code_printf("\n\t# assign of %s\n", name)
-    MemorySlot slot = getIdentifier(name, true)->memory;
+    MemorySlot slot = getIdentifier(name, true, false)->memory;
     if (slot == NULL) return slot;
 
     asm_readFromStack("$t0", getMipsOffset(memorySlot));
@@ -170,7 +170,7 @@ MemorySlot assign(char *name, MemorySlot memorySlot)
 int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
 {
     log_trace("assignArrayValue(%s)", name)
-    Identifier iden = getIdentifier(name, false);
+    Identifier iden = getIdentifier(name, false, false);
 
     if (iden == NULL)
     {
@@ -506,7 +506,7 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     return NULL;
 }
 
-Identifier getIdentifier(char *id, bool create)
+Identifier getIdentifier(char *id, bool create, bool local)
 {
 
     if(create)
@@ -546,7 +546,7 @@ int doDeclareStaticArray(char *id, int size)
 {
     log_trace("doDeclareStaticArray(%s, %d)", id, size)
 
-    Identifier iden = getIdentifier(id, false);
+    Identifier iden = getIdentifier(id, false, false);
 
     if(iden != NULL)
     {
@@ -556,7 +556,7 @@ int doDeclareStaticArray(char *id, int size)
     asm_code_printf("\t# Start of declaration of table %s : %d\n", id, size)
 
     // Now create identifier
-    iden = getIdentifier(id, true);
+    iden = getIdentifier(id, true, false);
 
     // add array size & type of identifier
     iden->arraySize = size;
@@ -608,7 +608,7 @@ MemorySlot addWordToMemory(const char *str) {
 int doArrayRead(char *id, MemorySlot offset)
 {
     log_trace("doStringRead(%s)", id)
-    Identifier iden = getIdentifier(id, false);
+    Identifier iden = getIdentifier(id, false, false);
 
     if (iden == NULL)
     {
@@ -904,7 +904,7 @@ int doParseTableInt(const char *val)
 int doStringRead(const char *id)
 {
     log_trace("doStringRead(%s)", id)
-    MemorySlot slot = getIdentifier((char *) id, true)->memory;
+    MemorySlot slot = getIdentifier((char *) id, true, false)->memory;
     if(slot == NULL) return RETURN_FAILURE;
 
     asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)
