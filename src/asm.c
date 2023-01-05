@@ -98,7 +98,6 @@ int asm_useBufferWriteFunction(const char* source, const char* destination, cons
     asm_jal(ASM_BUFFER_WRITE_FUNCTION_NAME);
     asm_code_printf("\tmove %s, $v0\n", into)
     return RETURN_SUCCESS;
-    //return asm_syscall(PRINT_STRING);
 }
 
 int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into)
@@ -117,12 +116,19 @@ int asm_useIntToStringFunction(const char *intAddressRegister, const char*into)
     return RETURN_SUCCESS;
 }
 
-
 int asm_useStrCmpFunction(const char *leftStrAddressRegister, const char *rightStrAddressRegister, const char * into)
 {
     asm_code_printf("\tmove $a0, %s\n", leftStrAddressRegister)
     asm_code_printf("\tmove $a1, %s\n", rightStrAddressRegister)
     asm_jal(ASM_STRCMP_FUNCTION_NAME);
+    asm_code_printf("\tmove %s, $v0\n", into)
+    return RETURN_SUCCESS;
+}
+
+int asm_useAtoiFunction(const char *strAddressRegister, const char * into)
+{
+    asm_code_printf("\tmove $a0, %s\n", strAddressRegister)
+    asm_jal(ASM_ATOI_FUNCTION_NAME);
     asm_code_printf("\tmove %s, $v0\n", into)
     return RETURN_SUCCESS;
 }
