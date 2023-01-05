@@ -305,8 +305,8 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
         return NULL;
     }
 
-    asm_getStackAddress("$t0", getMipsOffset(left));
-    asm_getStackAddress("$t1", getMipsOffset(right));
+    asm_readFromStack("$t0", getMipsOffset(left));
+    asm_readFromStack("$t1", getMipsOffset(right));
 
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
         boolExpr == BOOL_GE || boolExpr == BOOL_LT || boolExpr == BOOL_LE)
