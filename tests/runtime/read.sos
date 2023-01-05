@@ -1,11 +1,4 @@
-a="Hello";
-b="World";
-c="Goodbye";
-d=88;
-e=50;
-echo ${a};
+declare tab[4];
+read tab[0];
+echo ${tab[0]};
 exit
-#if test ${a} ' ' ${b} = "Hello World" then echo "1" else echo "0" fi;
-#echo "\n";
-#if test ${c} ' ' ${b} = "Goodbye World" then echo "1" else echo "0" fi;
-#echo "\n";

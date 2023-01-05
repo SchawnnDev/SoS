@@ -68,9 +68,11 @@ int doDeclareStaticArray(char *id, int size);
 
 /**
  *
+ * @param id
+ * @param offset
  * @return
  */
-int doArrayRead();
+int doArrayRead(char *id, MemorySlot offset);
 
 /**
  *
