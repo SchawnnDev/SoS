@@ -96,11 +96,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : TEST test_expr { $$ = $2; }
     ;
 
-test_expr : test_expr ARG_O marker test_expr2 { log_debug("test_expr ARG_O marker test_expr2"); $$ = doBoolExpression($1, L_OR, $4);}
+test_expr : test_expr ARG_O marker test_expr2 { $$ = doBoolExpression($1, L_OR, $4);}
     | test_expr2
     ;
 
-test_expr2 : test_expr2 ARG_A marker test_expr3 { log_debug("test_expr2 ARG_A marker test_expr3"); $$ = doBoolExpression($1,L_AND,$4);}
+test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND,$4);}
     | test_expr3
     ;
 
@@ -113,7 +113,7 @@ test_expr3 : LPAREN test_expr RPAREN { $$ = $2; }
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }
     | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, STR_NEQ, $3); }
     | operator1 final_concatenation {$$ = doEmptyBoolExpression($1,$2);}
-    | operand operator2 operand { log_debug("operand %d operand", $2); printBoolExpr($2); $$ = doBoolExpression($1, $2, $3); }
+    | operand operator2 operand { log_debug("operand %d operand", $2); $$ = doBoolExpression($1, $2, $3); }
     ;
 
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); }
