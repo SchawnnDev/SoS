@@ -5,7 +5,7 @@ int asm_writePrintErrorAndExit(){
 
     asm_code_printf("\t\tli $v0, 4\n")
     asm_code_printf("\t\tsyscall\n")
-    asm_code_printf("\t\tmove $a0, $s0\n")
+    asm_code_printf("\t\tmove $a0, $a1\n")
     asm_code_printf("\t\tli $v0, 17\n")
     asm_code_printf("\t\tsyscall\n")
 
@@ -22,7 +22,7 @@ int asm_writeOutOfBoundsErrorFunction(){
     asm_code_printf("\t%s:\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
     asm_code_printf("\t\tla $a0, %s\n", ASM_VAR_ERROR_OUTOFBOUNDS)
     // Error code for outofbounds : 1
-    asm_code_printf("\t\tli $s0, 1\n")
+    asm_code_printf("\t\tli $a1, 1\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 
     return RETURN_SUCCESS;
@@ -38,7 +38,7 @@ int asm_writeNotANumberErrorFunction(){
     asm_code_printf("\t%s:\n", ASM_NOT_A_NUMBER_ERROR_FUNCTION_NAME)
     asm_code_printf("\t\tla $a0, %s\n", ASM_VAR_ERROR_NAN)
     // Error code for nan : 2
-    asm_code_printf("\t\tli $s0, 2\n")
+    asm_code_printf("\t\tli $a1, 2\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 
     return RETURN_SUCCESS;
@@ -54,7 +54,7 @@ int asm_writeArrayElementNotAllocatedErrorFunction(){
     asm_code_printf("\t%s:\n", ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME)
     asm_code_printf("\t\tla $a0, %s\n", ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED)
     // Error code for array element not allocated : 3
-    asm_code_printf("\t\tli $s0, 3\n")
+    asm_code_printf("\t\tli $a1, 3\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 
     return RETURN_SUCCESS;
