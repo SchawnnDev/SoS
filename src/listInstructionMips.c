@@ -351,33 +351,35 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
     CHECKPOINTER(code);
 
     Code tmp = addr->cursorCode;
-    while ((tmp != NULL) && (tmp->numberGoto == 0)){
-        tmp = tmp->previousCode;
+    while(tmp != NULL){
+        while ((tmp != NULL) && (tmp->numberGoto == 0)){
+            tmp = tmp->previousCode;
+        }
+
+        if(tmp == NULL){
+            log_trace("completeUnDefineGoto : there is no goto to complete")
+            return;
+        }
+
+        int size2 = strlen(code)+1;
+        tmp->numberGoto--;
+        if(size2 == 1){
+            log_trace("completeUnDefineGoto : code is empty")
+            return;
+        }
+
+        int size1 = strlen(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
+        size1 = size1 + size2 + 2;
+
+        char * newCode;
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))
+        CHECKPOINTER(strcat(newCode," "))
+        CHECKPOINTER(strcat(newCode,code))
+
+        free(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
+        tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]] = newCode;
     }
-
-    if(tmp == NULL){
-        log_trace("completeUnDefineGoto : there is no goto to complete")
-        return;
-    }
-
-    int size2 = strlen(code)+1;
-    tmp->numberGoto--;
-    if(size2 == 1){
-        log_trace("completeUnDefineGoto : code is empty")
-        return;
-    }
-
-    int size1 = strlen(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
-    size1 = size1 + size2 + 2;
-
-    char * newCode;
-    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-    CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))
-    CHECKPOINTER(strcat(newCode," "))
-    CHECKPOINTER(strcat(newCode,code))
-
-    free(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
-    tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]] = newCode;
 }
 
 Data getFirstDataCursor(Data cursor)
