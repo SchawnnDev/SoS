@@ -985,51 +985,46 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
     return slot;
 }
 
-Marker doMarkerFct(int markerType)
+int doDeclareFunction(Marker mark)
 {
-    log_debug("doMarkerFct(%d)", markerType)
-    switch (markerType)
-    {
-        case MARKER_FCT_START:
-        {
-            char *lbl = (char *) createNewLabel();
-            Marker mark = newMarker();
-            asm_code_printf("\tj %s\n", lbl)
-
-            mark->code = listInstruction->cursorCode;
-            mark->index = listInstruction->cursorCode->numberCode - 1;
-            mark->lbl = lbl;
-            asm_code_printf("\t") // function name
-            asm_writeRegistersToStack(); // 3
-            asm_code_printf("\tjal ") // label to declare
-            return mark;
-        }
-
-        case MARKER_FCT_DECLARE:
-        {
-            char *lbl = (char *) createNewLabel();
-            Marker mark = newMarker();
-
-            asm_code_printf("# Marker fct declare\n")
-
-            mark->code = listInstruction->cursorCode;
-            mark->index = listInstruction->cursorCode->numberCode - 1;
-            mark->lbl = lbl;
-
-            asm_loadRegistersFromStack(); // 3
-            asm_code_printf("\tjr $ra\n")
-            asm_code_printf("") // function name
-            asm_code_printf("# Marker end declare\n")
-
-            return mark;
-        }
-    }
-
-    log_error("Unknown marker type")
-    return NULL;
+    // handle returns
+    // from actual position to start position (mark)
+    deleteRangeVariable(listRangeVariable); // delete one block
+    asm_loadRegistersFromStack();
+    asm_code_printf("\tjr $ra\n")
+    asm_code_printf("\tend_%s:\n", mark->lbl)
+    return RETURN_SUCCESS;
 }
 
-int doDeclareFunction(char* id, Marker marker_fct_start, Marker marker_fct_declare)
+Marker doFunctionStartMarker(char* id)
 {
-    return 0;
+    Identifier identifier = getIdentifier(id, false, false);
+    Marker mark = newMarker();
+
+    if(identifier != NULL)
+    {
+        // mark->lbl => NULL identifier already exists
+        mark->code = listInstruction->cursorCode;
+        mark->index = listInstruction->cursorCode->numberCode;
+        return mark;
+    }
+
+    mark->lbl = id;
+
+    // Create identifier and start code
+    identifier = getIdentifier(id, true, false);
+    identifier->type = FUNCTION;
+
+    // creation du nouveau block
+    addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
+
+    asm_code_printf("\tj end_%s\n", id)
+
+    mark->code = listInstruction->cursorCode;
+    mark->index = listInstruction->cursorCode->numberCode - 1;
+
+    asm_code_printf("\tstart_%s:\n", id) // function name
+    asm_writeRegistersToStack(); // 3
+
+    return mark;
 }

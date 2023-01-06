@@ -1,5 +1,11 @@
 testFct()
 {
-  echo "Test"
+  echo "Test";
+
+  anotherTestFunction()
+  {
+    echo "Another test"
+  }
+
 };
 exit

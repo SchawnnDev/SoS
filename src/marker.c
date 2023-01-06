@@ -3,7 +3,8 @@
 Marker newMarker()
 {
     Marker marker;
-    CHECKPOINTER(marker = malloc(sizeof(struct marker_t)));
+    CHECKPOINTER(marker = malloc(sizeof(struct marker_t)))
+    marker->lbl = NULL;
     return marker;
 }
 

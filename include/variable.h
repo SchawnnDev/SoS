@@ -34,10 +34,6 @@
 #define BLOCK_FUNCTION 5
 #define BLOCK_CASE 6
 
-/* Function marker type */
-#define MARKER_FCT_START 0
-#define MARKER_FCT_DECLARE 1
-
 /* Operations */
 #define PLUS_OPE 1
 #define MINUS_OPE 2

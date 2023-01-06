@@ -62,7 +62,7 @@ void cleanListRangeVariable(ListRangeVariable addr);
 
 /*!
  * \fn int increaseGlobalRangeVariable(ListRangeVariable addr)
- * \brief Fonction qui augmente la taille de la liste de portée de vaiable global en ajoutant un nouveau bloque
+ * \brief Fonction qui augmente la taille de la liste de portée de variable global en ajoutant un nouveau block
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  *
@@ -78,7 +78,7 @@ int increaseGlobalRangeVariable(ListRangeVariable addr);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addRangeVariable(ListRangeVariable addr);
+int addRangeVariable(ListRangeVariable addr, int blockType);
 
 /*!
  * \fn int deleteRangeVariable(ListRangeVariable addr)

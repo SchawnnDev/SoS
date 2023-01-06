@@ -126,10 +126,17 @@ int doMarkerDone();
 
 /**
  *
- * @param markerType
+ * @param id Id label
  * @return
  */
-Marker doMarkerFct(int markerType);
+Marker doFunctionStartMarker(char* id);
+
+/**
+ *
+ * @param marker
+ * @return
+ */
+int doDeclareFunction(Marker marker);
 
 /**
  *

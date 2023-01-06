@@ -105,13 +105,13 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
  * \fn int addRangeVariable(ListRangeVariable addr)
  * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
 */
-int addRangeVariable(ListRangeVariable addr)
+int addRangeVariable(ListRangeVariable addr, int blockType)
 {
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
 
     RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,
-                                                BLOCK_MAIN, addr->cursor);
+                                                blockType, addr->cursor);
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
