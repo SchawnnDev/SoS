@@ -1,0 +1,5 @@
+declare array[10];
+i = 0;
+array[${i}] = 1;
+echo ${array[${i}]};
+exit
