@@ -452,12 +452,10 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeTrueList(listInstruction,block);
 
             block = (char*)createNewLabel();
-            int isLabelCreated = completeOneUnDefineGoto(listInstruction,block);
+            completeOneUnDefineGoto(listInstruction,block);
             completeTrueList(listInstruction,block);
 
-            if(isLabelCreated == 1){
-                block = (char*)createNewLabel();
-            }
+            block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
@@ -467,6 +465,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeFalseList(listInstruction, block);
             completeFalseList(listInstruction, block);
             addIntoFalseList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            addIntoUnDefineGoto(listInstruction,"\t");
 
             asm_code_printf("\n\t# End of Test block of AND\n")
             break;
@@ -491,6 +492,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeFalseList(listInstruction, "");
 
             addIntoFalseList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            addIntoUnDefineGoto(listInstruction,"\t");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
         default:
