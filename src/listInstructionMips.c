@@ -263,7 +263,7 @@ void addIntoUnDefineGoto(ListInstruction addr, char* code)
  * \fn void completeTrueList( ListInstruction addr, char* code )
  * \brief Fonction qui permet complete une ligne de la trueList
 */
-void completeTrueList(ListInstruction addr, char *code)
+int completeTrueList(ListInstruction addr, char *code)
 {
     log_trace("completeTrueList (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
@@ -276,7 +276,7 @@ void completeTrueList(ListInstruction addr, char *code)
 
     if(tmp == NULL){
         log_trace("completeTrueList : there is no goto to complete")
-        return;
+        return RETURN_FAILURE;
     }
 
     char * newCode;
@@ -285,7 +285,7 @@ void completeTrueList(ListInstruction addr, char *code)
     if(size1 >= 2){
         if(size2 == 1){
             log_trace("completeTrueList : code is empty")
-            return;
+            return RETURN_FAILURE;
         }
         tmp->numberTrue--;
         size1 = size1 + size2 + 2;
@@ -298,7 +298,7 @@ void completeTrueList(ListInstruction addr, char *code)
         tmp->numberTrue--;
         if(size2 == 1){
             log_trace("completeTrueList : code is empty")
-            return;
+            return RETURN_FAILURE;
         }
         size1 = size2 + 4;
 
@@ -310,6 +310,8 @@ void completeTrueList(ListInstruction addr, char *code)
 
     free(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
     tmp->lineCode[tmp->trueList[tmp->numberTrue]] = newCode;
+
+    return RETURN_FAILURE;
 }
 
 /*!

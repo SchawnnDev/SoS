@@ -163,7 +163,7 @@ void addIntoFalseList(ListInstruction addr, char* code);
  * \param addr : ListInstruction, la structure d'instruction
  * \param code : char*, la structure d'instruction
 */
-void completeTrueList(ListInstruction addr, char *code);
+int completeTrueList(ListInstruction addr, char *code);
 
 /*!
  * \fn void completeFalseList( ListInstruction addr, char* code )

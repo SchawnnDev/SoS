@@ -436,14 +436,16 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\n\t# Start of Test block of AND\n")
 
             block = (char*)createNewLabel();
-            completeTrueList(listInstruction,block);
+            int isLabelCreated = completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
             block = (char*)createNewLabel();
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
-            //block = (char*)createNewLabel();
+            if(isLabelCreated){
+                block = (char*)createNewLabel();
+            }
             asm_code_printf("\t%s:\n",block)
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
