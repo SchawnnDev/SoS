@@ -1,0 +1,22 @@
+if test (50 -eq 50) -a !("world" != "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test (50 -eq 50) -a !(10 -eq 80) then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq 50 -a ! 10 -eq 80 then echo "1" else echo "0" fi;
+echo "\n";
+if test ! 10 -eq 50 -a ! 10 -eq 80 then echo "1" else echo "0" fi;
+echo "\n";
+if test ! (10 -eq 50) -a ! (10 -eq 80) then echo "1" else echo "0" fi;
+echo "\n";
+if test ! (10 -eq 50) -o ! (10 -eq 80) then echo "1" else echo "0" fi;
+echo "\n";
+if test ! ("world" = "world") -o ! (10 -eq 80) then echo "1" else echo "0" fi;
+echo "\n";
+if test ! (10 -eq 50) -o ! (80 -eq 80) then echo "1" else echo "0" fi;
+echo "\n";
+if test 80 -eq 50 -o ! ("wArld" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test 80 -eq 50 -o ! (-n "notEmpty") then echo "1" else echo "0" fi;
+echo "\n";
+if test ! (80 -eq 50) -o ! (-z "") then echo "1" else echo "0" fi;
+exit

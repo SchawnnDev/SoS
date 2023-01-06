@@ -279,16 +279,15 @@ void completeTrueList(ListInstruction addr, char *code)
         return;
     }
 
-    int size2 = strlen(code)+1;
-    tmp->numberTrue--;
-    if(size2 == 1){
-        log_trace("completeTrueList : code is empty")
-        return;
-    }
-
     char * newCode;
-    int size1 = strlen(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
+    int size2 = strlen(code)+1;
+    int size1 = strlen(tmp->lineCode[tmp->trueList[tmp->numberTrue-1]]);
     if(size1 >= 2){
+        if(size2 == 1){
+            log_trace("completeTrueList : code is empty")
+            return;
+        }
+        tmp->numberTrue--;
         size1 = size1 + size2 + 2;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
@@ -297,6 +296,7 @@ void completeTrueList(ListInstruction addr, char *code)
         CHECKPOINTER(strcat(newCode,code))
     } else {
         size1 = size2 + 4;
+        tmp->numberTrue--;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
         CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
@@ -328,16 +328,15 @@ void completeFalseList(ListInstruction addr, char *code)
         return;
     }
 
-    int size2 = strlen(code)+1;
-    tmp->numberFalse--;
-    if(size2 == 1){
-        log_trace("completeFalseList : code is empty")
-        return;
-    }
-
     char * newCode;
-    int size1 = strlen(tmp->lineCode[tmp->falseList[tmp->numberFalse]]);
+    int size2 = strlen(code)+1;
+    int size1 = strlen(tmp->lineCode[tmp->falseList[tmp->numberFalse-1]]);
     if(size1 >= 2){
+        if(size2 == 1){
+            log_trace("completeFalseList : code is empty")
+            return;
+        }
+        tmp->numberFalse--;
         size1 = size1 + size2 + 2;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
@@ -346,6 +345,7 @@ void completeFalseList(ListInstruction addr, char *code)
         CHECKPOINTER(strcat(newCode,code))
     } else {
         size1 = size2 + 4;
+        tmp->numberFalse--;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
         CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->falseList[tmp->numberFalse]]))
@@ -378,16 +378,15 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
             return;
         }
 
-        int size2 = strlen(code)+1;
-        tmp->numberGoto--;
-        if(size2 == 1){
-            log_trace("completeUnDefineGoto : code is empty")
-            return;
-        }
-
         char * newCode;
-        int size1 = strlen(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]);
+        int size2 = strlen(code)+1;
+        int size1 = strlen(tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto-1]]);
         if(size1 >= 2){
+            if(size2 == 1){
+                log_trace("completeUnDefineGoto : code is empty")
+                return;
+            }
+            tmp->numberGoto--;
             size1 = size1 + size2 + 2;
 
             CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
@@ -396,6 +395,7 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
             CHECKPOINTER(strcat(newCode,code))
         } else {
             size1 = size2 + 4;
+            tmp->numberGoto--;
 
             CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
             CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))

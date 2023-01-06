@@ -1,7 +1,2 @@
-a=1;
-b=2;
-
-if test ${a} -lt 10 -a ${b} -lt 10 then
-    echo "Yeah"
-fi ;
+if test (50 -eq 50) -o ((80 -ne 80) -a (60 -gt 60)) then echo "1" else echo "0" fi;
 exit
