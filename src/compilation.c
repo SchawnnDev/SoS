@@ -519,14 +519,14 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     switch (boolExpr)
     {
         case EMPTY:
-            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            asm_code_printf("\tlb $t0, 0($t1)");
             addIntoTrueList(listInstruction,"\n\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
             addIntoTrueList(listInstruction,"\t");
             break;
         case NOT_EMPTY:
-            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            asm_code_printf("\tlb $t0, 0($t1)");
             addIntoTrueList(listInstruction,"\n\tbne $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
