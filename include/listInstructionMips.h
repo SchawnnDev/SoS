@@ -184,6 +184,15 @@ void completeFalseList(ListInstruction addr, char *code);
 void completeUnDefineGoto( ListInstruction addr, char* code );
 
 /*!
+ * \fn void completeOneUnDefineGoto( ListInstruction addr, char* code )
+ * \brief Fonction qui permet d'ajoute un goto indéterminé
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+ * \param code : char*, la structure d'instruction
+*/
+int completeOneUnDefineGoto(ListInstruction addr, char *code);
+
+/*!
  * \fn int switchTrueFalseList(ListInstruction addr)
  * \brief Fonction qui switch la trueList et la falseList
  *

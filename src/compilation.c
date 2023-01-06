@@ -317,8 +317,6 @@ int doMarkerElse()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
-    completeFalseList(listInstruction,"");
-    completeFalseList(listInstruction,"");
     completeFalseList(listInstruction,then);
 
     return RETURN_SUCCESS;
@@ -401,60 +399,60 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             addIntoTrueList(listInstruction,"\tbeq $t0, 1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case STR_NEQ:
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
             addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_NEQ:
             addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_GT:
             addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_GE:
             addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_LT:
             addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_LE:
             addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case L_AND:
             asm_code_printf("\n\t# Start of Test block of AND\n")
 
             block = (char*)createNewLabel();
-            completeTrueList(listInstruction,block);
+            completeOneUnDefineGoto(listInstruction,block);
             completeTrueList(listInstruction,block);
 
             block = (char*)createNewLabel();
-            int isLabelCreated = completeTrueList(listInstruction,block);
+            int isLabelCreated = completeOneUnDefineGoto(listInstruction,block);
             completeTrueList(listInstruction,block);
 
             if(isLabelCreated == 1){
@@ -478,18 +476,19 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             block = (char*)createNewLabel();
             block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
-            completeTrueList(listInstruction,"");
+            completeOneUnDefineGoto(listInstruction,"");
+            completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
-            completeTrueList(listInstruction,block1);
-            completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
 
             block = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
+            completeOneUnDefineGoto(listInstruction,"");
             completeFalseList(listInstruction, block);
             completeFalseList(listInstruction, block1);
+
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
