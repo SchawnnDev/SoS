@@ -1,0 +1,5 @@
+echo "1";
+until test 50 -eq 50 do
+    echo "Shouldn't print that.\n"
+done;
+exit

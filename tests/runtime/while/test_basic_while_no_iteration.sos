@@ -1,0 +1,5 @@
+echo "1";
+while test 50 -eq 100 do
+    echo "Shouldn't print that.\n"
+done;
+exit

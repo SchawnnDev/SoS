@@ -1,0 +1,13 @@
+ite=0;
+while test ${ite} -lt 5 do
+    echo ${ite} "\n";
+    ite = $( expr ${ite} + 1 );
+
+    ite_bis="";
+    while test ${ite_bis} != "aaa" do
+        echo ${ite_bis} "\n";
+        ite_bis = ${ite_bis} "a"
+    done
+done;
+echo ${ite_bis} "\n";
+exit
