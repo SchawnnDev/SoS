@@ -295,8 +295,12 @@ void completeTrueList(ListInstruction addr, char *code)
         CHECKPOINTER(strcat(newCode," "))
         CHECKPOINTER(strcat(newCode,code))
     } else {
-        size1 = size2 + 4;
         tmp->numberTrue--;
+        if(size2 == 1){
+            log_trace("completeTrueList : code is empty")
+            return;
+        }
+        size1 = size2 + 4;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
         CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
@@ -344,8 +348,12 @@ void completeFalseList(ListInstruction addr, char *code)
         CHECKPOINTER(strcat(newCode," "))
         CHECKPOINTER(strcat(newCode,code))
     } else {
-        size1 = size2 + 4;
         tmp->numberFalse--;
+        if(size2 == 1){
+            log_trace("completeFalseList : code is empty")
+            return;
+        }
+        size1 = size2 + 4;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
         CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->falseList[tmp->numberFalse]]))
@@ -394,8 +402,12 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
             CHECKPOINTER(strcat(newCode," "))
             CHECKPOINTER(strcat(newCode,code))
         } else {
-            size1 = size2 + 4;
             tmp->numberGoto--;
+            if(size2 == 1){
+                log_trace("completeUnDefineGoto : code is empty")
+                return;
+            }
+            size1 = size2 + 4;
 
             CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
             CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->unDefineGoto[tmp->numberGoto]]))
