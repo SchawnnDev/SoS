@@ -8,9 +8,9 @@
 %}
 
 %union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; }
+
 %right ASSIGN
-%left ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
-%nonassoc ARG_A ARG_O
+%left ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ARG_A ARG_O
 
 %token INT STRING WORD EXPR
 %token DECLARE LOCAL
@@ -33,7 +33,7 @@
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <boolexprval> operator1 operator2
+%type <boolexprval> operator1 operator2 operator3
 %start program
 
 %%
@@ -97,11 +97,7 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : TEST test_expr { $$ = $2; }
     ;
 
-test_expr : test_expr ARG_O marker test_expr2 { $$ = doBoolExpression($1, L_OR, $4);}
-    | test_expr2
-    ;
-
-test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND,$4);}
+test_expr : test_expr operator3 marker test_expr3 { $$ = doBoolExpression($1, $2, $4);}
     | test_expr3
     ;
 
@@ -110,6 +106,9 @@ test_expr3 : LPAREN test_expr RPAREN { $$ = $2; }
     | test_instruction { log_debug("test_instruction"); }
     | EXCL test_instruction { $$ = $2; }
     ;
+
+operator3 : ARG_A { $$ = L_AND; }
+    | ARG_O { $$ = L_OR; }
 
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }
     | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, STR_NEQ, $3); }
