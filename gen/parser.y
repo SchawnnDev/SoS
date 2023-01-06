@@ -9,7 +9,8 @@
 
 %union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; }
 %right ASSIGN
-%left ARG_A ARG_O ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
+%left ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE
+%nonassoc ARG_A ARG_O
 
 %token INT STRING WORD EXPR
 %token DECLARE LOCAL
@@ -28,7 +29,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
-%type <strval> marker marker_then marker_else marker_end_instruction
+%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
@@ -46,11 +47,11 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3, 0); }
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
-    | IF test_block marker_then THEN list_instructions marker_end_instruction else_part FI { doMarkerFi();}
+    | IF test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi();}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
-    | WHILE test_block DO list_instructions DONE
-    | UNTIL test_block DO list_instructions DONE
+    | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE
+    | UNTIL test_block DO list_instructions marker_done DONE
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho($2); }
     | READ id { doStringRead($2); }
@@ -63,7 +64,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | EXIT operand_int { doExit($2); }
     ;
 
-else_part : marker_else ELIF test_block marker_then THEN list_instructions marker_end_instruction else_part
+else_part : marker_else ELIF test_block marker_test THEN list_instructions marker_end_instruction else_part
     | marker_else ELSE list_instructions marker_end_instruction
     | { log_debug("else_part empty"); }
     ;
@@ -191,11 +192,15 @@ table_int : WORD { $$ = doParseTableInt($1); }
 
 marker : {$$ = ""; setMarker();}
 
-marker_then : {$$ = ""; doMarkerThen();}
+marker_test : {$$ = ""; doMarkerTest();}
 
 marker_else : {$$ = ""; doMarkerElse();}
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
+
+marker_loop : {$$ = ""; doMarkerLoop();}
+
+marker_done : {$$ = ""; doMarkerDone();}
 
 %%
 

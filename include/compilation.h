@@ -111,13 +111,17 @@ int getValues();
 
 int setMarker();
 
-int doMarkerThen();
+int doMarkerTest();
 
 int doMarkerElse();
 
 int doMarkerFi();
 
 int doMarkerEndInstruction();
+
+int doMarkerLoop();
+
+int doMarkerDone();
 
 /**
  *

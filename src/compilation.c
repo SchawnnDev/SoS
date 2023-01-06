@@ -303,7 +303,7 @@ int setMarker(){
     return RETURN_SUCCESS;
 }
 
-int doMarkerThen()
+int doMarkerTest()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
@@ -339,6 +339,22 @@ int doMarkerEndInstruction()
 {
     addIntoUnDefineGoto(listInstruction,"\tj");
     asm_code_printf("\n")
+    return RETURN_SUCCESS;
+}
+
+int doMarkerLoop()
+{
+    addIntoUnDefineGoto(listInstruction,"\t");
+    asm_code_printf("\n")
+    return RETURN_SUCCESS;
+}
+
+int doMarkerDone()
+{
+    char* then = (char*)createNewLabel();
+    completeUnDefineGoto(listInstruction,then);
+    asm_code_printf("\n\tj %s",then)
+    return RETURN_SUCCESS;
 }
 
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
