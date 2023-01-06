@@ -60,5 +60,7 @@
 #define ASM_VAR_ERROR_NAN "_error_nan"
 #define ASM_VAR_ERROR_OUTOFBOUNDS "_error_outofbounds"
 #define ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED "_error_array_element_not_allocated"
+#define ASM_VAR_ARGC "_argc"
+#define ASM_VAR_ARGV_START "_argv_start"
 
 #endif

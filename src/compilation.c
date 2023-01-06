@@ -48,7 +48,10 @@ int compile(FILE *inputFile, FILE *outputFile)
     yyin = inputFile;
     // Generate all functions & headers
     asm_writeHeader();
-    asm_code_printf("j _main\n")
+    asm_code_printf("\t# Args handling\n")
+    asm_writeArgsToStack();
+    //asm_code_printf("\n")
+    //asm_code_printf("j _main\n")
     asm_code_printf("\n")
     asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")

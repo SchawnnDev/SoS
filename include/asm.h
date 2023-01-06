@@ -214,6 +214,12 @@ int asm_addArgumentsOnStack(int size, ...);
  */
 int asm_allocateOnHeap(const char* into, int size);
 
+/**
+ *
+ * @return
+ */
+int asm_writeArgsToStack();
+
 // UTILS
 
 /**

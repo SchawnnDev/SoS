@@ -89,6 +89,7 @@ void freeMemory(MemorySlot mem)
  */
 MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 {
+    if(memorySlot == NULL) return NULL;
     log_trace("newMemorySlotList(%d)", memorySlot->offset)
     MemorySlotList list;
     CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)));
