@@ -307,7 +307,7 @@ int doMarkerTest()
 {
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
-    completeTrueList(listInstruction,"");
+    completeOneUnDefineGoto(listInstruction, "");
     completeTrueList(listInstruction,then);
 
     return RETURN_SUCCESS;

@@ -1,2 +1,2 @@
-if test (50 -eq 50) -a !("world" != "world") then echo "1" else echo "0" fi;
+if test "Hello" "Worldo" = "HelloWorldo" then echo "1" else echo "0" fi;
 exit
