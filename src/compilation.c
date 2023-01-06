@@ -318,6 +318,7 @@ int doMarkerElse()
     char* then = (char*)createNewLabel();
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,"");
+    completeFalseList(listInstruction,"");
     completeFalseList(listInstruction,then);
 
     return RETURN_SUCCESS;
