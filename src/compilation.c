@@ -524,14 +524,14 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
             addIntoTrueList(listInstruction,"\n\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case NOT_EMPTY:
             asm_code_printf("\tlb $t0, 0($t1)");
             addIntoTrueList(listInstruction,"\n\tbne $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         default:
             log_error("Operation not allow %d",boolExpr)
