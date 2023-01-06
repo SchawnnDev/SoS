@@ -33,7 +33,7 @@
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <boolexprval> operator1 operator2 operator3
+%type <boolexprval> operator1 operator2
 %start program
 
 %%
@@ -50,8 +50,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | IF test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi();}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
-    | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE
-    | UNTIL test_block DO list_instructions marker_done DONE
+    | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop();}
+    | UNTIL marker_loop test_block DO list_instructions marker_done DONE { doMarkerEndLoop();}
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho($2); }
     | READ id { doStringRead($2); }
@@ -97,7 +97,11 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : TEST test_expr { $$ = $2; }
     ;
 
-test_expr : test_expr operator3 marker test_expr3 { $$ = doBoolExpression($1, $2, $4);}
+test_expr : test_expr ARG_O marker test_expr2 { $$ = doBoolExpression($1, L_OR, $4);}
+    | test_expr2
+    ;
+
+test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND,$4);}
     | test_expr3
     ;
 
@@ -106,9 +110,6 @@ test_expr3 : LPAREN test_expr RPAREN { $$ = $2; }
     | test_instruction { log_debug("test_instruction"); }
     | EXCL test_instruction { $$ = $2; }
     ;
-
-operator3 : ARG_A { $$ = L_AND; }
-    | ARG_O { $$ = L_OR; }
 
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }
     | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, STR_NEQ, $3); }

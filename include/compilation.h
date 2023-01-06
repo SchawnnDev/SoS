@@ -121,6 +121,8 @@ int doMarkerEndInstruction();
 
 int doMarkerLoop();
 
+int doMarkerEndLoop();
+
 int doMarkerDone();
 
 /**

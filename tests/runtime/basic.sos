@@ -1,2 +1,7 @@
-if test (50 -eq 50) -o ((80 -ne 80) -a (60 -gt 60)) then echo "1" else echo "0" fi;
+a=1;
+
+while test ${a} -lt 10  do
+    echo "Yeah";
+    a = $(expr ${a} + 1)
+done ;
 exit

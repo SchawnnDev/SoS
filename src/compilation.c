@@ -341,8 +341,20 @@ int doMarkerEndInstruction()
 
 int doMarkerLoop()
 {
+    asm_code_printf("\n\t# Start of Test block of LOOP\n")
     addIntoUnDefineGoto(listInstruction,"\t");
     asm_code_printf("\n")
+    return RETURN_SUCCESS;
+}
+
+int doMarkerEndLoop()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s:\n",then)
+    completeFalseList(listInstruction,then);
+    completeUnDefineGoto(listInstruction,then);
+
+    asm_code_printf("\n\t# End of Test block of LOOP\n\n")
     return RETURN_SUCCESS;
 }
 
@@ -350,7 +362,7 @@ int doMarkerDone()
 {
     char* then = (char*)createNewLabel();
     completeUnDefineGoto(listInstruction,then);
-    asm_code_printf("\n\tj %s",then)
+    asm_code_printf("\n\tj %s\n",then)
     return RETURN_SUCCESS;
 }
 
@@ -358,7 +370,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 {
     log_trace("doBoolExpression (int %d)", boolExpr)
 
-    asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
+    asm_code_printf("\n\t# Start of Test block of ope %d\n\n", boolExpr)
 
     if((boolExpr != L_AND) && (boolExpr != L_OR)){
 
@@ -488,7 +500,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     if (right != NULL && right->temp) freeMemory(right);
     if (left != NULL && left->temp) freeMemory(left);
 
-    asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
+    asm_code_printf("\n\t# End of Test block of ope %d\n\n", boolExpr)
     return NULL;
 }
 
