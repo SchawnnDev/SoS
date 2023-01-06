@@ -5,9 +5,10 @@
 #include "compilation.h"
 #include "memory.h"
 #include "boolExpr.h"
+#include "marker.h"
 %}
 
-%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; }
+%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; Marker markerval; }
 
 %right ASSIGN
 %left ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ARG_A ARG_O
@@ -34,6 +35,7 @@
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
 %type <boolexprval> operator1 operator2 operator3
+%type <markerval> marker_fct_start marker_fct_declare
 %start program
 
 %%
@@ -168,7 +170,7 @@ mult_div_mod : MULT { $$ = MULT_OPE; }
      | MOD { $$ = MOD_OPE;}
      ;
 
-declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
+declare_fct : id LPAREN RPAREN LBRACE declare_loc marker_fct_declare list_instructions RBRACE marker_fct_start { doDeclareFunction($1, $9, $6); }
     ;
 
 declare_loc : declare_loc LOCAL id ASSIGN final_concatenation SEMICOLON
@@ -200,6 +202,10 @@ marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
 marker_loop : {$$ = ""; doMarkerLoop();}
 
 marker_done : {$$ = ""; doMarkerDone();}
+
+marker_fct_start : { $$ = doMarkerFct(MARKER_FCT_START); }
+
+marker_fct_declare : { $$ = doMarkerFct(MARKER_FCT_DECLARE); }
 
 %%
 

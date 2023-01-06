@@ -4,7 +4,8 @@
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
  * \brief Fonction qui initialise la structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
+RangeVariable
+initRangeVariable(int rangeLevel, int blockType, RangeVariable previousLevel)
 {
     log_trace("initRangeVariable (int %d, RangeVariable %p)", rangeLevel,previousLevel)
 
@@ -18,6 +19,7 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)));
     addr->listIdentifier = initListIdentifier();
     addr->rangeLevel = rangeLevel;
+    addr->blockType = blockType;
 
     addr->previousLevel = previousLevel;
     addr->nextLevel = NULL;
@@ -48,7 +50,7 @@ ListRangeVariable initListRangeVariable()
 
     ListRangeVariable addr;
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
-    RangeVariable rangeAddr = initRangeVariable(0,NULL);
+    RangeVariable rangeAddr = initRangeVariable(0, BLOCK_MAIN, NULL);
     addr->cursor = rangeAddr;
     addr->cursorGlobal = rangeAddr;
 
@@ -85,7 +87,8 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
     CHECKPOINTER(addr->cursorGlobal);
     CHECKPOINTER(addr->cursor);
 
-    RangeVariable newCursor = initRangeVariable(0, addr->cursorGlobal);
+    RangeVariable newCursor = initRangeVariable(0, BLOCK_MAIN,
+                                                addr->cursorGlobal);
     if(addr->cursorGlobal->nextLevel != NULL){
         newCursor->nextLevel = addr->cursorGlobal->nextLevel;
     } else {
@@ -107,7 +110,8 @@ int addRangeVariable(ListRangeVariable addr)
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
 
-    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1, addr->cursor);
+    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,
+                                                BLOCK_MAIN, addr->cursor);
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 

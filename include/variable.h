@@ -25,6 +25,19 @@
 #define FUNCTION 4
 #define MAXTYPEVALUE 5 /* /!\  A modifier lors de l'ajout ou suppression d'un type */
 
+/* Blocks */
+#define BLOCK_MAIN 0
+#define BLOCK_IF 1
+#define BLOCK_FOR 2
+#define BLOCK_WHILE 3
+#define BLOCK_UNTIL 4
+#define BLOCK_FUNCTION 5
+#define BLOCK_CASE 6
+
+/* Function marker type */
+#define MARKER_FCT_START 0
+#define MARKER_FCT_DECLARE 1
+
 /* Operations */
 #define PLUS_OPE 1
 #define MINUS_OPE 2

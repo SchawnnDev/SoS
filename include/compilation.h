@@ -7,6 +7,7 @@
 #include "listInstructionMips.h"
 #include "boolExpr.h"
 #include "memory.h"
+#include "marker.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
 
@@ -122,6 +123,13 @@ int doMarkerEndInstruction();
 int doMarkerLoop();
 
 int doMarkerDone();
+
+/**
+ *
+ * @param markerType
+ * @return
+ */
+Marker doMarkerFct(int markerType);
 
 /**
  *

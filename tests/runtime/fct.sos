@@ -1,0 +1,5 @@
+testFct()
+{
+  echo "Test"
+};
+exit

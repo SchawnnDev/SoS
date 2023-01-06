@@ -984,3 +984,52 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
     asm_code_printf("\tsw $t1, 0($t0)\n")
     return slot;
 }
+
+Marker doMarkerFct(int markerType)
+{
+    log_debug("doMarkerFct(%d)", markerType)
+    switch (markerType)
+    {
+        case MARKER_FCT_START:
+        {
+            char *lbl = (char *) createNewLabel();
+            Marker mark = newMarker();
+            asm_code_printf("\tj %s\n", lbl)
+
+            mark->code = listInstruction->cursorCode;
+            mark->index = listInstruction->cursorCode->numberCode - 1;
+            mark->lbl = lbl;
+            asm_code_printf("\t") // function name
+            asm_writeRegistersToStack(); // 3
+            asm_code_printf("\tjal ") // label to declare
+            return mark;
+        }
+
+        case MARKER_FCT_DECLARE:
+        {
+            char *lbl = (char *) createNewLabel();
+            Marker mark = newMarker();
+
+            asm_code_printf("# Marker fct declare\n")
+
+            mark->code = listInstruction->cursorCode;
+            mark->index = listInstruction->cursorCode->numberCode - 1;
+            mark->lbl = lbl;
+
+            asm_loadRegistersFromStack(); // 3
+            asm_code_printf("\tjr $ra\n")
+            asm_code_printf("") // function name
+            asm_code_printf("# Marker end declare\n")
+
+            return mark;
+        }
+    }
+
+    log_error("Unknown marker type")
+    return NULL;
+}
+
+int doDeclareFunction(char* id, Marker marker_fct_start, Marker marker_fct_declare)
+{
+    return 0;
+}
