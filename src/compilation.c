@@ -484,8 +484,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\n")
 
             block = (char*)createNewLabel();
+            block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
-            completeOneUnDefineGoto(listInstruction,"");
+            completeOneUnDefineGoto(listInstruction,block1);
             completeFalseList(listInstruction, block);
             completeFalseList(listInstruction, block1);
 
