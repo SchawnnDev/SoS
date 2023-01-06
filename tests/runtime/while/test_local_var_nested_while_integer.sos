@@ -5,7 +5,7 @@ while test ${ite} -lt 5 do
 
     ite_bis=0;
     while test ${ite_bis} -lt 2 do
-        echo ${ite_bis} "\n";
+        echo ${ite} ${ite_bis} "\n";
         ite_bis = $( expr ${ite_bis} + 1 )
     done
 done;

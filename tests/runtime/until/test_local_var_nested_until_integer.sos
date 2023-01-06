@@ -5,7 +5,7 @@ until test ${ite} -ge 5 do
 
     ite_bis=0;
     until test ${ite_bis} -ge 2 do
-        echo ${ite_bis} "\n";
+        echo ${ite} ${ite_bis} "\n";
         ite_bis = $( expr ${ite_bis} + 1 )
     done
 done;

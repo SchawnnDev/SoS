@@ -1,4 +1,5 @@
 ite=0;
+char="a";
 while test ${ite} -lt 5 do
     echo ${ite} "\n";
     ite = $( expr ${ite} + 1 );
@@ -6,7 +7,7 @@ while test ${ite} -lt 5 do
     ite_bis="";
     while test ${ite_bis} != "aaa" do
         echo ${ite_bis} "\n";
-        ite_bis = ${ite_bis} "a"
+        ite_bis = ${ite_bis} ${char}
     done
 done;
 echo ${ite_bis} "\n";
