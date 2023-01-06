@@ -1,8 +1,2 @@
-if test -n "HelloWorld" then echo "1" else echo "0" fi;
-echo "\n";
-if test -n "" then echo "1" else echo "0" fi;
-echo "\n";
-if test -n " " then echo "1" else echo "0" fi;
-echo "\n";
-if test -n 89 then echo "1" else echo "0" fi;
+if test 50 -eq 50 -o (80 -eq 80) -a (60 -eq 60) then echo "1" else echo "0" fi;
 exit
