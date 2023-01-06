@@ -311,7 +311,7 @@ int completeTrueList(ListInstruction addr, char *code)
     free(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
     tmp->lineCode[tmp->trueList[tmp->numberTrue]] = newCode;
 
-    return RETURN_FAILURE;
+    return RETURN_SUCCESS;
 }
 
 /*!
