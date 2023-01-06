@@ -8,4 +8,6 @@ testFct()
   }
 
 };
+
+testFct;
 exit

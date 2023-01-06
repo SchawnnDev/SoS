@@ -10,6 +10,8 @@ int asm_writeLoadRegistersFromStackFunction()
     asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
     int count = 0;
 
+    asm_subtractInternalOffset(16 + 1); // +1 is $ra
+
     for (int i = 0; i < 7; ++i)
     {
         asm_code_printf("\t\tlw $t%d, %d($sp)\n", i, count)
@@ -23,8 +25,6 @@ int asm_writeLoadRegistersFromStackFunction()
     }
 
     asm_code_printf("\t\taddi $sp, $sp, 64\n")
-    // TODO: fix this ($t0 should not be written in this fct)
-//    asm_subtractInternalOffset(16);
     asm_code_printf("\t\tjr $ra\n")
 
     return RETURN_SUCCESS;

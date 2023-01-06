@@ -140,6 +140,14 @@ int doDeclareFunction(Marker marker);
 
 /**
  *
+ * @param id
+ * @param list
+ * @return
+ */
+int doFunctionCall(char* id, MemorySlotList list);
+
+/**
+ *
  * @param left
  * @param boolExpr
  * @param right

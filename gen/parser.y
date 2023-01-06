@@ -180,8 +180,8 @@ declare_loc : declare_loc LOCAL id ASSIGN final_concatenation SEMICOLON
     |
     ;
 
-function_call : id list_operand
-    | id
+function_call : id list_operand { doFunctionCall($1, $2); }
+    | id { doFunctionCall($1, NULL); }
     ;
 
 id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char* destination;

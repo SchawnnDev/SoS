@@ -987,7 +987,7 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
 
 int doDeclareFunction(Marker mark)
 {
-    // handle returns
+    // TODO: handle returns
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
     asm_loadRegistersFromStack();
@@ -1027,4 +1027,28 @@ Marker doFunctionStartMarker(char* id)
     asm_writeRegistersToStack(); // 3
 
     return mark;
+}
+
+int doFunctionCall(char* id, MemorySlotList list)
+{
+    Identifier identifier = getIdentifier(id, false, false);
+
+    if(identifier == NULL)
+    {
+        log_error("Function you trying to call is not existing.")
+        free(id);
+        return RETURN_FAILURE;
+    }
+
+    if(identifier->type != FUNCTION)
+    {
+        log_error("The variable you trying to call is not a function.")
+        free(id);
+        return RETURN_FAILURE;
+    }
+
+    asm_code_printf("\tjal start_%s\n", id)
+    free(id);
+
+    return RETURN_SUCCESS;
 }
