@@ -488,7 +488,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\t%s:\n",block)
             completeOneUnDefineGoto(listInstruction,block1);
             completeFalseList(listInstruction, block);
-            completeFalseList(listInstruction, block1);
+            completeFalseList(listInstruction, "");
 
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
