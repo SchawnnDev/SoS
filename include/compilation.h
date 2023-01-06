@@ -143,7 +143,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
  */
 MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right);
 
-
+int doNegBoolExpression();
 /**
  *
  * @param slot NULL if no exit code

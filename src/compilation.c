@@ -544,6 +544,11 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     return NULL;
 }
 
+int doNegBoolExpression()
+{
+    return switchTrueFalseList(listInstruction);
+}
+
 Identifier getIdentifier(char *id, bool create, bool local)
 {
 

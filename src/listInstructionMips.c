@@ -425,6 +425,39 @@ void completeUnDefineGoto(ListInstruction addr, char *code)
     }
 }
 
+/*!
+ * \fn int switchTrueFalseList(ListInstruction addr)
+ * \brief Fonction qui switch la trueList et la falseList
+*/
+int switchTrueFalseList(ListInstruction addr)
+{
+    int tmpTab[CODE_TAB_MAX];
+    int tmpNb;
+
+    Code tmpCode = addr->cursorCode;
+    while (tmpCode != NULL){
+        int index;
+        tmpNb = tmpCode->numberTrue;
+        for(index = 0; index < tmpNb; index++){
+            tmpTab[index] = tmpCode->trueList[index];
+        }
+
+        tmpCode->numberTrue = tmpCode->numberFalse;
+        for(index = 0; index < tmpCode->numberTrue; index++){
+            tmpCode->trueList[index] = tmpCode->falseList[index];
+        }
+
+        tmpCode->numberFalse = tmpNb;
+        for(index = 0; index < tmpCode->numberFalse; index++){
+            tmpCode->falseList[index] = tmpTab[index];
+        }
+
+        tmpCode = tmpCode->previousCode;
+    }
+
+    return RETURN_SUCCESS;
+}
+
 Data getFirstDataCursor(Data cursor)
 {
     Data found = cursor;

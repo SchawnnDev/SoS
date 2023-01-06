@@ -106,9 +106,9 @@ test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND
     ;
 
 test_expr3 : LPAREN test_expr RPAREN { $$ = $2; }
-    | EXCL LPAREN test_expr RPAREN { $$ = $3; }
+    | EXCL LPAREN test_expr RPAREN { $$ = $3; doNegBoolExpression();}
     | test_instruction { log_debug("test_instruction"); }
-    | EXCL test_instruction { $$ = $2; }
+    | EXCL test_instruction { $$ = $2; doNegBoolExpression();}
     ;
 
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }

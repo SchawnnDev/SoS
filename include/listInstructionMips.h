@@ -184,6 +184,14 @@ void completeFalseList(ListInstruction addr, char *code);
 void completeUnDefineGoto( ListInstruction addr, char* code );
 
 /*!
+ * \fn int switchTrueFalseList(ListInstruction addr)
+ * \brief Fonction qui switch la trueList et la falseList
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+int switchTrueFalseList(ListInstruction addr);
+
+/*!
  * \fn int writeToFile(ListInstruction list, FILE* file)
  * \brief Write all ListInstruction content into a file (line by line)
  *

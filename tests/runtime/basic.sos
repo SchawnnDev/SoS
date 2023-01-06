@@ -1,2 +1,2 @@
-if test (80 -eq 50) -o (-n "notEmpty") then echo "1" else echo "0" fi;
+if test !(50 -eq 50) then echo "1" else echo "0" fi;
 exit
