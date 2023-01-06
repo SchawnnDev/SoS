@@ -460,30 +460,28 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
 */
 int switchTrueFalseList(ListInstruction addr)
 {
-    int tmpTab[CODE_TAB_MAX];
-    int tmpNb;
+    int tmpTab;
 
     Code tmpCode = addr->cursorCode;
-    while (tmpCode != NULL){
-        int index;
-        tmpNb = tmpCode->numberTrue;
-        for(index = 0; index < tmpNb; index++){
-            tmpTab[index] = tmpCode->trueList[index];
-        }
-
-        tmpCode->numberTrue = tmpCode->numberFalse;
-        for(index = 0; index < tmpCode->numberTrue; index++){
-            tmpCode->trueList[index] = tmpCode->falseList[index];
-        }
-
-        tmpCode->numberFalse = tmpNb;
-        for(index = 0; index < tmpCode->numberFalse; index++){
-            tmpCode->falseList[index] = tmpTab[index];
-        }
-
+    while ((tmpCode != NULL) && (tmpCode->numberGoto == 0)){
         tmpCode = tmpCode->previousCode;
     }
 
+    if(tmpCode == NULL){
+        log_trace("switchTrueFalseList : there is no goto to complete")
+        return RETURN_FAILURE;
+    }
+
+    tmpCode->numberTrue--;
+    tmpTab = tmpCode->trueList[tmpCode->numberTrue];
+
+    tmpCode->numberFalse--;
+    tmpCode->trueList[tmpCode->numberTrue] = tmpCode->falseList[tmpCode->numberFalse];
+    tmpCode->numberTrue++;
+
+    tmpCode->falseList[tmpCode->numberFalse] = tmpTab;
+    tmpCode->numberFalse++;
+    
     return RETURN_SUCCESS;
 }
 
