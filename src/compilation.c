@@ -474,8 +474,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\n\t# Start of Test block of OR\n")
 
             block = (char*)createNewLabel();
+            block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
-            completeOneUnDefineGoto(listInstruction,"");
+            completeOneUnDefineGoto(listInstruction,block1);
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
@@ -486,7 +487,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\t%s:\n",block)
             completeOneUnDefineGoto(listInstruction,"");
             completeFalseList(listInstruction, block);
-            completeFalseList(listInstruction, block);
+            completeFalseList(listInstruction, block1);
 
             addIntoFalseList(listInstruction,"\tj");
             asm_code_printf("\n\t# End of Test block of OR\n")
