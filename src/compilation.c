@@ -448,14 +448,14 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             asm_code_printf("\n\t# Start of Test block of AND\n")
 
             block = (char*)createNewLabel();
-            int isLabelCreated = completeTrueList(listInstruction,block);
+            completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
             block = (char*)createNewLabel();
-            completeTrueList(listInstruction,block);
+            int isLabelCreated = completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
-            if(isLabelCreated == RETURN_FAILURE){
+            if(isLabelCreated == 1){
                 block = (char*)createNewLabel();
             }
             asm_code_printf("\t%s:\n",block)

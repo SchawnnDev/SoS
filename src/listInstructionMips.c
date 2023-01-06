@@ -279,6 +279,7 @@ int completeTrueList(ListInstruction addr, char *code)
         return RETURN_FAILURE;
     }
 
+    int returnValue = RETURN_SUCCESS;
     char * newCode;
     int size2 = strlen(code)+1;
     int size1 = strlen(tmp->lineCode[tmp->trueList[tmp->numberTrue-1]]);
@@ -306,12 +307,14 @@ int completeTrueList(ListInstruction addr, char *code)
         CHECK(sprintf(newCode,"%s", tmp->lineCode[tmp->trueList[tmp->numberTrue]]))
         CHECKPOINTER(strcat(newCode,code))
         CHECKPOINTER(strcat(newCode,":"))
+
+        returnValue++;
     }
 
     free(tmp->lineCode[tmp->trueList[tmp->numberTrue]]);
     tmp->lineCode[tmp->trueList[tmp->numberTrue]] = newCode;
 
-    return RETURN_SUCCESS;
+    return returnValue;
 }
 
 /*!
