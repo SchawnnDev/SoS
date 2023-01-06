@@ -455,7 +455,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
-            if(isLabelCreated){
+            if(isLabelCreated == RETURN_SUCCESS){
                 block = (char*)createNewLabel();
             }
             asm_code_printf("\t%s:\n",block)
