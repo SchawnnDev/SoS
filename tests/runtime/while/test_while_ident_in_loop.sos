@@ -1,0 +1,5 @@
+while test "hello" = "" do
+    val=99
+done;
+echo ${val};
+exit
