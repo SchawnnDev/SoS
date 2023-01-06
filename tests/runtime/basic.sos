@@ -1,4 +1,2 @@
-if test -n "HelloWorld" then echo "1" else echo "0" fi;
-echo "\n";
-if test -z "" then echo "1" else echo "0" fi;
+if test (50 -eq 50) -o (80 -ne 80) -a (60 -gt 60) then echo "1" else echo "0" fi;
 exit
