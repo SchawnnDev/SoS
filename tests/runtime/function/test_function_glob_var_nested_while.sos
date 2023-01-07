@@ -12,7 +12,7 @@ test_function()
         done
     done;
     echo ite
-}
+} ;
 
 res=$(test_function);
 echo "Res= " ${res};

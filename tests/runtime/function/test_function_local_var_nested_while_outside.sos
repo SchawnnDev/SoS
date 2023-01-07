@@ -8,7 +8,7 @@ test_function()
         ite_bis = $( expr ${ite_bis} + 1 )
     done;
     echo ite_bis
-}
+} ;
 
 while test ${ite} -lt 5 do
     echo "ite: " ${ite};

@@ -110,18 +110,19 @@ echo "${BOLD}-- If tests --"
 #test_loop "if"
 # While tests
 echo "${BOLD}-- While tests --"
-test_loop "while"
+#test_loop "while"
 # Until tests
 echo "${BOLD}-- Until tests --"
-test_loop "until"
+#test_loop "until"
 # Fizzbuzz test
 echo "${BOLD}-- Fizzbuzz tests --"
-test_loop "fizzbuzz"
+#test_loop "fizzbuzz"
 # Array test
 echo "${BOLD}-- Array tests --"
 #test_loop "array"
 # Function test
-#test_loop "function"
+echo "${BOLD}-- Function tests --"
+test_loop "function"
 
 # Summary
 echo -e "${BOLD}-- SUMMARY --${NC}"

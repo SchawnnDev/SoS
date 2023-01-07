@@ -2,7 +2,7 @@ test_function()
 {
     echo "I'm a function\n";
     echo 50
-}
+} ;
 
 if test (10 -eq 50) -a ($(test_function) -eq 80) then echo "1" else echo "0" fi;
 echo "\n";
