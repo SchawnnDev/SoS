@@ -31,7 +31,7 @@
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
 %type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for
-%type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
+%type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction function_call
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
 %type <markerval> marker_fct_id marker_for_list
@@ -128,7 +128,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | QUOTED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | APOSTROPHED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = convertIntToString($4); if(HAS_ERROR()) YYABORT ; }
-    | DOLLAR LPAREN function_call RPAREN
+    | DOLLAR LPAREN function_call RPAREN { $$ = $3; }
     ;
 
 operator1 : ARG_N { $$ = NOT_EMPTY; }
@@ -181,8 +181,8 @@ declare_loc : declare_loc LOCAL id ASSIGN final_concatenation SEMICOLON
     |
     ;
 
-function_call : id list_operand { doFunctionCall($1, $2); if(HAS_ERROR()) YYABORT ; }
-    | id { doFunctionCall($1, NULL); if(HAS_ERROR()) YYABORT ; }
+function_call : id list_operand { $$ = doFunctionCall($1, $2); if(HAS_ERROR()) YYABORT ; }
+    | id { $$ = doFunctionCall($1, NULL); if(HAS_ERROR()) YYABORT ; }
     ;
 
 id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char* destination;
