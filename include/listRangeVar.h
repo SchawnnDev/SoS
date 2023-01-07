@@ -9,6 +9,8 @@ typedef struct rangeVariable_t{
     ListIdentifier listIdentifier;
     int rangeLevel;
     int blockType;
+    MemorySlot memorySlot;
+    int* memoryCurrentStackOffset;
 
     struct rangeVariable_t* nextLevel;
     struct rangeVariable_t* previousLevel;
@@ -176,5 +178,12 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int printIdentifierFromListRange(ListRangeVariable addr,char* name);
+
+/**
+ *
+ * @param addr
+ * @return
+ */
+MemorySlot reserveBlockMemorySlot(ListRangeVariable addr);
 
 #endif
