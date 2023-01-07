@@ -213,7 +213,19 @@ int addIdentifier(ListRangeVariable addr, char *name)
         increaseGlobalRangeVariable(addr);
     }
 
-    return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, reserveMemorySlot());
+    MemorySlot space;
+    CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
+    space->used = false;
+    space->offset = -1;
+    space->next = NULL;
+    // len(var_ + NUL char) = 5
+    size_t len = strlen(name) + 5;
+    CHECKPOINTER(space->label = malloc(len))
+    snprintf(space->label, len, "var_%s", name);
+
+    asm_data_printf("\t%s: .word 0\n", space->label)
+
+    return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, space);
 }
 
 /*!
@@ -239,6 +251,8 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
         perror("addLocalIdentifier : you try to add into global context.");
         return RETURN_FAILURE;
     }
+
+    // TODO: impl offset management
 
     return addIntoListIdentifier(addr->cursor->listIdentifier, name, reserveMemorySlot());
 }

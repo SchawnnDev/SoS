@@ -78,9 +78,15 @@ int asm_allocateMemoryOnStack(int words)
     return RETURN_SUCCESS;
 }
 
-int asm_loadLabelIntoRegister(const char *label, const char *reg)
+int asm_loadLabelAddressIntoRegister(const char *label, const char *reg)
 {
     asm_code_printf("\tla %s, %s\n", reg, label)
+    return RETURN_SUCCESS;
+}
+
+int asm_loadLabelIntoRegister(const char *label, const char *reg)
+{
+    asm_code_printf("\tlw %s, %s\n", reg, label)
     return RETURN_SUCCESS;
 }
 

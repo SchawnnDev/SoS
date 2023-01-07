@@ -10,7 +10,7 @@ int asm_writeLoadRegistersFromStackFunction()
     asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
     int count = 0;
 
-    asm_subtractInternalOffset(16 + 1); // +1 is $ra
+    //asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
 
     for (int i = 0; i < 7; ++i)
     {

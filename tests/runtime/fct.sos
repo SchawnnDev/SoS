@@ -1,3 +1,7 @@
+read bla;
+
+echo ${bla};
+
 testFct()
 {
   echo "Test";
@@ -5,9 +9,18 @@ testFct()
   anotherTestFunction()
   {
     echo "Another test"
-  }
+  };
+
+  anotherTestFunction
 
 };
 
+test2Fct() {
+  echo "bla: " ${bla}
+};
+
+echo "Ancienne fonction: \n";
 testFct;
+echo "Nouvelle fonction: \n";
+test2Fct;
 exit

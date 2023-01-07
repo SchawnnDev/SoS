@@ -7,7 +7,9 @@ typedef struct memory_space_t *MemorySlot;
 struct memory_space_t {
     int used;
     int offset;
-    int temp; // temp -> temporary value (identifiers are not temp values)
+    //int temp; // temp -> temporary value (identifiers are not temp values)
+    char* label; // temp replaced by label, label == null -> temp
+
     MemorySlot next;
 };
 
@@ -23,7 +25,7 @@ MemorySlot reserveMemorySlot();
  *
  * @return
  */
-MemorySlot newMemorySlot();
+MemorySlot newMemorySlot(bool appendStack);
 
 /**
  *
@@ -38,6 +40,25 @@ MemorySlot searchByOffset(int offset);
  * @return
  */
 int getMipsOffset(MemorySlot space);
+
+/**
+ *
+ * @return
+ */
+int getMemoryCurrentStackOffset();
+
+/**
+ *
+ * @param memCurrentStackOffset
+ */
+void setMemoryCurrentStackOffset(int memCurrentStackOffset);
+
+/**
+ *
+ * @param offset_target
+ * @param appendStack
+ */
+void expandMemorySlots(int offset_target, bool appendStack);
 
 /**
  *

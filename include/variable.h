@@ -71,5 +71,7 @@
 #define ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED "_error_array_element_not_allocated"
 #define ASM_VAR_ARGC "_argc"
 #define ASM_VAR_ARGV_START "_argv_start"
+#define ASM_VAR_REGISTERS_CACHE_COUNT 17
+#define ASM_VAR_REGISTERS_CACHE_SIZE ASM_VAR_REGISTERS_CACHE_COUNT * ASM_INTEGER_SIZE
 
 #endif

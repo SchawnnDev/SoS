@@ -19,13 +19,13 @@ int asm_writeSaveRegistersToStackFunction()
         count += 4;
     }
 
-    for (int i = 0; i < 6; ++i)
+    for (int i = 0; i < 7; ++i)
     {
         asm_code_printf("\t\tsw $s%d, %d($sp)\n", i, count)
         count += 4;
     }
 
-    asm_appendInternalOffset(16 + 1); // +1 is $ra
+    //asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
 
     asm_code_printf("\t\tjr $ra\n")
 
