@@ -1,0 +1,8 @@
+test_function()
+{
+    var="random"
+}
+
+$( expr 5 + $(test_function));
+
+exit

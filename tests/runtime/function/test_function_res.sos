@@ -1,0 +1,39 @@
+var_glob=0;
+
+test_function()
+{
+    var_glob=66;
+    echo ${var_glob}
+}
+
+test_function_no_result()
+{
+    var_glob=16
+}
+
+test_function_multiple_result()
+{
+    var_glob=16;
+    echo "Shouldn't print that (or should it ?)";
+    echo ${var_glob}
+}
+
+test_function_multiple_args_result()
+{
+    echo "arg1" "arg2" "arg3"
+}
+
+result = $(test_function);
+no_result = $(test_function_no_result);
+multiple_result = $(test_function_multiple_result);
+multiple_arg_result = $(test_function_multiple_args_result);
+
+echo ${result};
+echo "\n"
+echo ${no_result};
+echo "\n"
+echo ${multiple_result};
+echo "\n";
+echo ${multiple_arg_result};
+
+exit

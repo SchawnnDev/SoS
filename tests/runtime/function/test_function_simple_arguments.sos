@@ -1,0 +1,37 @@
+test_function_1_arg()
+{
+    echo "arg1 =" $1
+}
+
+test_function_2_string_arg()
+{
+    echo "arg2 =" $1
+}
+
+test_function_3_multiple_args()
+{
+    echo $1 $2 $3
+}
+
+test_function_4_multiple_args()
+{
+    all_args=$*;
+    echo ${all_args}
+}
+
+arg1=55;
+arg2="hello";
+
+echo $(test_function_1_arg ${arg1});
+echo "\n";
+
+echo $(test_function_2_string_arg ${arg2});
+echo "\n";
+
+echo $(test_function_3_multiple_args ${arg1} ${arg2} ${arg1});
+echo "\n";
+
+echo $(test_function_4_multiple_args ${arg1} ${arg2} ${arg1});
+echo "\n";
+
+exit

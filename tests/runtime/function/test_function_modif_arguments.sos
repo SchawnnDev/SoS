@@ -1,0 +1,38 @@
+test_function_1_int_arg()
+{
+    $1=(expr $1 + 5);
+    echo "func1_rep =" (expr $1 + 5)
+}
+
+test_function_2_string_arg()
+{
+    $1=$1 " there";
+    echo "func2_rep =" $1 "general"
+}
+
+test_function_3_multiple_args()
+{
+    all_args=$*;
+    $1=${all_args};
+    echo "func3_rep =" $1 "55again"
+}
+
+arg1=55;
+arg2="hello";
+
+echo $(test_function_1_arg ${arg1});
+echo "\n";
+echo "New arg1 = " ${arg1};
+echo "\n";
+
+echo $(test_function_2_string_arg ${arg2});
+echo "\n";
+echo "New arg2 = " ${arg2};
+echo "\n";
+
+echo $(test_function_3_multiple_args ${arg1} ${arg2});
+echo "\n";
+echo "New arg1 = " ${arg1};
+echo "\n";
+
+exit

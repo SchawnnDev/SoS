@@ -35,7 +35,7 @@ fi
 
 echo -e "${YELLOW}Building binary in ${CMAKE_BUILD_FOLDER}...${NC}"
 cd $CMAKE_BUILD_FOLDER || (echo "${RED}Can't access to folder ${CMAKE_BUILD_FOLDER}, exiting...${NC}" && exit)
-make
+make sos
 rcode=$?
 cd ..
 

@@ -30,12 +30,13 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
-%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done
+%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <boolexprval> operator1 operator2 operator3
+%type <boolexprval> operator1 operator2
 %type <markerval> marker_fct_id
+%type <boolexprval> operator1 operator2
 %start program
 
 %%
@@ -49,11 +50,11 @@ list_instructions : list_instructions SEMICOLON instructions {log_debug("program
 instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, %s)", $1,$2,$3); assign($1, $3, 0); }
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
-    | IF test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi();}
+    | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); deleteBlock();}
     | FOR id DO list_instructions DONE
     | FOR id IN list_operand DO list_instructions DONE
-    | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE
-    | UNTIL test_block DO list_instructions marker_done DONE
+    | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
+    | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | CASE operand IN list_case ESAC
     | ECHO_CALL list_operand { doEcho($2); }
     | READ id { doStringRead($2); }
@@ -99,18 +100,19 @@ concatenation : concatenation operand { log_debug("concat : %s %s", $1, $2); $$ 
 test_block : TEST test_expr { $$ = $2; }
     ;
 
-test_expr : test_expr operator3 marker test_expr3 { $$ = doBoolExpression($1, $2, $4);}
+test_expr : test_expr ARG_O marker test_expr2 { $$ = doBoolExpression($1, L_OR, $4);}
+    | test_expr2
+    ;
+
+test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND,$4);}
     | test_expr3
     ;
 
 test_expr3 : LPAREN test_expr RPAREN { $$ = $2; }
-    | EXCL LPAREN test_expr RPAREN { $$ = $3; }
+    | EXCL LPAREN test_expr RPAREN { $$ = $3; doNegBoolExpression();}
     | test_instruction { log_debug("test_instruction"); }
-    | EXCL test_instruction { $$ = $2; }
+    | EXCL test_instruction { $$ = $2; doNegBoolExpression();}
     ;
-
-operator3 : ARG_A { $$ = L_AND; }
-    | ARG_O { $$ = L_OR; }
 
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); }
     | final_concatenation NEQ final_concatenation { $$ = doBoolExpression($1, STR_NEQ, $3); }
@@ -202,10 +204,13 @@ marker_else : {$$ = ""; doMarkerElse();}
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
 
-marker_loop : {$$ = ""; doMarkerLoop();}
+marker_loop : {$$ = ""; addBlock(); doMarkerLoop();}
 
 marker_done : {$$ = ""; doMarkerDone();}
 
+marker_if : { $$ = ""; addBlock();}
+
+marker_until : { $$ = "";doNegBoolExpression();}
 %%
 
 int yyerror (char * s)

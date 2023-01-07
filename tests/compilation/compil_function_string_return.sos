@@ -1,0 +1,10 @@
+test_function()
+{
+    return "string"
+}
+
+$(test_function);
+val=$?;
+echo ${val};
+
+exit

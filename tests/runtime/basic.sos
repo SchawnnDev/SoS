@@ -1,2 +1,13 @@
-if test (50 -eq 50) -o ((80 -ne 80) -a (60 -gt 60)) then echo "1" else echo "0" fi;
+ite=0;
+ite_bis=0;
+while test ${ite} -lt 5 do
+    echo ${ite} "\n";
+    ite = $( expr ${ite} + 1 );
+    while test ${ite_bis} -lt 2 do
+        echo ${ite_bis} "\n";
+        ite_bis = $( expr ${ite_bis} + 1 )
+    done
+done;
+echo ${ite} "\n";
+echo ${ite_bis} "\n";
 exit
