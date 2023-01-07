@@ -30,7 +30,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
-%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until
+%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
