@@ -3,9 +3,9 @@ var_glob=0;
 test_function()
 {
     var_glob=66
-}
+} ;
 
-$(test_function);
+test_function;
 echo ${var_glob};
 
 exit
