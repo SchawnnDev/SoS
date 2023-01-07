@@ -1,8 +1,8 @@
 test_function()
 {
     echo "I'm a function\n"
-}
+} ;
 
-$(test_function);
+test_function ;
 
 exit

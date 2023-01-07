@@ -78,6 +78,12 @@ int asm_allocateMemoryOnStack(int words)
     return RETURN_SUCCESS;
 }
 
+int asm_freeMemoryOnStack(int words)
+{
+    asm_code_printf("\taddi $sp, $sp, %d\n", words * ASM_INTEGER_SIZE)
+    return RETURN_SUCCESS;
+}
+
 int asm_loadLabelAddressIntoRegister(const char *label, const char *reg)
 {
     asm_code_printf("\tla %s, %s\n", reg, label)

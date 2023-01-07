@@ -19,13 +19,13 @@ struct memory_space_t {
  * Searches a free memory space, if no space available, creates a new one
  * @return
  */
-MemorySlot reserveMemorySlot();
+MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset);
 
 /**
  *
  * @return
  */
-MemorySlot newMemorySlot(bool appendStack);
+MemorySlot newMemorySlot(int *memoryCurrentStackOffset);
 
 /**
  *
@@ -39,7 +39,7 @@ MemorySlot searchByOffset(int offset);
  * @param space
  * @return
  */
-int getMipsOffset(MemorySlot space);
+int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset);
 
 /**
  *
@@ -63,7 +63,7 @@ void expandMemorySlots(int offset_target, bool appendStack);
 /**
  *
  */
-void destroyMemorySlot();
+void destroyMemorySlot(MemorySlot memory);
 
 /**
  *

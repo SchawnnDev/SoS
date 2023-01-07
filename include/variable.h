@@ -28,11 +28,9 @@
 /* Blocks */
 #define BLOCK_MAIN 0
 #define BLOCK_IF 1
-#define BLOCK_FOR 2
-#define BLOCK_WHILE 3
-#define BLOCK_UNTIL 4
-#define BLOCK_FUNCTION 5
-#define BLOCK_CASE 6
+#define BLOCK_LOOP 2
+#define BLOCK_FUNCTION 3
+#define BLOCK_CASE 4
 
 /* Operations */
 #define PLUS_OPE 1

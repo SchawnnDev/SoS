@@ -66,7 +66,7 @@ void cleanIdentifier(Identifier addr)
 {
     log_trace("cleanIdentifier (Identifier %p)",addr)
     CHECKPOINTER(addr);
-
+    free(addr->memory);
     free(addr);
 }
 

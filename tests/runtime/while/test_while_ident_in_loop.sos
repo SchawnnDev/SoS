@@ -1,5 +1,7 @@
-while test "hello" = "" do
-    val=99
+var="hello";
+while test ${var} = "hello" do
+    val=99;
+    var="notHello"
 done;
 echo ${val};
 exit

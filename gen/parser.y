@@ -30,7 +30,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
-%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until
+%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
@@ -50,8 +50,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); deleteBlock();}
-    | FOR id DO list_instructions DONE
-    | FOR id IN list_operand DO list_instructions DONE
+    | FOR marker_loop id DO list_instructions marker_done DONE
+    | FOR marker_loop id IN marker_for DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | CASE operand IN list_case ESAC
@@ -203,13 +203,15 @@ marker_else : {$$ = ""; doMarkerElse();}
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
 
-marker_loop : {$$ = ""; addBlock(); doMarkerLoop();}
+marker_loop : {$$ = ""; addBlock(BLOCK_LOOP); doMarkerLoop();}
 
 marker_done : {$$ = ""; doMarkerDone();}
 
-marker_if : { $$ = ""; addBlock();}
+marker_if : { $$ = ""; addBlock(BLOCK_IF);}
 
 marker_until : { $$ = "";doNegBoolExpression();}
+
+marker_for : list_operand { $$ = doMarkerForList($1);}
 %%
 
 int yyerror (char * s)

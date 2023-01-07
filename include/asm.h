@@ -84,6 +84,13 @@ static inline const char *stringFromSyscall(syscall_t syscall)
 int asm_allocateMemoryOnStack(int words);
 
 /**
+ *
+ * @param words
+ * @return
+ */
+int asm_freeMemoryOnStack(int words);
+
+/**
  * /!\ INCREASES _offset
  * @param value
  * @return
