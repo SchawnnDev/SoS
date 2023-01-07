@@ -1,0 +1,7 @@
+declare array[10];
+array[0] = 1;
+echo ${array[0]};
+echo "\n";
+array[0] = 5;
+echo ${array[0]};
+exit

@@ -1,0 +1,11 @@
+declare array[10];
+declare array_bis[10];
+array[0] = 0;
+echo ${array[0]};
+echo "\n";
+array_bis[0] = 1;
+echo ${array_bis[0]};
+echo "\n";
+array[0] = ${array_bis[0]};
+echo ${array[0]};
+exit
