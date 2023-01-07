@@ -108,9 +108,9 @@ test_expr2 : test_expr2 ARG_A marker test_expr3 { $$ = doBoolExpression($1,L_AND
     ;
 
 test_expr3 : LPAREN test_expr RPAREN { $$ = $2; }
-    | EXCL LPAREN test_expr RPAREN { $$ = $3; doNegBoolExpression();}
-    | test_instruction { log_debug("test_instruction"); }
-    | EXCL test_instruction { $$ = $2; doNegBoolExpression();}
+    | EXCL LPAREN test_expr RPAREN { $$ = $3; doNegBoolExpression(); if(HAS_ERROR()) YYABORT ; }
+    | test_instruction { log_debug("test_instruction"); if(HAS_ERROR()) YYABORT ; }
+    | EXCL test_instruction { $$ = $2; doNegBoolExpression(); if(HAS_ERROR()) YYABORT ; }
     ;
 
 test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolExpression($1, STR_EQ, $3); if(HAS_ERROR()) YYABORT ; }
@@ -171,24 +171,26 @@ mult_div_mod : MULT { $$ = MULT_OPE; }
      | MOD { $$ = MOD_OPE;}
      ;
 
-declare_fct : marker_fct_id declare_loc list_instructions RBRACE { doDeclareFunction($1); }
+declare_fct : marker_fct_id declare_loc list_instructions RBRACE { doDeclareFunction($1); if(HAS_ERROR()) YYABORT ; }
     ;
 
-marker_fct_id: id LPAREN RPAREN LBRACE { $$ = doFunctionStartMarker($1); }
+marker_fct_id: id LPAREN RPAREN LBRACE { $$ = doFunctionStartMarker($1); if(HAS_ERROR()) YYABORT ; }
     ;
 
 declare_loc : declare_loc LOCAL id ASSIGN final_concatenation SEMICOLON
     |
     ;
 
-function_call : id list_operand { doFunctionCall($1, $2); }
-    | id { doFunctionCall($1, NULL); }
+function_call : id list_operand { doFunctionCall($1, $2); if(HAS_ERROR()) YYABORT ; }
+    | id { doFunctionCall($1, NULL); if(HAS_ERROR()) YYABORT ; }
     ;
 
-id : WORD { log_debug("id: WORD (%s)", $1); $$ = doWriteId($1); if(HAS_ERROR()) YYABORT ; }
+id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char* destination;
+            CHECKPOINTER(destination = malloc(strlen($1) + 1)); if(HAS_ERROR()) YYABORT ;
+            CHECKPOINTER(strcpy(destination, $1)); if(HAS_ERROR()) YYABORT ; $$ = destination; }
     ;
 
-int : WORD { log_debug("int: WORD"); $$ = doWriteInt($1); if(HAS_ERROR()) YYABORT ; }
+int : WORD { log_debug("int: WORD"); CHECK_TYPE(checkWordIsInt($1)); $$ = doWriteInt($1); if(HAS_ERROR()) YYABORT ; }
     ;
 
 table_int : WORD { $$ = doParseTableInt($1); if(HAS_ERROR()) YYABORT ; }
@@ -201,15 +203,15 @@ marker_else : {$$ = ""; doMarkerElse(); if(HAS_ERROR()) YYABORT ; }
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction(); if(HAS_ERROR()) YYABORT ; }
 
-marker_loop : {$$ = ""; addBlock(BLOCK_LOOP); doMarkerLoop();}
+marker_loop : {$$ = ""; addBlock(BLOCK_LOOP); if(HAS_ERROR()) YYABORT ; doMarkerLoop(); if(HAS_ERROR()) YYABORT ; }
 
-marker_done : {$$ = ""; doMarkerDone();}
+marker_done : {$$ = ""; doMarkerDone(); if(HAS_ERROR()) YYABORT ; }
 
-marker_if : { $$ = ""; addBlock(BLOCK_IF);}
+marker_if : { $$ = ""; addBlock(BLOCK_IF); if(HAS_ERROR()) YYABORT ; }
 
-marker_until : { $$ = "";doNegBoolExpression();}
+marker_until : { $$ = "";doNegBoolExpression(); if(HAS_ERROR()) YYABORT ; }
 
-marker_for : list_operand { $$ = doMarkerForList($1);}
+marker_for : list_operand { $$ = doMarkerForList($1); if(HAS_ERROR()) YYABORT ; }
 %%
 
 int yyerror (char * s)

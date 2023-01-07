@@ -1324,21 +1324,6 @@ int doParseTableInt(const char *val)
     return parsedSize;
 }
 
-char* doWriteId(const char *val)
-{
-    log_trace("doWriteId(%s)", val)
-    CHECK_TYPE(checkWordIsId(val))
-
-    char* destination;
-    CHECKPOINTER(destination = malloc(strlen(val) + 1))
-    CHECK_ERROR_RETURN(NULL)
-
-    CHECKPOINTER(strcpy(destination, val))
-    CHECK_ERROR_RETURN(NULL)
-
-    return destination;
-}
-
 int doStringRead(const char *id)
 {
     log_trace("doStringRead(%s)", id)
