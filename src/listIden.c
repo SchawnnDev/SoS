@@ -9,7 +9,8 @@ ListIdentifier initListIdentifier()
     log_trace("initListIdentifier (void)")
 
     ListIdentifier addr;
-    CHECKPOINTER(addr = (ListIdentifier)malloc(sizeof(listIdentifier_t)));
+    CHECKPOINTER(addr = (ListIdentifier)malloc(sizeof(listIdentifier_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->numberIdentifiers = 0;
     return addr;
 }
@@ -21,7 +22,8 @@ ListIdentifier initListIdentifier()
 void cleanListIdentifier(ListIdentifier addr)
 {
     log_trace("cleanListIdentifier (ListIdentifier %p)",addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     int index;
     int size = addr->numberIdentifiers;
@@ -65,7 +67,8 @@ Identifier initIdentifier(char* name)
 void cleanIdentifier(Identifier addr)
 {
     log_trace("cleanIdentifier (Identifier %p)",addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     free(addr);
 }

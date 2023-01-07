@@ -9,7 +9,8 @@ Data initData(Data previousData)
     log_trace("initData (Data %p)", previousData)
 
     Data addr;
-    CHECKPOINTER(addr = (Data) malloc(sizeof(struct data_t)));
+    CHECKPOINTER(addr = (Data) malloc(sizeof(struct data_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->previousData = previousData;
     addr->nextData = NULL;
     addr->numberData = 0;
@@ -25,7 +26,8 @@ Code initCode(Code previousCode)
     log_trace("initCode (Code %p)", previousCode)
 
     Code addr;
-    CHECKPOINTER(addr = (Code) malloc(sizeof(struct code_t)));
+    CHECKPOINTER(addr = (Code) malloc(sizeof(struct code_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->previousCode = previousCode;
     addr->nextCode = NULL;
     addr->numberCode = 0;
@@ -44,9 +46,11 @@ ListInstruction initListInstruction()
     log_trace("initListInstruction (void)")
 
     ListInstruction addr;
-    CHECKPOINTER(addr = (ListInstruction) malloc(sizeof(listInstruction_t)));
+    CHECKPOINTER(addr = (ListInstruction) malloc(sizeof(listInstruction_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->cursorData = initData(NULL);
     addr->cursorCode = initCode(NULL);
+    CHECK_ERROR_RETURN(NULL)
     return addr;
 }
 
@@ -57,7 +61,8 @@ ListInstruction initListInstruction()
 void cleanData(Data addr)
 {
     log_trace("cleanData (Data %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     Data tmp, addrToFree = addr;
     while (addrToFree != NULL)
@@ -75,7 +80,8 @@ void cleanData(Data addr)
 void cleanCode(Code addr)
 {
     log_trace("cleanCode (Code %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     Code tmp, addrToFree = addr;
     while (addrToFree != NULL)
@@ -93,7 +99,8 @@ void cleanCode(Code addr)
 void cleanListInstruction(ListInstruction addr)
 {
     log_trace("cleanListInstruction (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     cleanData(addr->cursorData);
     cleanCode(addr->cursorCode);
@@ -108,9 +115,11 @@ void cleanListInstruction(ListInstruction addr)
 void addStructData(ListInstruction addr)
 {
     log_trace("addStructData (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     addr->cursorData = initData(addr->cursorData);
+    CHECK_ERROR_NORETURN()
     addr->cursorData->previousData->nextData = addr->cursorData;
 }
 
@@ -121,23 +130,27 @@ void addStructData(ListInstruction addr)
 void addIntoData(ListInstruction addr, char *data)
 {
    // log_trace("addIntoData (ListInstruction %p, char* %s)", addr, data)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(data);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(data)
+    CHECK_ERROR_NORETURN()
 
     if (addr->cursorData->numberData >= DATA_TAB_MAX)
     {
         log_info("struct data is full, numberData %d",
                  addr->cursorData->numberData)
         addStructData(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     ulong size = strlen(data) + 1;
     CHECKPOINTER(
             addr->cursorData->lineData[addr->cursorData->numberData] = (char *) malloc(
-                    sizeof(char) * size));
+                    sizeof(char) * size))
+    CHECK_ERROR_NORETURN()
     CHECKPOINTER(
             strcpy(addr->cursorData->lineData[addr->cursorData->numberData],
-                   data));
+                   data))
+    CHECK_ERROR_NORETURN()
 
     addr->cursorData->numberData++;
 }
@@ -149,9 +162,11 @@ void addIntoData(ListInstruction addr, char *data)
 void addStructCode(ListInstruction addr)
 {
     log_trace("addStructCode (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     addr->cursorCode = initCode(addr->cursorCode);
+    CHECK_ERROR_NORETURN()
     addr->cursorCode->previousCode->nextCode = addr->cursorCode;
 }
 
@@ -166,9 +181,11 @@ void addIntoCode(ListInstruction addr, char *code)
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     addIntoCodeWithIndex(addr->cursorCode, code, addr->cursorCode->numberCode);
+    CHECK_ERROR_NORETURN()
     addr->cursorCode->numberCode++;
 }
 
@@ -179,19 +196,23 @@ void addIntoCode(ListInstruction addr, char *code)
 int addIntoCodeWithIndex(Code addr, char *code, int index)
 {
 //    log_trace("addIntoCode (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(code);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(code)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if ((index < 0) || (index >= CODE_TAB_MAX))
     {
         log_error("index out of range : position : %d", index)
         perror("addIntoCodeWithIndex : can not set code of non-existent table index.");
-        return RETURN_FAILURE;
+        setErrorFailure();
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
     }
 
     ulong size = strlen(code) + 1;
-    CHECKPOINTER(addr->lineCode[index] = (char *) malloc(sizeof(char) * size));
-    CHECKPOINTER(strcpy(addr->lineCode[index], code));
+    CHECKPOINTER(addr->lineCode[index] = (char *) malloc(sizeof(char) * size))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(strcpy(addr->lineCode[index], code))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return RETURN_SUCCESS;
 }

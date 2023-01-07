@@ -7,6 +7,7 @@ int asm_writeLoadRegistersFromStackFunction()
     if(asm_fctLoadRegistersFromStackWritten)
         return RETURN_SUCCESS;
     asm_fctLoadRegistersFromStackWritten = TRUE;
+
     asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
     int count = 0;
 
@@ -27,5 +28,6 @@ int asm_writeLoadRegistersFromStackFunction()
 //    asm_subtractInternalOffset(16);
     asm_code_printf("\t\tjr $ra\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

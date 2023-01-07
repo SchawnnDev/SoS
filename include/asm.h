@@ -11,6 +11,7 @@
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
+            if(!HAS_ERROR()) setErrorFailure();  \
             return 0; \
         } \
         addIntoCode(listInstruction, buf); \
@@ -21,6 +22,7 @@
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
+            if(!HAS_ERROR()) setErrorFailure();  \
             return 0; \
         } \
         addIntoData(listInstruction, buf); \

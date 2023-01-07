@@ -10,6 +10,8 @@
 
 #include <log.h>
 
+#include "variable.h"
+
 /*!
  * \fn CHECK
  * \brief Permet de tester une valeur critique du programme
@@ -22,6 +24,12 @@
  */
 #define CHECKPOINTER(op) do { if (((op) == NULL)) raler (1, #op); } while (0);
 
+int error;
+
+#define CHECK_ERROR_RETURN(op) if(error) return (op);
+#define CHECK_ERROR_NORETURN() if(error) return;
+#define HAS_ERROR() error
+
 void raler(int syserr, const char *msg, ...);
 
 /**
@@ -30,5 +38,7 @@ void raler(int syserr, const char *msg, ...);
  * @return
  */
 int countWithoutBackslash(char *str);
+
+void setErrorFailure();
 
 #endif

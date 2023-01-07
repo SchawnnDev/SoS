@@ -72,7 +72,6 @@ void destroyMemorySlot() {
     } while (mem != NULL);
 
     memory = NULL;
-
 }
 
 void freeMemory(MemorySlot mem)

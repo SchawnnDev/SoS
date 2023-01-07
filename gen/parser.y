@@ -132,7 +132,7 @@ operator1 : ARG_N { $$ = NOT_EMPTY; }
     | ARG_Z { $$ = EMPTY; }
     ;
 
-operator2 : ARG_EQ { $$ = BOOL_EQ; }
+operator2 : ARG_EQ { $$ = BOOL_EQ; if(HAS_ERROR()) YYABORT ;}
     | ARG_NE { $$ = BOOL_NEQ; }
     | ARG_GT { $$ = BOOL_GT; }
     | ARG_GE { $$ = BOOL_GE; }

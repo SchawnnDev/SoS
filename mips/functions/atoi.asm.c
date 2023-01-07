@@ -80,5 +80,7 @@ int asm_writeAtoiFunction()
     asm_code_printf("\t\t%s_end:\n", ASM_ATOI_FUNCTION_NAME)
     asm_loadRegistersFromStack();
     asm_code_printf("\t\tjr $ra\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

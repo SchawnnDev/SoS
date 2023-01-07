@@ -11,11 +11,13 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     if(rangeLevel < 0){
         log_error("rangeLevel : %d : %d",rangeLevel,0)
         perror("initRangeVariable : rangeLevel must be more than 0.");
-        return NULL;
+        setErrorFailure();
+        CHECK_ERROR_RETURN(NULL)
     }
 
     RangeVariable addr;
-    CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)));
+    CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->listIdentifier = initListIdentifier();
     addr->rangeLevel = rangeLevel;
 
@@ -32,7 +34,8 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
 void cleanRangeVariable(RangeVariable addr)
 {
     log_trace("cleanRangeVariable (RangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     cleanListIdentifier(addr->listIdentifier);
     free(addr);
@@ -47,7 +50,8 @@ ListRangeVariable initListRangeVariable()
     log_trace("initListRangeVariable (void)")
 
     ListRangeVariable addr;
-    CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
+    CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)))
+    CHECK_ERROR_RETURN(NULL)
     RangeVariable rangeAddr = initRangeVariable(0,NULL);
     addr->cursor = rangeAddr;
     addr->cursorGlobal = rangeAddr;
@@ -62,7 +66,8 @@ ListRangeVariable initListRangeVariable()
 void cleanListRangeVariable(ListRangeVariable addr)
 {
     log_trace("cleanListRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     RangeVariable tmp, addrToFree = addr->cursor;
     while(addrToFree != NULL){

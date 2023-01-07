@@ -37,6 +37,8 @@ int asm_syscall(syscall_t type)
     log_trace("asm_syscall of type %s", stringFromSyscall(type))
     asm_code_printf("\tli $v0, %d\n", type)
     asm_code_printf("\tsyscall\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 

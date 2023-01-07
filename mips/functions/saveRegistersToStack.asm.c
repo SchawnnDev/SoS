@@ -28,5 +28,6 @@ int asm_writeSaveRegistersToStackFunction()
 
     asm_code_printf("\t\tjr $ra\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
