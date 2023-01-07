@@ -449,24 +449,28 @@ int writeToFile(ListInstruction list, FILE *file)
 {
     Data data = getFirstDataCursor(list->cursorData);
     Code code = getFirstCodeCursor(list->cursorCode);
-    CHECK(fprintf(file, ".data\n"));
+    CHECK(fprintf(file, ".data\n"))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     do
     {
         for (int i = 0; i < data->numberData; ++i)
         {
-            CHECK(fprintf(file, "%s", data->lineData[i]));
+            CHECK(fprintf(file, "%s", data->lineData[i]))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
         }
         data = data->nextData;
     } while (data != NULL);
 
     CHECK(fprintf(file, ".text\n"));
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     do
     {
         for (int i = 0; i < code->numberCode; ++i)
         {
-            CHECK(fprintf(file, "%s", code->lineCode[i]));
+            CHECK(fprintf(file, "%s", code->lineCode[i]))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
         }
         code = code->nextCode;
     } while (code != NULL);

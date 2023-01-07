@@ -33,5 +33,6 @@ int countWithoutBackslash(char *str) {
 void setErrorFailure()
 {
     log_trace("setErrorFailure ()")
-    if(!HAS_ERROR()) error = TRUE;
+    if(HAS_ERROR()) return;
+    error = TRUE;
 }

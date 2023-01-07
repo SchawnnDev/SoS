@@ -90,13 +90,20 @@ int compile(FILE *inputFile, FILE *outputFile)
     {
         destroyMemorySlot();
         freeStruct();
-        return result;
+        return RETURN_FAILURE;
     }
 
     result = writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
+    if (result != RETURN_SUCCESS)
+    {
+        destroyMemorySlot();
+        freeStruct();
+        return RETURN_FAILURE;
+    }
+
     destroyMemorySlot();
     freeStruct();
-    return result;
+    return RETURN_SUCCESS;
 }
 
 MemorySlot doConcatenation(MemorySlotList slotList)
