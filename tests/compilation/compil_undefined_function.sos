@@ -1,0 +1,8 @@
+$(test_function);
+
+test_function()
+{
+    var_glob=66;
+}
+
+exit

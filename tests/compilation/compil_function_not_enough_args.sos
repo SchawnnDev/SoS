@@ -1,0 +1,10 @@
+test_function()
+{
+    var= $1 $2 $3
+}
+
+arg1="yes";
+arg2="no";
+$(test_function ${arg1} ${arg2});
+
+exit
