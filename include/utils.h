@@ -24,7 +24,7 @@
  */
 #define CHECKPOINTER(op) do { if (((op) == NULL)) raler (1, #op); } while (0);
 
-int error;
+extern int error;
 
 #define CHECK_ERROR_RETURN(op) if(error) return (op);
 #define CHECK_ERROR_NORETURN() if(error) return;

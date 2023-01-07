@@ -1,5 +1,7 @@
 #include "utils.h"
 
+int error;
+
 void raler(int syserr, const char *msg, ...) {
     va_list ap;
 
