@@ -1,5 +1,7 @@
-until test "hello" = "hello" do
-    val=99
+var="hello";
+until test ${var} != "hello" do
+    val=99;
+    var="notHello"
 done;
 echo ${val};
 exit

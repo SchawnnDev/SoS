@@ -5,7 +5,7 @@ until test ${ite} -ge 5 do
     ite = $( expr ${ite} + 1 );
 
     ite_bis="";
-    until test ${ite_bis} == "aaa" do
+    until test ${ite_bis} = "aaa" do
         echo ${ite_bis} "\n";
         ite_bis = ${ite_bis} ${char}
     done

@@ -1,0 +1,2 @@
+echo ${array[-5]};
+exit

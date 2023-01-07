@@ -1,0 +1,20 @@
+ite=0;
+ite_bis=0;
+
+test_function()
+{
+    while test ${ite} -lt 5 do
+        echo ${ite} "\n";
+        ite = $( expr ${ite} + 1 );
+        while test ${ite_bis} -le 1 do
+            echo ${ite_bis} "\n";
+            ite_bis = $( expr ${ite_bis} + 1 )
+        done
+    done;
+    echo ite
+} ;
+
+res=$(test_function);
+echo "Res= " ${res};
+
+exit
