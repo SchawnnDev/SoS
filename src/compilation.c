@@ -366,6 +366,24 @@ int doMarkerDone()
     return RETURN_SUCCESS;
 }
 
+int addBlock()
+{
+    int returnValue;
+    returnValue = addRangeVariable(listRangeVariable);
+    returnValue += addStructListGoTo(listInstruction);
+
+    return returnValue;
+}
+
+int deleteBlock()
+{
+    int returnValue;
+    returnValue = deleteRangeVariable(listRangeVariable);
+    returnValue += deleteStructListGoTo(listInstruction);
+
+    return returnValue;
+}
+
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
 {
     log_trace("doBoolExpression (int %d)", boolExpr)

@@ -125,6 +125,10 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
+int addBlock();
+
+int deleteBlock();
+
 /**
  *
  * @param left

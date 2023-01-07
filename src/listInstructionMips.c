@@ -176,10 +176,23 @@ void cleanListGoTo(ListGoTo addr)
     while (addrToFree != NULL)
     {
         tmp = addrToFree->previousListGoTo;
-        cleanGoTo(tmp->cursor);
+        cleanGoTo(addrToFree->cursor);
         addrToFree = tmp;
     }
 
+    free(addr);
+}
+
+/*!
+ * \fn void cleanOneListGoTo(ListGoTo addr)
+ * \brief Fonction qui libère la mémoire de la liste de goto
+*/
+void cleanOneListGoTo(ListGoTo addr)
+{
+    log_trace("cleanOneListGoTo (ListGoTo %p)", addr)
+    CHECKPOINTER(addr);
+
+    cleanGoTo(addr->cursor);
     free(addr);
 }
 
@@ -281,8 +294,6 @@ int addIntoCodeWithIndex(Code addr, char *code, int index)
 /*!
  * \fn void addStructGoTo(ListInstruction addr)
  * \brief Fonction qui initialise une nouvelle structure de goto
- *
- * \param addr : ListInstruction, la structure d'instruction
 */
 void addStructGoTo(ListInstruction addr)
 {
@@ -295,10 +306,8 @@ void addStructGoTo(ListInstruction addr)
 /*!
  * \fn void addStructListGoTo(ListInstruction addr)
  * \brief Fonction qui initialise une nouvelle structure de goto
- *
- * \param addr : ListInstruction, la structure d'instruction
 */
-void addStructListGoTo(ListInstruction addr)
+int addStructListGoTo(ListInstruction addr)
 {
     log_trace("addStructListGoTo(ListInstruction %p)", addr)
     CHECKPOINTER(addr);
@@ -306,6 +315,24 @@ void addStructListGoTo(ListInstruction addr)
     ListGoTo tmp = initListGoTo();
     tmp->previousListGoTo = addr->cursorGoTo;
     addr->cursorGoTo = tmp;
+
+    return RETURN_SUCCESS;
+}
+
+/*!
+ * \fn void addStructListGoTo(ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de goto
+*/
+int deleteStructListGoTo(ListInstruction addr)
+{
+    log_trace("deleteStructListGoTo(ListInstruction %p)", addr)
+    CHECKPOINTER(addr);
+
+    ListGoTo tmp = addr->cursorGoTo;
+    addr->cursorGoTo = tmp->previousListGoTo;
+    cleanOneListGoTo(tmp);
+
+    return RETURN_SUCCESS;
 }
 
 /*!
@@ -322,6 +349,12 @@ void addIntoTrueList(ListInstruction addr, char* code)
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+    }
+    if (addr->cursorGoTo->cursor->numberTrue >= CODE_TAB_MAX)
+    {
+        log_info("struct GoTo is full, numberTrue %d",
+                 addr->cursorGoTo->cursor->numberTrue)
+        addStructGoTo(addr);
     }
 
     int index = addr->cursorCode->numberCode + addr->cursorCode->rangeCode * CODE_TAB_MAX;
@@ -345,6 +378,12 @@ void addIntoFalseList(ListInstruction addr, char* code)
                  addr->cursorCode->numberCode)
         addStructCode(addr);
     }
+    if (addr->cursorGoTo->cursor->numberFalse >= CODE_TAB_MAX)
+    {
+        log_info("struct GoTo is full, numberTrue %d",
+                 addr->cursorGoTo->cursor->numberFalse)
+        addStructGoTo(addr);
+    }
 
     int index = addr->cursorCode->numberCode + addr->cursorCode->rangeCode * CODE_TAB_MAX;
     addr->cursorGoTo->cursor->falseList[addr->cursorGoTo->cursor->numberFalse] = index;
@@ -366,6 +405,12 @@ void addIntoUnDefineGoto(ListInstruction addr, char* code)
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+    }
+    if (addr->cursorGoTo->cursor->numberGoto >= CODE_TAB_MAX)
+    {
+        log_info("struct GoTo is full, numberTrue %d",
+                 addr->cursorGoTo->cursor->numberGoto)
+        addStructGoTo(addr);
     }
 
     int index = addr->cursorCode->numberCode + addr->cursorCode->rangeCode * CODE_TAB_MAX;

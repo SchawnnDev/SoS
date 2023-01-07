@@ -133,6 +133,14 @@ void cleanListInstruction(ListInstruction addr);
 void cleanListGoTo(ListGoTo addr);
 
 /*!
+ * \fn void cleanOneListGoTo(ListGoTo addr)
+ * \brief Fonction qui libère la mémoire de la liste de goto
+ *
+ * \param addr : ListGoTo, la structure de goto
+*/
+void cleanOneListGoTo(ListGoTo addr);
+
+/*!
  * \fn void addIntoData( ListInstruction addr)
  * \brief Fonction qui initialise une nouvelle structure de data
  *
@@ -192,7 +200,15 @@ void addStructGoTo(ListInstruction addr);
  *
  * \param addr : ListInstruction, la structure d'instruction
 */
-void addStructListGoTo(ListInstruction addr);
+int addStructListGoTo(ListInstruction addr);
+
+/*!
+ * \fn void addStructListGoTo(ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de goto
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+int deleteStructListGoTo(ListInstruction addr);
 
 /*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
