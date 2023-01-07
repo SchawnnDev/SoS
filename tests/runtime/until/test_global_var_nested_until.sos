@@ -1,0 +1,15 @@
+ite=0;
+ite_bis=0;
+until test ${ite} -ge 5 do
+    echo ${ite} "\n";
+
+    until test ${ite_bis} -ge 2 do
+        echo ${ite_bis} "\n";
+        ite_bis = $( expr ${ite_bis} + 1 )
+    done;
+
+    ite = $( expr ${ite} + 1 )
+done;
+echo ${ite} "\n";
+echo ${ite_bis} "\n";
+exit

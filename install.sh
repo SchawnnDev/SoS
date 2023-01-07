@@ -67,7 +67,7 @@ if [ ! -d $CMAKE_BUILD_FOLDER ]; then
   cmake ..
 
   echo -e "${YELLOW}Building CMake...${NC}"
-  cmake --build .
+  cmake --build . --target sos
 
   echo -e "${YELLOW}Building using makefile...${NC}"
   make

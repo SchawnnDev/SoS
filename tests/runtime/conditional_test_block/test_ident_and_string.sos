@@ -1,0 +1,12 @@
+a="hello";
+b="world";
+c="halo";
+d="wArld";
+if test ("hello" = "hello") -a ("world" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test ("halo" = "hello") -a ("world" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test ("hello" = "hello") -a ("wArld" = "world") then echo "1" else echo "0" fi;
+echo "\n";
+if test ("halo" = "hello") -a ("wArld" = "world") then echo "1" else echo "0" fi;
+exit

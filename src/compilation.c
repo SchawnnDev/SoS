@@ -62,7 +62,10 @@ int compile(FILE *inputFile, FILE *outputFile)
 
     // Generate all functions & headers
     asm_writeHeader();
-    asm_code_printf("j _main\n")
+    asm_code_printf("\t# Args handling\n")
+    asm_writeArgsToStack();
+    //asm_code_printf("\n")
+    //asm_code_printf("j _main\n")
     asm_code_printf("\n")
     asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")
@@ -88,7 +91,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     int result = yyparse();
     if (result != RETURN_SUCCESS)
     {
-        destroyMemorySlot();
+        destroyMemorySlot(NULL);
         freeStruct();
         return RETURN_FAILURE;
     }
@@ -96,12 +99,12 @@ int compile(FILE *inputFile, FILE *outputFile)
     result = writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
     if (result != RETURN_SUCCESS)
     {
-        destroyMemorySlot();
+        destroyMemorySlot(NULL);
         freeStruct();
         return RETURN_FAILURE;
     }
 
-    destroyMemorySlot();
+    destroyMemorySlot(NULL);
     freeStruct();
     return RETURN_SUCCESS;
 }
@@ -116,8 +119,8 @@ MemorySlot doConcatenation(MemorySlotList slotList)
         setErrorFailure();
         return NULL;
     }
-
-    MemorySlot memorySlot = reserveMemorySlot();
+    
+    MemorySlot memorySlot = reserveBlockMemorySlot(listRangeVariable);
     CHECK_ERROR_RETURN(NULL)
 
     asm_code_printf("\taddi $t0, $zero, 1 # Size counter\n") // $t0 will be the total size of concat (start at 1 for \0)
@@ -134,7 +137,14 @@ MemorySlot doConcatenation(MemorySlotList slotList)
             temp = temp->next;
             continue;
         }
-        asm_readFromStack("$t1", getMipsOffset(temp->slot));
+
+        if(temp->slot->label == NULL)
+        {
+            asm_readFromStack("$t1", CALCULATE_OFFSET(temp->slot));
+        } else {
+            asm_loadLabelIntoRegister(temp->slot->label, "$t1");
+        }
+
         asm_useBufferLenFunction("$t1", "$t2");
         asm_code_printf("\tadd $t0, $t0, $t2\n")
         temp = temp->next;
@@ -144,7 +154,12 @@ MemorySlot doConcatenation(MemorySlotList slotList)
     asm_syscall(SBRK);
     asm_code_printf("\tmove $t0, $v0\n") // move start address to v0
     // write heap address to stack
-    asm_getStackAddress("$t1", getMipsOffset(memorySlot));
+    if(memorySlot->label == NULL)
+    {
+        asm_getStackAddress("$t1", CALCULATE_OFFSET(memorySlot));
+    } else {
+        asm_loadLabelAddressIntoRegister(memorySlot->label, "$t1");
+    }
     asm_code_printf("\tsw $t0, 0($t1)\n")
     // reset pointer to first
     temp = first;
@@ -158,13 +173,16 @@ MemorySlot doConcatenation(MemorySlotList slotList)
             temp = temp->next;
             continue;
         }
-        asm_readFromStack("$t1", getMipsOffset(temp->slot));
-        asm_useBufferWriteFunction("$t1", "$t0", "$t0");
 
-        // Free memory
-        if (temp->slot->temp)
+        if(temp->slot->label == NULL)
+        {
+            asm_readFromStack("$t1", CALCULATE_OFFSET(temp->slot));
             temp->slot->used = false;
+        } else {
+            asm_loadLabelIntoRegister(temp->slot->label, "$t1");
+        }
 
+        asm_useBufferWriteFunction("$t1", "$t0", "$t0");
         temp = temp->next;
     }
 
@@ -190,12 +208,24 @@ MemorySlot assign(char *name, MemorySlot memorySlot, bool local)
     MemorySlot slot = iden->memory;
     if (slot == NULL) return slot;
 
-    asm_readFromStack("$t0", getMipsOffset(memorySlot));
-    asm_getStackAddress("$t1", getMipsOffset(slot));
+    if(memorySlot->label == NULL)
+    {
+        asm_readFromStack("$t0", CALCULATE_OFFSET(memorySlot));
+        memorySlot->used = false;
+    } else {
+        asm_loadLabelIntoRegister(memorySlot->label, "$t0");
+    }
+
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t1", CALCULATE_OFFSET(slot));
+        slot->used = false;
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t1");
+    }
+
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
-    if(memorySlot->temp) freeMemory(memorySlot);
-    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
@@ -227,7 +257,13 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
     // slot -> address of table
     MemorySlot slot = iden->memory;
     // offset -> address of offset
-    asm_readFromStack("$t0", getMipsOffset(offset));
+    if(offset->label == NULL)
+    {
+        asm_readFromStack("$t0", CALCULATE_OFFSET(offset));
+        freeMemory(offset);
+    } else {
+        asm_loadLabelIntoRegister(offset->label, "$t0");
+    }
 
     // check if array out of bounds
     asm_code_printf("\tli $t1, %d\n", iden->arraySize)
@@ -236,17 +272,25 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
     asm_code_printf("\tblt $t0, $zero, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
 
     // load address of table
-    asm_readFromStack("$t1", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelIntoRegister(slot->label, "$t1");
+    }
     asm_code_printf("\tmul $t2, $t0, %d\n", ASM_INTEGER_SIZE)
     // access to $t1[$t0] address
     asm_code_printf("\tadd $t1, $t1, $t2\n")
 
     // read start address from concatenation from stack into $t5
-    asm_readFromStack("$t5", getMipsOffset(concat));
+    if(concat->label == NULL)
+    {
+        asm_readFromStack("$t5", CALCULATE_OFFSET(concat));
+        freeMemory(concat);
+    } else {
+        asm_loadLabelIntoRegister(concat->label, "$t5");
+    }
     asm_code_printf("\tsw $t5, 0($t1)\n")
-
-    if(offset->temp) freeMemory(offset);
-    if(concat->temp) freeMemory(concat);
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -256,8 +300,14 @@ int doExit(MemorySlot slot)
 {
     if(slot == NULL) return asm_syscall(SYS_EXIT);
 
-    asm_readFromStack("$a0", getMipsOffset(slot));
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    if(slot->label == NULL)
+    {
+        asm_readFromStack("$a0", CALCULATE_OFFSET(slot));
+        freeMemory(slot);
+    } else {
+        asm_loadLabelIntoRegister(slot->label, "$a0");
+    }
+
     return asm_syscall(SYS_EXIT2);
 }
 
@@ -265,9 +315,22 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
 {
     asm_code_printf("\n\t#Start of operation code\n\n")
 
-    asm_readFromStack("$t0", getMipsOffset(left));
-    asm_readFromStack("$t1", getMipsOffset(right));
-    CHECK_ERROR_RETURN(NULL)
+    if(left->label == NULL)
+    {
+        asm_readFromStack("$t0", CALCULATE_OFFSET(left));
+    } else {
+        asm_loadLabelIntoRegister(left->label, "$t0");
+        // identifier so find a new memory slot
+        left = reserveBlockMemorySlot(listRangeVariable);
+    }
+
+    if(right->label == NULL)
+    {
+        asm_readFromStack("$t1", CALCULATE_OFFSET(right));
+        freeMemory(right);
+    } else {
+        asm_loadLabelIntoRegister(right->label, "$t1");
+    }
 
     switch (operation) {
         case PLUS_OPE:
@@ -292,11 +355,8 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
             break;
     }
 
-    if (right->temp) freeMemory(right);
-    if (!left->temp) left = reserveMemorySlot();
-    CHECK_ERROR_RETURN(NULL)
-
-    asm_getStackAddress("$t1", getMipsOffset(left));
+    // no check for label because 'left' can only be a temp value
+    asm_getStackAddress("$t1", CALCULATE_OFFSET(left));
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
     asm_code_printf("\n\t#End of operation code\n\n")
@@ -329,11 +389,15 @@ int doEcho(MemorySlotList list)
             return RETURN_FAILURE;
         }
 
-        asm_readFromStack("$a0", getMipsOffset(list->slot));
-        asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
+        if(list->slot->label == NULL)
+        {
+            asm_readFromStack("$a0", CALCULATE_OFFSET(list->slot));
+            freeMemory(list->slot);
+        } else {
+            asm_loadLabelIntoRegister(list->slot->label, "$a0");
+        }
 
-        if(list->slot->temp) // Free memory
-            list->slot->used = false;
+        asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
 
         list = list->next;
     } while(list != NULL);
@@ -354,17 +418,13 @@ int setMarker(){
     return RETURN_SUCCESS;
 }
 
-int doMarkerThen()
+int doMarkerTest()
 {
     char* then = (char*)createNewLabel();
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     asm_code_printf("\t%s:\n",then)
-    if((listInstruction->cursorCode->numberTrue > 1)
-    || ((listInstruction->cursorCode->previousCode != NULL) && (listInstruction->cursorCode->previousCode->numberTrue != 0))){
-        completeTrueList(listInstruction,"");
-        CHECK_ERROR_RETURN(RETURN_FAILURE)
-    }
+    completeOneUnDefineGoto(listInstruction, "");
     completeTrueList(listInstruction,then);
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -405,11 +465,62 @@ int doMarkerEndInstruction()
     return RETURN_SUCCESS;
 }
 
+int doMarkerLoop()
+{
+    asm_code_printf("\n\t# Start of Test block of LOOP\n")
+    addIntoUnDefineGoto(listInstruction,"\t");
+    asm_code_printf("\n")
+    return RETURN_SUCCESS;
+}
+
+int doMarkerEndLoop()
+{
+    char* then = (char*)createNewLabel();
+    asm_code_printf("\t%s:\n",then)
+    completeFalseList(listInstruction,then);
+    completeUnDefineGoto(listInstruction,then);
+
+    asm_code_printf("\n\t# End of Test block of LOOP\n\n")
+    return RETURN_SUCCESS;
+}
+
+int doMarkerDone()
+{
+    char* then = (char*)createNewLabel();
+    completeUnDefineGoto(listInstruction,then);
+    asm_code_printf("\n\tj %s\n",then)
+    return RETURN_SUCCESS;
+}
+
+int doMarkerForList()
+{
+
+}
+
+int addBlock(int blockType)
+{
+    // TODO: block type ????
+    int returnValue;
+    returnValue = addRangeVariable(listRangeVariable, blockType);
+    returnValue += addStructListGoTo(listInstruction);
+
+    return returnValue;
+}
+
+int deleteBlock()
+{
+    int returnValue;
+    returnValue = deleteRangeVariable(listRangeVariable);
+    returnValue += deleteStructListGoTo(listInstruction);
+
+    return returnValue;
+}
+
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
 {
     log_trace("doBoolExpression (int %d)", boolExpr)
 
-    asm_code_printf("\n\t# Start of Test block of ope %d\n", boolExpr)
+    asm_code_printf("\n\t# Start of Test block of ope %d\n\n", boolExpr)
 
     if((boolExpr != L_AND) && (boolExpr != L_OR)){
 
@@ -419,9 +530,22 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             return NULL;
         }
 
-        asm_readFromStack("$t0", getMipsOffset(left));
-        asm_readFromStack("$t1", getMipsOffset(right));
-        CHECK_ERROR_RETURN(NULL)
+        if(left->label == NULL)
+        {
+            asm_readFromStack("$t0", CALCULATE_OFFSET(left));
+            freeMemory(left);
+        } else {
+            asm_loadLabelIntoRegister(left->label, "$t0");
+        }
+
+        if(right->label == NULL)
+        {
+            asm_readFromStack("$t1", CALCULATE_OFFSET(right));
+            freeMemory(right);
+        } else {
+            asm_loadLabelIntoRegister(right->label, "$t1");
+        }
+
     }
 
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
@@ -441,60 +565,60 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             addIntoTrueList(listInstruction,"\tbeq $t0, 1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case STR_NEQ:
             asm_useStrCmpFunction("$t0", "$t1", "$t0");
             addIntoTrueList(listInstruction,"\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_EQ:
             addIntoTrueList(listInstruction,"\tbeq $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_NEQ:
             addIntoTrueList(listInstruction,"\tbne $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_GT:
             addIntoTrueList(listInstruction,"\tbgt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_GE:
             addIntoTrueList(listInstruction,"\tbge $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_LT:
             addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case BOOL_LE:
             addIntoTrueList(listInstruction,"\tble $t0, $t1,");
             addIntoFalseList(listInstruction,"\n\tj");
             asm_code_printf("\n")
-            addIntoTrueList(listInstruction,"\t");
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case L_AND:
             asm_code_printf("\n\t# Start of Test block of AND\n")
 
             block = (char*)createNewLabel();
-            completeTrueList(listInstruction,block);
+            completeOneUnDefineGoto(listInstruction,block);
             completeTrueList(listInstruction,block);
 
             block = (char*)createNewLabel();
-            completeTrueList(listInstruction,block);
+            completeOneUnDefineGoto(listInstruction,block);
             completeTrueList(listInstruction,block);
 
             block = (char*)createNewLabel();
@@ -507,6 +631,9 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             completeFalseList(listInstruction, block);
             completeFalseList(listInstruction, block);
             addIntoFalseList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            addIntoUnDefineGoto(listInstruction,"\t");
 
             asm_code_printf("\n\t# End of Test block of AND\n")
             break;
@@ -516,19 +643,24 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
             block = (char*)createNewLabel();
             block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
-            completeTrueList(listInstruction,"");
+            completeOneUnDefineGoto(listInstruction,block1);
+            completeTrueList(listInstruction,block);
             completeTrueList(listInstruction,block);
 
-            completeTrueList(listInstruction,block1);
-            completeTrueList(listInstruction,block);
             addIntoTrueList(listInstruction,"\tj");
             asm_code_printf("\n")
 
             block = (char*)createNewLabel();
+            block1 = (char*)createNewLabel();
             asm_code_printf("\t%s:\n",block)
+            completeOneUnDefineGoto(listInstruction,block1);
             completeFalseList(listInstruction, block);
-            completeFalseList(listInstruction, block1);
+            completeFalseList(listInstruction, "");
+
             addIntoFalseList(listInstruction,"\tj");
+            asm_code_printf("\n")
+
+            addIntoUnDefineGoto(listInstruction,"\t");
             asm_code_printf("\n\t# End of Test block of OR\n")
             break;
         default:
@@ -537,11 +669,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     }
     asm_code_printf("\n")
 
-    if (right != NULL && right->temp) freeMemory(right);
-    if (left != NULL && left->temp) freeMemory(left);
-
-    asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
-    CHECK_ERROR_RETURN(NULL)
+    asm_code_printf("\n\t# End of Test block of ope %d\n\n", boolExpr)
     return NULL;
 }
 
@@ -556,21 +684,30 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
         setErrorFailure();
         return NULL;
     }
-    asm_readFromStack("$t1", getMipsOffset(right));
+
+    if(right->label == NULL)
+    {
+        asm_readFromStack("$t1", CALCULATE_OFFSET(right));
+        freeMemory(right);
+    } else {
+        asm_loadLabelIntoRegister(right->label, "$t1");
+    }
 
     switch (boolExpr)
     {
         case EMPTY:
-            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            asm_code_printf("\tlb $t0, 0($t1)");
             addIntoTrueList(listInstruction,"\n\tbeq $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n\t");
+            asm_code_printf("\n")
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         case NOT_EMPTY:
-            addIntoTrueList(listInstruction,"\tlb $t0, 0($t1)");
+            asm_code_printf("\tlb $t0, 0($t1)");
             addIntoTrueList(listInstruction,"\n\tbne $t0, $zero,");
             addIntoFalseList(listInstruction,"\n\tj");
-            addIntoTrueList(listInstruction,"\n\t");
+            asm_code_printf("\n")
+            addIntoUnDefineGoto(listInstruction,"\t");
             break;
         default:
             log_error("Operation not allow %d",boolExpr)
@@ -578,10 +715,13 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
     }
     asm_code_printf("\n")
 
-    if (right->temp) freeMemory(right);
-
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
     return NULL;
+}
+
+int doNegBoolExpression()
+{
+    return switchTrueFalseList(listInstruction);
 }
 
 Identifier getIdentifier(char *id, bool create, bool local)
@@ -657,8 +797,13 @@ int doDeclareStaticArray(char *id, int size)
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     asm_writeStaticArray(label, size);
-    asm_getStackAddress("$t0", getMipsOffset(slot));
-    asm_loadLabelIntoRegister(label, "$t1");
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t0", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t0");
+    }
+    asm_loadLabelAddressIntoRegister(label, "$t1");
     asm_code_printf("\tsw $t1, 0($t0)\n")
     free((char*)label);
     asm_code_printf("\t# end of declaration of table %s\n", id)
@@ -677,15 +822,20 @@ MemorySlot addStringToMemory(const char *str) {
     CHECK_ERROR_RETURN(NULL)
 
     copy[len - 1] = '\0'; // add nul char
-    MemorySlot slot = reserveMemorySlot();
+    MemorySlot slot = reserveBlockMemorySlot(listRangeVariable);
     const char* label = createNewLabel();
     CHECK_ERROR_RETURN(NULL)
 
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, copy)
-    asm_loadLabelIntoRegister(label, "$t0");
+    asm_loadLabelAddressIntoRegister(label, "$t0");
     //asm_allocateOnHeap("$t1", (int)len - 1);
     //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
-    asm_getStackAddress("$t1", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t1", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t1");
+    }
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
     free(copy);
@@ -694,15 +844,20 @@ MemorySlot addStringToMemory(const char *str) {
 }
 
 MemorySlot addWordToMemory(const char *str) {
-    MemorySlot slot = reserveMemorySlot();
+    MemorySlot slot = reserveBlockMemorySlot(listRangeVariable);
     const char* label = createNewLabel();
     CHECK_ERROR_RETURN(NULL)
 
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, str)
-    asm_loadLabelIntoRegister(label, "$t0");
+    asm_loadLabelAddressIntoRegister(label, "$t0");
     //asm_allocateOnHeap("$t1", (int)len - 1);
     //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
-    asm_getStackAddress("$t1", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t1", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t1");
+    }
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
     CHECK_ERROR_RETURN(NULL)
@@ -738,7 +893,15 @@ int doArrayRead(char *id, MemorySlot offset)
     MemorySlot slot = iden->memory;
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     // offset -> address of offset
-    asm_readFromStack("$t0", getMipsOffset(offset));
+    asm_readFromStack("$t0", CALCULATE_OFFSET(offset));
+
+    if(offset->label == NULL)
+    {
+        asm_readFromStack("$t0", CALCULATE_OFFSET(offset));
+        freeMemory(offset);
+    } else {
+        asm_loadLabelIntoRegister(offset->label, "$t0");
+    }
 
     // check if array out of bounds
     asm_code_printf("\tli $t1, %d\n", iden->arraySize)
@@ -747,7 +910,14 @@ int doArrayRead(char *id, MemorySlot offset)
     asm_code_printf("\tblt $t0, $zero, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
 
     // load address of table
-    asm_readFromStack("$t1", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
+        freeMemory(slot);
+    } else {
+        asm_loadLabelIntoRegister(slot->label, "$t1");
+    }
+
     asm_code_printf("\tmul $t2, $t0, %d\n", ASM_INTEGER_SIZE)
     // access to $t1[$t0] address
     asm_code_printf("\tadd $t1, $t1, $t2\n")
@@ -761,7 +931,7 @@ int doArrayRead(char *id, MemorySlot offset)
 
     // string is in ASM_VAR_GLOBAL_READ_BUFFER_NAME
     // init a size counter
-    asm_loadLabelIntoRegister(ASM_VAR_GLOBAL_READ_BUFFER_NAME, "$t3");
+    asm_loadLabelAddressIntoRegister(ASM_VAR_GLOBAL_READ_BUFFER_NAME, "$t3");
     asm_useBufferLenFunction("$t3", "$t2");
     asm_code_printf("\taddi $t2, $t2, 1 # Add NUL char\n")
 
@@ -775,8 +945,6 @@ int doArrayRead(char *id, MemorySlot offset)
 
     // At the end write $zero
     asm_code_printf("\tsb $zero, 0($t2)\n")
-
-    if(offset->temp) freeMemory(offset);
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -801,14 +969,24 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
     // convert to int
     if(isOperandInt)
     {
-        asm_readFromStack("$t0", getMipsOffset(slot));
+        if(slot->label == NULL)
+        {
+            asm_readFromStack("$t0", CALCULATE_OFFSET(slot));
+        } else {
+            asm_loadLabelIntoRegister(slot->label, "$t0");
+            // set value to a new stack address
+            slot = reserveBlockMemorySlot(listRangeVariable);
+        }
+
         // convert string to int (variables contains numbers as chars)
         asm_useAtoiFunction("$t0", "$t0");
-        // set value to a new stack address
-        slot = slot->temp ? slot : reserveMemorySlot();
-        CHECK_ERROR_RETURN(NULL)
 
-        asm_getStackAddress("$t1", getMipsOffset(slot));
+        if(slot->label == NULL)
+        {
+            asm_getStackAddress("$t1", CALCULATE_OFFSET(slot));
+        } else {
+            asm_loadLabelAddressIntoRegister(slot->label, "$t1");
+        }
 
         if(negative) {
             asm_code_printf("\tli $t2, -1\n")
@@ -822,16 +1000,21 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
 
     // No modification if positive
     if(!negative) return slot;
-    if(!slot->temp)
+    if(slot->label != NULL)
     {
-        slot = reserveMemorySlot();
+        slot = reserveBlockMemorySlot(listRangeVariable);
         CHECK_ERROR_RETURN(NULL)
     }
 
     asm_code_printf("\tli $t1, -1\n")
     asm_code_printf("\tmul $t0, $t0, $t1\n")
 
-    asm_getStackAddress("$t2", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t2");
+    }
     asm_code_printf("\tsw $t0, 0($t2)\n")
 
     CHECK_ERROR_RETURN(NULL)
@@ -868,7 +1051,14 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     CHECK_ERROR_RETURN(NULL)
 
     // offset -> address of offset
-    asm_readFromStack("$t0", getMipsOffset(offset));
+    if(offset->label == NULL)
+    {
+        asm_readFromStack("$t0", CALCULATE_OFFSET(offset));
+    } else {
+        asm_loadLabelIntoRegister(offset->label, "$t0");
+        // set value to a new stack address
+        offset = reserveBlockMemorySlot(listRangeVariable);
+    }
 
     // check if not array out of bounds
     asm_code_printf("\tli $t1, %d\n", iden->arraySize)
@@ -877,7 +1067,13 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     asm_code_printf("\tblt $t0, $zero, %s\n", ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME)
 
     // load address of table
-    asm_readFromStack("$t1", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelIntoRegister(slot->label, "$t1");
+    }
+
     asm_code_printf("\tmul $t2, $t0, %d\n", ASM_INTEGER_SIZE)
     // access to $t1[$t0] address
     asm_code_printf("\tadd $t1, $t1, $t2\n")
@@ -892,10 +1088,13 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
     if(!isOperandInt)
     {
-        // set value to a new stack address
-        offset = offset->temp ? offset : reserveMemorySlot();
-        CHECK_ERROR_RETURN(NULL)
-        asm_getStackAddress("$t3", getMipsOffset(offset));
+        if(offset->label == NULL)
+        {
+            asm_getStackAddress("$t3", CALCULATE_OFFSET(offset));
+        } else {
+            asm_loadLabelAddressIntoRegister(offset->label, "$t3");
+        }
+
         // get value -> $t1[$t0]
         asm_code_printf("\tlw $t1, 0($t1)\n")
         asm_code_printf("\tsw $t1, 0($t3)\n")
@@ -908,11 +1107,12 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     // $t1 = atoi($t1[$t0]])
     asm_useAtoiFunction("$t3", "$t0");
 
-    // set value to a new stack address
-    offset = offset->temp ? offset : reserveMemorySlot();
-    CHECK_ERROR_RETURN(NULL)
-
-    asm_getStackAddress("$t1", getMipsOffset(offset));
+    if(offset->label == NULL)
+    {
+        asm_getStackAddress("$t1", CALCULATE_OFFSET(offset));
+    } else {
+        asm_loadLabelAddressIntoRegister(offset->label, "$t1");
+    }
 
     if(negative) {
         asm_code_printf("\tli $t2, -1\n")
@@ -998,13 +1198,8 @@ MemorySlot doWriteInt(const char *val)
 {
     log_trace("doWriteInt(%s)", val)
     CHECK_TYPE(checkWordIsInt(val))
-
-    MemorySlot mem = reserveMemorySlot();
-    CHECK_ERROR_RETURN(NULL)
-
-    asm_getStackAddress("$t0", getMipsOffset(mem));
-    CHECK_ERROR_RETURN(NULL)
-
+    MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
+    asm_getStackAddress("$t0", CALCULATE_OFFSET(mem));
     int parsed;
     int err = 0;
     if ((parsed = parseInt32(val, &err)) == RETURN_FAILURE && err)
@@ -1080,7 +1275,7 @@ int doStringRead(const char *id)
 
     // string is in ASM_VAR_GLOBAL_READ_BUFFER_NAME
     // init a size counter
-    asm_loadLabelIntoRegister(ASM_VAR_GLOBAL_READ_BUFFER_NAME, "$t0");
+    asm_loadLabelAddressIntoRegister(ASM_VAR_GLOBAL_READ_BUFFER_NAME, "$t0");
     asm_useBufferLenFunction("$t0", "$t1");
     asm_code_printf("\taddi $t1, $t1, 1 # Add NUL char\n")
 
@@ -1088,7 +1283,12 @@ int doStringRead(const char *id)
     asm_syscall(SBRK);
     asm_code_printf("\tmove $t1, $v0\n") // move start address to v0
     // write heap address to stack
-    asm_getStackAddress("$t2", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t2");
+    }
     asm_code_printf("\tsw $t1, 0($t2)\n")
     asm_useBufferWriteFunction("$t0", "$t1", "$t1");
 
@@ -1105,7 +1305,12 @@ MemorySlot convertIntToString(MemorySlot slot)
 
     // /!\ slot not reallocated because it should always be temp
 
-    asm_getStackAddress("$t0", getMipsOffset(slot));
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t0", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t0");
+    }
     asm_code_printf("\tla $t1, 0($t0)\n")
 
     asm_useIntToStringFunction("$t1", "$t1");
@@ -1123,8 +1328,13 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
     if(!negative) return slot;
 
     // /!\ slot not reallocated because it should always be temp
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t0", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t0");
+    }
 
-    asm_getStackAddress("$t0", getMipsOffset(slot));
     asm_code_printf("\tlw $t1, 0($t0)\n")
     asm_code_printf("\tli $t2, -1\n")
     asm_code_printf("\tmul $t1, $t1, $t2\n")
@@ -1132,4 +1342,75 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
 
     CHECK_ERROR_RETURN(NULL)
     return slot;
+}
+
+int doDeclareFunction(Marker mark)
+{
+    // TODO: handle returns
+    // from actual position to start position (mark)
+    deleteRangeVariable(listRangeVariable); // delete one block
+    asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    asm_loadRegistersFromStack();
+    asm_code_printf("\tjr $ra\n")
+    asm_code_printf("\tend_%s:\n", mark->lbl)
+    return RETURN_SUCCESS;
+}
+
+Marker doFunctionStartMarker(char* id)
+{
+    Identifier identifier = getIdentifier(id, false, false);
+    Marker mark = newMarker();
+
+    if(identifier != NULL)
+    {
+        // mark->lbl => NULL identifier already exists
+        mark->code = listInstruction->cursorCode;
+        mark->index = listInstruction->cursorCode->numberCode;
+        return mark;
+    }
+
+    mark->lbl = id;
+
+    // Create identifier and start code
+    identifier = getIdentifier(id, true, false);
+    identifier->type = FUNCTION;
+
+    // creation du nouveau block
+    addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
+
+    asm_code_printf("\tj end_%s\n", id)
+
+    mark->code = listInstruction->cursorCode;
+    mark->index = listInstruction->cursorCode->numberCode - 1;
+
+    asm_code_printf("\tstart_%s:\n", id) // function name
+    asm_writeRegistersToStack(); // 3
+
+    asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+
+    return mark;
+}
+
+int doFunctionCall(char* id, MemorySlotList list)
+{
+    Identifier identifier = getIdentifier(id, false, false);
+
+    if(identifier == NULL)
+    {
+        log_error("Function you trying to call is not existing.")
+        free(id);
+        return RETURN_FAILURE;
+    }
+
+    if(identifier->type != FUNCTION)
+    {
+        log_error("The variable you trying to call is not a function.")
+        free(id);
+        return RETURN_FAILURE;
+    }
+
+    asm_code_printf("\tjal start_%s\n", id)
+    free(id);
+
+    return RETURN_SUCCESS;
 }

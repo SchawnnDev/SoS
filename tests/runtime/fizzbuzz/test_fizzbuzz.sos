@@ -1,0 +1,25 @@
+i = 0;
+a = 5;
+b = 3;
+lim = 20;
+
+while test ${i} -le ${lim}
+do
+    echo ${i} " " $( expr ${i} % 3 ) " " $( expr ${i} % 5 ) "\n";
+    if test $(expr ${i} % ${a}) -eq 0
+    then
+        if test $(expr ${i} % ${b}) -eq 0
+        then
+            echo "fizzBuzz\n"
+        else
+            echo "buzz\n"
+        fi
+    elif test $(expr ${i} % ${b}) -eq 0
+    then
+        echo "fizz\n"
+    else
+        echo ${i} "\n"
+    fi;
+    i = $(expr ${i} + 1)
+done;
+exit

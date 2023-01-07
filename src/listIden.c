@@ -71,9 +71,9 @@ Identifier initIdentifier(char* name)
 void cleanIdentifier(Identifier addr)
 {
     log_trace("cleanIdentifier (Identifier %p)",addr)
-    CHECKPOINTER(addr)
+    CHECKPOINTER(addr);
     CHECK_ERROR_NORETURN()
-
+    free(addr->memory);
     free(addr);
 }
 
@@ -130,7 +130,7 @@ int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset)
         setErrorFailure();
         return RETURN_FAILURE;
     }
-    offset->temp = false;
+
     addr->Identifiers[addr->numberIdentifiers] = identifier;
     addr->Identifiers[addr->numberIdentifiers]->memory = offset;
     addr->numberIdentifiers++;

@@ -1,0 +1,13 @@
+ite=0;
+until test ${ite} -ge 5 do
+    echo ${ite} "\n";
+
+    if test ${ite} -eq 3 then
+        echo "It's 3\n"
+    else
+        echo "It isn't 3\n"
+    fi;
+
+    ite = $( expr ${ite} + 1 )
+done;
+exit

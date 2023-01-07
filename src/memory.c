@@ -1,21 +1,20 @@
 #include <stddef.h>
 #include "memory.h"
 
-int memoryCurrentStackOffset = 0;
-MemorySlot memory = NULL;
-
-MemorySlot reserveMemorySlot() {
+MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
+{
     MemorySlot mem = NULL;
 
     if (memory == NULL)
     {
-        memory = newMemorySlot();
+        memory = newMemorySlot(memoryCurrentStackOffset);
         CHECK_ERROR_RETURN(NULL)
         memory->used = true;
         return memory;
     }
 
-    do {
+    do
+    {
         mem = mem == NULL ? memory : mem->next;
         if (!mem->used)
         {
@@ -24,41 +23,32 @@ MemorySlot reserveMemorySlot() {
         }
     } while (mem->next != NULL);
 
-    mem->next = newMemorySlot();
+    mem->next = newMemorySlot(memoryCurrentStackOffset);
     CHECK_ERROR_RETURN(NULL)
     mem->next->used = true;
 
     return mem->next;
 }
 
-MemorySlot newMemorySlot() {
+MemorySlot newMemorySlot(int *memoryCurrentStackOffset)
+{
     log_trace("newMemorySlot()")
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
     CHECK_ERROR_RETURN(NULL)
-
     asm_allocateMemoryOnStack(1);
     CHECK_ERROR_RETURN(NULL)
 
     space->used = false;
-    space->offset = memoryCurrentStackOffset;
+    space->offset = *memoryCurrentStackOffset;
     space->next = NULL;
-    space->temp = true;
-    memoryCurrentStackOffset += ASM_INTEGER_SIZE;
+    space->label = NULL;
+    *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
 }
 
-MemorySlot searchByOffset(int offset) {
-    MemorySlot mem = memory;
-    while (mem != NULL) {
-        if (mem->offset == offset) return mem;
-        mem = mem->next;
-    }
-    return NULL;
-}
-
-int getMipsOffset(MemorySlot space) {
+int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset) {
     if(space == NULL)
     {
         setErrorFailure();
@@ -67,25 +57,29 @@ int getMipsOffset(MemorySlot space) {
     return memoryCurrentStackOffset - space->offset;
 }
 
-void destroyMemorySlot() {
+void destroyMemorySlot(MemorySlot memory)
+{
     if (memory == NULL)
         return;
 
     MemorySlot mem = memory;
     MemorySlot temp;
+    int i = 0;
 
-    do {
+    do
+    {
+        i++;
         temp = mem->next;
         free(mem);
         mem = temp;
     } while (mem != NULL);
 
-    memory = NULL;
+    asm_freeMemoryOnStack(i);
 }
 
 void freeMemory(MemorySlot mem)
 {
-    if(mem == NULL) return;
+    if (mem == NULL) return;
     mem->used = false;
 }
 
@@ -97,6 +91,7 @@ void freeMemory(MemorySlot mem)
  */
 MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 {
+    if (memorySlot == NULL) return NULL;
     log_trace("newMemorySlotList(%d)", memorySlot->offset)
     MemorySlotList list;
     CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)))
@@ -130,7 +125,8 @@ void destroyMemoryList(MemorySlotList memorySlotList)
     memorySlotList = firstMemorySlotList(memorySlotList);
     MemorySlotList temp;
 
-    do {
+    do
+    {
         temp = memorySlotList->next;
         free(memorySlotList);
         memorySlotList = temp;
@@ -140,10 +136,10 @@ void destroyMemoryList(MemorySlotList memorySlotList)
 
 MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList)
 {
-    if(memorySlotList == NULL) return NULL;
+    if (memorySlotList == NULL) return NULL;
     MemorySlotList result = memorySlotList;
 
-    while(result->previous != NULL)
+    while (result->previous != NULL)
         result = result->previous;
 
     return result;

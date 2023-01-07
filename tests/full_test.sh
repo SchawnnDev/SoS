@@ -18,6 +18,9 @@ failed=0
 # Creates a temporary file
 temp_asm_file=$(mktemp)
 
+# Creating temp directory
+mkdir tests/tmp
+
 # ------------------
 # Test loop function
 # ------------------
@@ -83,7 +86,7 @@ compilation_error_tests()
 # ------
 # Compilation
 echo "${BOLD}-- Compilation tests --"
-#compilation_error_tests
+compilation_error_tests
 # Assign
 echo "${BOLD}-- Assignment tests --"
 #test_loop "assign"
@@ -102,11 +105,24 @@ echo "${BOLD}-- Relational test block tests --"
 # Conditional test_block
 echo "${BOLD}-- Conditional test block tests --"
 #test_loop "conditional_test_block"
-# If
+# If tests
 echo "${BOLD}-- If tests --"
 #test_loop "if"
+# While tests
+echo "${BOLD}-- While tests --"
+#test_loop "while"
+# Until tests
+echo "${BOLD}-- Until tests --"
+#test_loop "until"
+# Fizzbuzz test
+echo "${BOLD}-- Fizzbuzz tests --"
+#test_loop "fizzbuzz"
+# Array test
 echo "${BOLD}-- Array tests --"
-test_loop "array"
+#test_loop "array"
+# Function test
+echo "${BOLD}-- Function tests --"
+test_loop "function"
 
 # Summary
 echo -e "${BOLD}-- SUMMARY --${NC}"
@@ -117,7 +133,7 @@ echo -e "Total ${RED}failed${NC} test = ${failed}"
 # Clean
 rm "${temp_asm_file}"
 
-rm tests/tmp/*
+rm -rf tests/tmp/ &>/dev/null
 
 exit 0
 

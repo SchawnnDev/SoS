@@ -1,7 +1,14 @@
-a=1;
-b=2;
+ite=0;
+char="a";
+while test ${ite} -lt 5 do
+    echo ${ite} "\n";
+    ite = $( expr ${ite} + 1 );
 
-if test ${a} -lt 10 -a ${b} -lt 10 then
-    echo "Yeah"
-fi ;
+    ite_bis="";
+    while test ${ite_bis} != "aaa" do
+        ite_bis = ${ite_bis} ${char};
+        echo ${ite_bis} "\n"
+    done
+done;
+echo ${ite_bis} "\n";
 exit
