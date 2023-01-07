@@ -110,7 +110,10 @@ echo "${BOLD}-- If tests --"
 #test_loop "if"
 # While tests
 echo "${BOLD}-- While tests --"
-#test_loop "while"
+test_loop "while"
+# Until tests
+echo "${BOLD}-- Until tests --"
+test_loop "until"
 # Fizzbuzz test
 echo "${BOLD}-- Fizzbuzz tests --"
 test_loop "fizzbuzz"

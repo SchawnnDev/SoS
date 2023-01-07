@@ -6,8 +6,8 @@ while test ${ite} -lt 5 do
 
     ite_bis="";
     while test ${ite_bis} != "aaa" do
-        ite_bis = ${ite_bis} ${char};
-        echo ${ite_bis} "\n"
+        echo ${ite_bis} "\n";
+        ite_bis = ${ite_bis} ${char}
     done
 done;
 echo ${ite_bis} "\n";
