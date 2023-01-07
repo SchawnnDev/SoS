@@ -130,7 +130,7 @@ int doMarkerDone();
 
 int doMarkerForList();
 
-int addBlock();
+int addBlock(int blockType);
 
 int deleteBlock();
 

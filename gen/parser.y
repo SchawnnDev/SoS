@@ -203,11 +203,11 @@ marker_else : {$$ = ""; doMarkerElse();}
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction();}
 
-marker_loop : {$$ = ""; addBlock(); doMarkerLoop();}
+marker_loop : {$$ = ""; addBlock(BLOCK_LOOP); doMarkerLoop();}
 
 marker_done : {$$ = ""; doMarkerDone();}
 
-marker_if : { $$ = ""; addBlock();}
+marker_if : { $$ = ""; addBlock(BLOCK_IF);}
 
 marker_until : { $$ = "";doNegBoolExpression();}
 

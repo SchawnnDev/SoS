@@ -436,11 +436,11 @@ int doMarkerForList()
 
 }
 
-int addBlock()
+int addBlock(int blockType)
 {
     // TODO: block type ????
     int returnValue;
-    returnValue = addRangeVariable(listRangeVariable, BLOCK_MAIN);
+    returnValue = addRangeVariable(listRangeVariable, blockType);
     returnValue += addStructListGoTo(listInstruction);
 
     return returnValue;
