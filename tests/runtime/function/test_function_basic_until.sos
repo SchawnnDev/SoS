@@ -1,0 +1,15 @@
+test_function()
+{
+    ite=0;
+    until test ${ite} -ge 5 do
+        echo ${ite} "\n";
+        ite = $( expr ${ite} + 1 )
+    done;
+
+    echo ite
+}
+
+res=$(test_function);
+echo "Res= " ${res};
+
+exit

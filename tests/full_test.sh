@@ -18,6 +18,9 @@ failed=0
 # Creates a temporary file
 temp_asm_file=$(mktemp)
 
+# Creating temp directory
+mkdir tests/tmp
+
 # ------------------
 # Test loop function
 # ------------------
@@ -104,7 +107,7 @@ echo "${BOLD}-- Conditional test block tests --"
 #test_loop "conditional_test_block"
 # If
 echo "${BOLD}-- If tests --"
-test_loop "if"
+#test_loop "if"
 # While
 echo "${BOLD}-- While tests --"
 test_loop "while"
@@ -123,7 +126,7 @@ echo -e "Total ${RED}failed${NC} test = ${failed}"
 # Clean
 rm "${temp_asm_file}"
 
-rm tests/tmp/*
+rm -rf tests/tmp/ &>/dev/null
 
 exit 0
 

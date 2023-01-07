@@ -1,0 +1,56 @@
+var = 10;
+
+test_function()
+{
+    if test var -eq 10 then
+        var=${var}+10
+    fi
+}
+
+test_function2()
+{
+    if test var -eq 50 then
+        var=${var}+10
+    else
+        var=${var}+20
+    fi
+}
+
+test_function3()
+{
+    if test var -eq 50 then
+        var=${var}+10
+    elif test var -eq 40 then
+        var=${var}+30
+    fi
+}
+
+test_function4()
+{
+    if test var -eq 50 then
+        var=${var}+10
+    elif test var -eq 40 then
+        var=${var}+30
+    else
+        var=${var}+50
+    fi
+}
+
+
+$(test_function);
+echo ${var};
+echo "\n";
+
+$(test_function2);
+echo ${var};
+echo "\n";
+
+$(test_function3);
+echo ${var};
+echo "\n";
+
+$(test_function4);
+echo ${var};
+echo "\n";
+
+exit
