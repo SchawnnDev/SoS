@@ -105,17 +105,20 @@ echo "${BOLD}-- Relational test block tests --"
 # Conditional test_block
 echo "${BOLD}-- Conditional test block tests --"
 #test_loop "conditional_test_block"
-# If
+# If tests
 echo "${BOLD}-- If tests --"
 #test_loop "if"
-# While
+# While tests
 echo "${BOLD}-- While tests --"
-test_loop "while"
-# Fizzbuzz
+#test_loop "while"
+# Fizzbuzz test
 echo "${BOLD}-- Fizzbuzz tests --"
 test_loop "fizzbuzz"
+# Array test
 echo "${BOLD}-- Array tests --"
-test_loop "array"
+#test_loop "array"
+# Function test
+#test_loop "function"
 
 # Summary
 echo -e "${BOLD}-- SUMMARY --${NC}"
