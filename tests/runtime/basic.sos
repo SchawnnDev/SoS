@@ -1,2 +1,6 @@
-if test 80 -eq 50 -a  (90 -ne 80) then echo "1" else echo "0" fi;
+ite=0;
+while test ${ite} -lt 5 do
+    echo ${ite} "\n";
+    ite = $( expr ${ite} + 1 )
+done;
 exit

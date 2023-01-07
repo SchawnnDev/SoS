@@ -4,6 +4,25 @@
 #include "utils.h"
 #include "variable.h"
 
+typedef struct goTo_t *GoTo;
+struct goTo_t{
+    int numberGoto;
+    int numberTrue;
+    int numberFalse;
+
+    int unDefineGoto[CODE_TAB_MAX];
+    int trueList[CODE_TAB_MAX];
+    int falseList[CODE_TAB_MAX];
+
+    GoTo previousGoTo;
+};
+
+typedef struct listGoTo_t *ListGoTo;
+struct listGoTo_t{
+    GoTo cursor;
+    ListGoTo previousListGoTo;
+};
+
 typedef struct data_t *Data;
 struct data_t{
     int numberData;
@@ -15,13 +34,8 @@ struct data_t{
 typedef struct code_t *Code;
 struct code_t{
     int numberCode;
-    int numberGoto;
-    int numberTrue;
-    int numberFalse;
+    int rangeCode;
     char *lineCode[CODE_TAB_MAX];
-    int unDefineGoto[CODE_TAB_MAX];
-    int trueList[CODE_TAB_MAX];
-    int falseList[CODE_TAB_MAX];
     Code previousCode;
     Code nextCode;
 };
@@ -29,6 +43,7 @@ struct code_t{
 typedef struct {
     Data cursorData;
     Code cursorCode;
+    ListGoTo cursorGoTo;
 } listInstruction_t, *ListInstruction;
 
 /*!
@@ -52,12 +67,30 @@ Data initData(Data previousData);
 Code initCode(Code previousCode);
 
 /*!
+ * \fn GoTo initGoTo(GoTo previousGoTo)
+ * \brief Fonction qui initialise la structure de code
+ *
+ * \param previousGoTo : GoTo, la table précédante
+ *
+ * \return GoTo, un pointeur d'une structure de goto
+*/
+GoTo initGoTo(GoTo previousGoTo);
+
+/*!
  * \fn ListInstruction initListInstruction()
  * \brief Fonction qui initialise la structure de liste d'instruction
  *
  * \return ListInstruction, un pointeur d'une structure de liste d'instruction
 */
 ListInstruction initListInstruction();
+
+/*!
+ * \fn ListGoTo initListGoTo()
+ * \brief Fonction qui initialise la structure de liste de GoTo
+ *
+ * \return ListGoTo, un pointeur d'une structure de liste de GoTo
+*/
+ListGoTo initListGoTo();
 
 /*!
  * \fn void cleanData(Data addr)
@@ -76,12 +109,28 @@ void cleanData(Data addr);
 void cleanCode(Code addr);
 
 /*!
+ * \fn void cleanGoTo(GoTo addr)
+ * \brief Fonction qui libère la mémoire de la structure GoTo
+ *
+ * \param addr : GoTo, la structure code
+*/
+void cleanGoTo(GoTo addr);
+
+/*!
  * \fn void cleanListInstruction(ListInstruction addr)
  * \brief Fonction qui libère la mémoire de la liste d'instruction
  *
  * \param addr : ListInstruction, la structure d'instruction
 */
 void cleanListInstruction(ListInstruction addr);
+
+/*!
+ * \fn void cleanListGoTo(ListGoTo addr)
+ * \brief Fonction qui libère la mémoire de la liste de goto
+ *
+ * \param addr : ListGoTo, la structure de goto
+*/
+void cleanListGoTo(ListGoTo addr);
 
 /*!
  * \fn void addIntoData( ListInstruction addr)
@@ -130,6 +179,22 @@ void addIntoCode(ListInstruction addr, char *code);
 int addIntoCodeWithIndex( Code addr, char* code, int index);
 
 /*!
+ * \fn void addStructGoTo(ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de goto
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void addStructGoTo(ListInstruction addr);
+
+/*!
+ * \fn void addStructListGoTo(ListInstruction addr)
+ * \brief Fonction qui initialise une nouvelle structure de goto
+ *
+ * \param addr : ListInstruction, la structure d'instruction
+*/
+void addStructListGoTo(ListInstruction addr);
+
+/*!
  * \fn void addIntoCode( ListInstruction addr, char* code)
  * \brief Fonction qui permet d'ajoute un goto indéterminé
  *
@@ -172,7 +237,7 @@ int completeTrueList(ListInstruction addr, char *code);
  * \param addr : ListInstruction, la structure d'instruction
  * \param code : char*, la structure d'instruction
 */
-void completeFalseList(ListInstruction addr, char *code);
+int completeFalseList(ListInstruction addr, char *code);
 
 /*!
  * \fn void completeUnDefineGoto( ListInstruction addr, char* code )
@@ -181,7 +246,7 @@ void completeFalseList(ListInstruction addr, char *code);
  * \param addr : ListInstruction, la structure d'instruction
  * \param code : char*, la structure d'instruction
 */
-void completeUnDefineGoto( ListInstruction addr, char* code );
+int completeUnDefineGoto( ListInstruction addr, char* code );
 
 /*!
  * \fn void completeOneUnDefineGoto( ListInstruction addr, char* code )
