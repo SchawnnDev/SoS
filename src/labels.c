@@ -18,7 +18,9 @@ const char* createNewLabel()
 
     char* result;
     CHECKPOINTER(result = malloc(size))
+    CHECK_ERROR_RETURN(NULL)
     CHECK(snprintf(result, size, LABEL_NAME, labelCount))
+    CHECK_ERROR_RETURN(NULL)
     labelCount++;
     return result;
 }

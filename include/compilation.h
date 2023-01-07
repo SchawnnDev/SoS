@@ -8,7 +8,7 @@
 #include "boolExpr.h"
 #include "memory.h"
 
-#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
+#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); setErrorFailure(); return NULL;} } while (0);
 
 void initStruct();
 

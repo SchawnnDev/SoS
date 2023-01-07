@@ -18,7 +18,9 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     RangeVariable addr;
     CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)))
     CHECK_ERROR_RETURN(NULL)
+
     addr->listIdentifier = initListIdentifier();
+    CHECK_ERROR_RETURN(NULL)
     addr->rangeLevel = rangeLevel;
 
     addr->previousLevel = previousLevel;
@@ -53,6 +55,7 @@ ListRangeVariable initListRangeVariable()
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)))
     CHECK_ERROR_RETURN(NULL)
     RangeVariable rangeAddr = initRangeVariable(0,NULL);
+    CHECK_ERROR_RETURN(NULL)
     addr->cursor = rangeAddr;
     addr->cursorGlobal = rangeAddr;
 
@@ -86,11 +89,15 @@ void cleanListRangeVariable(ListRangeVariable addr)
 int increaseGlobalRangeVariable(ListRangeVariable addr)
 {
     log_trace("increaseGlobalRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addr->cursorGlobal);
-    CHECKPOINTER(addr->cursor);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(addr->cursorGlobal)
+    CHECKPOINTER(addr->cursor)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     RangeVariable newCursor = initRangeVariable(0, addr->cursorGlobal);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(addr->cursorGlobal->nextLevel != NULL){
         newCursor->nextLevel = addr->cursorGlobal->nextLevel;
     } else {
@@ -110,9 +117,11 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
 int addRangeVariable(ListRangeVariable addr)
 {
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1, addr->cursor);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
@@ -126,11 +135,13 @@ int addRangeVariable(ListRangeVariable addr)
 int deleteRangeVariable(ListRangeVariable addr)
 {
     log_trace("deleteRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(addr->cursor->rangeLevel == 0){
         log_error("rangeLevel : %d",addr->cursor->rangeLevel)
         perror("deleteRangeVariable : there is no negative rangeLevel.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -139,6 +150,7 @@ int deleteRangeVariable(ListRangeVariable addr)
     addr->cursor->nextLevel = NULL;
     cleanRangeVariable(tmp);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -151,7 +163,8 @@ VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIden
     log_trace("initVariablePosition (RangeVariable %p, int %d)", rangePosition, indexIdentifier)
 
     VariablePosition addr;
-    CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)));
+    CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->rangePosition = rangePosition;
     addr->indexIdentifier = indexIdentifier;
 
@@ -175,13 +188,15 @@ void cleanVariablePosition(VariablePosition addr)
 VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
 {
     log_trace("searchIdentifierPosition (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(NULL)
 
     int position = NOTFOUND;
     RangeVariable tmp = addr->cursor;
     while((tmp != NULL) && (position == NOTFOUND)){
         position = searchIntoListIdentifier(tmp->listIdentifier,name);
+        CHECK_ERROR_RETURN(NULL)
 
         if(position == NOTFOUND){
             tmp = tmp->previousLevel;
@@ -198,11 +213,14 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
 int addIdentifier(ListRangeVariable addr, char *name)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addr->cursorGlobal);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(addr->cursorGlobal)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(variablePosition->indexIdentifier != NOTFOUND){
         log_info("Identifier found : position : %d",variablePosition->indexIdentifier)
@@ -212,6 +230,7 @@ int addIdentifier(ListRangeVariable addr, char *name)
     if(addr->cursorGlobal->listIdentifier->numberIdentifiers >= IDEN_MAX){
         log_info("No more place into global range variable, so auto increase is called")
         increaseGlobalRangeVariable(addr);
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
     }
 
     return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, reserveMemorySlot());
@@ -224,11 +243,14 @@ int addIdentifier(ListRangeVariable addr, char *name)
 int addLocalIdentifier(ListRangeVariable addr, char *name)
 {
     log_trace("addLocalIdentifier (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addr->cursor);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(addr->cursor)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(variablePosition->indexIdentifier != NOTFOUND){
         log_info("Identifier found : position : %d",variablePosition->indexIdentifier)
@@ -238,6 +260,7 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
     if(addr->cursor->rangeLevel == 0){
         log_error("You can't add local variable into a global context : rangeLevel %d", addr->cursor->rangeLevel)
         perror("addLocalIdentifier : you try to add into global context.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -251,11 +274,15 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
 int setType(ListRangeVariable addr, char* name, int type)
 {
     log_trace("setType (ListRangeVariable %p, char* %s, int %d)", addr, name, type)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(variablePosition->rangePosition == NULL){
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     return setTypeOfIdentifier(variablePosition->rangePosition->listIdentifier,
@@ -269,11 +296,15 @@ int setType(ListRangeVariable addr, char* name, int type)
 int setArraySize(ListRangeVariable addr, char* name, int arraySize)
 {
     log_trace("setArraySize (ListRangeVariable %p, char* %s, int %d)", addr, name, arraySize)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(variablePosition->rangePosition == NULL){
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     return setArraySizeOfIdentifier(variablePosition->rangePosition->listIdentifier,
@@ -287,11 +318,15 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize)
 int printIdentifierFromListRange(ListRangeVariable addr,char* name)
 {
     log_trace("printIdentifierFromListRange (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(variablePosition->rangePosition == NULL){
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     return printIdentifier(variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier);

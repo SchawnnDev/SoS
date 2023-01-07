@@ -113,13 +113,17 @@ MemorySlot doConcatenation(MemorySlotList slotList)
 
     if (slotList == NULL) {
         log_error("Cant concatenate an empty list")
+        setErrorFailure();
         return NULL;
     }
 
     MemorySlot memorySlot = reserveMemorySlot();
+    CHECK_ERROR_RETURN(NULL)
+
     asm_code_printf("\taddi $t0, $zero, 1 # Size counter\n") // $t0 will be the total size of concat (start at 1 for \0)
     MemorySlotList first = firstMemorySlotList(slotList);
     MemorySlotList temp = first;
+    CHECK_ERROR_RETURN(NULL)
 
     // Calculate size
     while(temp != NULL)
@@ -145,6 +149,8 @@ MemorySlot doConcatenation(MemorySlotList slotList)
     // reset pointer to first
     temp = first;
 
+    CHECK_ERROR_RETURN(NULL)
+
     while (temp != NULL) {
         // slot should not be null
         if(temp->slot == NULL) {
@@ -164,9 +170,9 @@ MemorySlot doConcatenation(MemorySlotList slotList)
 
     // At the end write $zero
     asm_code_printf("\tsb $zero, 0($t0)\n")
-
     asm_code_printf("\t# end of concatenation\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return memorySlot;
 }
 
@@ -177,17 +183,19 @@ MemorySlot doConcatenation(MemorySlotList slotList)
 MemorySlot assign(char *name, MemorySlot memorySlot, bool local)
 {
     log_trace("assign (void)")
+
     asm_code_printf("\n\t# assign of %s\n", name)
-    MemorySlot slot = getIdentifier(name, true, false)->memory;
+    Identifier iden = getIdentifier(name, true, false);
+    CHECK_ERROR_RETURN(NULL)
+    MemorySlot slot = iden->memory;
     if (slot == NULL) return slot;
 
     asm_readFromStack("$t0", getMipsOffset(memorySlot));
-
     asm_getStackAddress("$t1", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
     if(memorySlot->temp) freeMemory(memorySlot);
-
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
@@ -195,20 +203,24 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
 {
     log_trace("assignArrayValue(%s)", name)
     Identifier iden = getIdentifier(name, false, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if (iden == NULL)
     {
         log_error("Array %s was not set, cant assign.", name)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     if(iden->type != ARRAY)
     {
         log_error("Can't access to a non array variable (%s).", name)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     if(offset == NULL || concat == NULL) {
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -236,19 +248,16 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
     if(offset->temp) freeMemory(offset);
     if(concat->temp) freeMemory(concat);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 int doExit(MemorySlot slot)
 {
-    if(slot == NULL)
-    {
-        asm_syscall(SYS_EXIT);
-        return RETURN_SUCCESS;
-    }
+    if(slot == NULL) return asm_syscall(SYS_EXIT);
 
     asm_readFromStack("$a0", getMipsOffset(slot));
-
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return asm_syscall(SYS_EXIT2);
 }
 
@@ -258,6 +267,7 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
 
     asm_readFromStack("$t0", getMipsOffset(left));
     asm_readFromStack("$t1", getMipsOffset(right));
+    CHECK_ERROR_RETURN(NULL)
 
     switch (operation) {
         case PLUS_OPE:
@@ -284,12 +294,14 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
 
     if (right->temp) freeMemory(right);
     if (!left->temp) left = reserveMemorySlot();
+    CHECK_ERROR_RETURN(NULL)
 
     asm_getStackAddress("$t1", getMipsOffset(left));
     asm_code_printf("\tsw $t0, 0($t1)\n")
 
     asm_code_printf("\n\t#End of operation code\n\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return left;
 }
 
@@ -301,12 +313,18 @@ int doEcho(MemorySlotList list)
     log_trace("doConcatenation")
 
     list = firstMemorySlotList(list);
-    if(list == NULL) { log_error("list == NULL;") return RETURN_FAILURE; }
+    if(list == NULL)
+    {
+        log_error("list == NULL;")
+        setErrorFailure();
+        return RETURN_FAILURE;
+    }
     MemorySlotList first = list;
 
     do {
         if(list->slot == NULL) {
             log_error("list->slot == NULL;")
+            setErrorFailure();
             destroyMemoryList(first);
             return RETURN_FAILURE;
         }
@@ -315,7 +333,7 @@ int doEcho(MemorySlotList list)
         asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
 
         if(list->slot->temp) // Free memory
-         list->slot->used = false;
+            list->slot->used = false;
 
         list = list->next;
     } while(list != NULL);
@@ -324,6 +342,7 @@ int doEcho(MemorySlotList list)
 
     asm_code_printf("\n\t# End do echo section\n\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -331,38 +350,49 @@ int setMarker(){
     marker = listInstruction->cursorCode->numberCode;
     asm_code_printf("\t%s : \n",createNewLabel())
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 int doMarkerThen()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_code_printf("\t%s:\n",then)
     if((listInstruction->cursorCode->numberTrue > 1)
     || ((listInstruction->cursorCode->previousCode != NULL) && (listInstruction->cursorCode->previousCode->numberTrue != 0))){
         completeTrueList(listInstruction,"");
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
     }
     completeTrueList(listInstruction,then);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 int doMarkerElse()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 int doMarkerFi()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
     completeUnDefineGoto(listInstruction,then);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -370,6 +400,9 @@ int doMarkerEndInstruction()
 {
     addIntoUnDefineGoto(listInstruction,"\tj");
     asm_code_printf("\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
 }
 
 MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot right)
@@ -382,11 +415,13 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
 
         if (left == NULL || right == NULL) {
             log_error("Cant do bool expr on null")
+            setErrorFailure();
             return NULL;
         }
 
         asm_readFromStack("$t0", getMipsOffset(left));
         asm_readFromStack("$t1", getMipsOffset(right));
+        CHECK_ERROR_RETURN(NULL)
     }
 
     if (boolExpr == BOOL_EQ || boolExpr == BOOL_NEQ || boolExpr == BOOL_GT ||
@@ -394,6 +429,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     {
         asm_useAtoiFunction("$t0","$t0");
         asm_useAtoiFunction("$t1","$t1");
+        CHECK_ERROR_RETURN(NULL)
     }
 
     char* block;
@@ -505,6 +541,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
     if (left != NULL && left->temp) freeMemory(left);
 
     asm_code_printf("\n\t# End of Test block of ope %d\n", boolExpr)
+    CHECK_ERROR_RETURN(NULL)
     return NULL;
 }
 
@@ -516,6 +553,7 @@ MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right)
 
     if ( right == NULL) {
         log_error("Cant do bool expr on null")
+        setErrorFailure();
         return NULL;
     }
     asm_readFromStack("$t1", getMipsOffset(right));
@@ -552,9 +590,11 @@ Identifier getIdentifier(char *id, bool create, bool local)
     if(create)
     {
         addIdentifier(listRangeVariable, id);
+        CHECK_ERROR_RETURN(NULL)
     }
 
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
+    CHECK_ERROR_RETURN(NULL)
 
     if (pos->indexIdentifier == NOTFOUND)
     {
@@ -576,6 +616,7 @@ Identifier getIdentifier(char *id, bool create, bool local)
     if (iden == NULL)
     {
         log_error("Identifier not found in listIdentifiers")
+        setErrorFailure();
         return NULL;
     }
 
@@ -587,61 +628,84 @@ int doDeclareStaticArray(char *id, int size)
     log_trace("doDeclareStaticArray(%s, %d)", id, size)
 
     Identifier iden = getIdentifier(id, false, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(iden != NULL)
     {
         log_error("Array %s was already declared.", id)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     asm_code_printf("\t# Start of declaration of table %s : %d\n", id, size)
 
     // Now create identifier
     iden = getIdentifier(id, true, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     // add array size & type of identifier
     iden->arraySize = size;
     iden->type = ARRAY;
 
     MemorySlot slot = iden->memory;
-    if(slot == NULL) return RETURN_FAILURE;
+    if(slot == NULL)
+    {
+        setErrorFailure();
+        return RETURN_FAILURE;
+    }
 
     const char *label = createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_writeStaticArray(label, size);
     asm_getStackAddress("$t0", getMipsOffset(slot));
     asm_loadLabelIntoRegister(label, "$t1");
     asm_code_printf("\tsw $t1, 0($t0)\n")
     free((char*)label);
     asm_code_printf("\t# end of declaration of table %s\n", id)
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 MemorySlot addStringToMemory(const char *str) {
     char *copy;
     unsigned int len = strlen(str) - 1;
+
     CHECKPOINTER(copy = malloc(len))
+    CHECK_ERROR_RETURN(NULL)
     CHECKPOINTER(strncpy(copy, str + 1, len - 1));
+    CHECK_ERROR_RETURN(NULL)
+
     copy[len - 1] = '\0'; // add nul char
     MemorySlot slot = reserveMemorySlot();
     const char* label = createNewLabel();
+    CHECK_ERROR_RETURN(NULL)
+
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, copy)
     asm_loadLabelIntoRegister(label, "$t0");
     //asm_allocateOnHeap("$t1", (int)len - 1);
     //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
     asm_getStackAddress("$t1", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t1)\n")
+
     free(copy);
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
 MemorySlot addWordToMemory(const char *str) {
     MemorySlot slot = reserveMemorySlot();
     const char* label = createNewLabel();
+    CHECK_ERROR_RETURN(NULL)
+
     asm_data_printf("\t%s: .asciiz \"%s\"\n", label, str)
     asm_loadLabelIntoRegister(label, "$t0");
     //asm_allocateOnHeap("$t1", (int)len - 1);
     //asm_useBufferWriteFunction("$t0", "$t1", "$t1");
     asm_getStackAddress("$t1", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t1)\n")
+
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
@@ -649,25 +713,30 @@ int doArrayRead(char *id, MemorySlot offset)
 {
     log_trace("doStringRead(%s)", id)
     Identifier iden = getIdentifier(id, false, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if (iden == NULL)
     {
         log_error("Array %s was not set, cant assign.", id)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     if(iden->type != ARRAY)
     {
         log_error("Can't access to a non array variable (%s).", id)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     if(offset == NULL) {
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     // slot -> address of table
     MemorySlot slot = iden->memory;
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     // offset -> address of offset
     asm_readFromStack("$t0", getMipsOffset(offset));
 
@@ -709,6 +778,7 @@ int doArrayRead(char *id, MemorySlot offset)
 
     if(offset->temp) freeMemory(offset);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -717,13 +787,16 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
     log_trace("doGetVariableAddress")
 
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
+    CHECK_ERROR_RETURN(NULL)
 
     if(pos->indexIdentifier == NOTFOUND) {
         log_error("The variable was not found.")
+        setErrorFailure();
         return NULL;
     }
 
     MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+    CHECK_ERROR_RETURN(NULL)
 
     // convert to int
     if(isOperandInt)
@@ -733,6 +806,7 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
         asm_useAtoiFunction("$t0", "$t0");
         // set value to a new stack address
         slot = slot->temp ? slot : reserveMemorySlot();
+        CHECK_ERROR_RETURN(NULL)
 
         asm_getStackAddress("$t1", getMipsOffset(slot));
 
@@ -742,12 +816,17 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
         }
 
         asm_code_printf("\tsw $t0, 0($t1)\n")
+        CHECK_ERROR_RETURN(NULL)
         return slot;
     }
 
     // No modification if positive
     if(!negative) return slot;
-    if(!slot->temp) slot = reserveMemorySlot();
+    if(!slot->temp)
+    {
+        slot = reserveMemorySlot();
+        CHECK_ERROR_RETURN(NULL)
+    }
 
     asm_code_printf("\tli $t1, -1\n")
     asm_code_printf("\tmul $t0, $t0, $t1\n")
@@ -755,6 +834,7 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
     asm_getStackAddress("$t2", getMipsOffset(slot));
     asm_code_printf("\tsw $t0, 0($t2)\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
@@ -764,9 +844,11 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     log_trace("doGetArrayAddress(%s)", id)
 
     VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
+    CHECK_ERROR_RETURN(NULL)
 
     if(pos->indexIdentifier == NOTFOUND) {
         log_error("The variable was not found.")
+        setErrorFailure();
         return NULL;
     }
 
@@ -775,6 +857,7 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     if(iden->type != ARRAY)
     {
         log_error("Can't access to a non array variable.")
+        setErrorFailure();
         return NULL;
     }
 
@@ -782,6 +865,8 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
     // slot -> address of table
     MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+    CHECK_ERROR_RETURN(NULL)
+
     // offset -> address of offset
     asm_readFromStack("$t0", getMipsOffset(offset));
 
@@ -803,17 +888,20 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     // check if array element is not allocated (-1)
     asm_code_printf("\tli $t4, -1\n")
     asm_code_printf("\tbeq $t3, $t4, %s\n", ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME)
+    CHECK_ERROR_RETURN(NULL)
 
     if(!isOperandInt)
     {
         // set value to a new stack address
         offset = offset->temp ? offset : reserveMemorySlot();
+        CHECK_ERROR_RETURN(NULL)
         asm_getStackAddress("$t3", getMipsOffset(offset));
         // get value -> $t1[$t0]
         asm_code_printf("\tlw $t1, 0($t1)\n")
         asm_code_printf("\tsw $t1, 0($t3)\n")
 
         asm_code_printf("\t# End of getting value of array: %s\n", id)
+        CHECK_ERROR_RETURN(NULL)
         return offset;
     }
 
@@ -822,6 +910,7 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
     // set value to a new stack address
     offset = offset->temp ? offset : reserveMemorySlot();
+    CHECK_ERROR_RETURN(NULL)
 
     asm_getStackAddress("$t1", getMipsOffset(offset));
 
@@ -832,6 +921,8 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
     asm_code_printf("\tsw $t0, 0($t1)\n")
     asm_code_printf("\t# End of getting value of array: %s\n", id)
+
+    CHECK_ERROR_RETURN(NULL)
     return offset;
 }
 
@@ -845,6 +936,7 @@ int parseInt32(const char *word, int *err)
     {
         log_error("Invalid number for parseInt32(%s)", word);
         *err = 1;
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -853,6 +945,7 @@ int parseInt32(const char *word, int *err)
         // The number is not within the range of a 32-bit integer
         log_error("Number is not 32-bit for parseInt32(%s)", word);
         *err = 1;
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -869,6 +962,7 @@ int checkRegex(const char *pattern, const char *string)
     if (ret != 0)
     {
         log_error("Error compiling regular expression")
+        setErrorFailure();
         return -1;
     }
 
@@ -904,14 +998,22 @@ MemorySlot doWriteInt(const char *val)
 {
     log_trace("doWriteInt(%s)", val)
     CHECK_TYPE(checkWordIsInt(val))
+
     MemorySlot mem = reserveMemorySlot();
+    CHECK_ERROR_RETURN(NULL)
+
     asm_getStackAddress("$t0", getMipsOffset(mem));
+    CHECK_ERROR_RETURN(NULL)
+
     int parsed;
     int err = 0;
     if ((parsed = parseInt32(val, &err)) == RETURN_FAILURE && err)
-        return NULL;
+        return NULL; // in this case : setErrorFailure() has already been called
+
     asm_code_printf("\tli $t1, %d\n", parsed)
     asm_code_printf("\tsw $t1, 0($t0)\n")
+
+    CHECK_ERROR_RETURN(NULL)
     return mem;
 }
 
@@ -922,12 +1024,14 @@ int doParseTableInt(const char *val)
     if (!checkWordIsInt(val))
     {
         log_error("%s should be int type.", val)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     int parsedSize;
     if ((parsedSize = parseInt32(val, NULL)) == RETURN_FAILURE)
     {
+        // in this case : setErrorFailure() has already been called
         log_error("Cant parse int32(%s)", val)
         return parsedSize;
     }
@@ -935,17 +1039,40 @@ int doParseTableInt(const char *val)
     if(parsedSize <= 0)
     {
         log_error("Table size should be > 0 (actually: %d)", parsedSize)
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     return parsedSize;
 }
 
+char* doWriteId(const char *val)
+{
+    log_trace("doWriteId(%s)", val)
+    CHECK_TYPE(checkWordIsId(val))
+
+    char* destination;
+    CHECKPOINTER(destination = malloc(strlen(val) + 1))
+    CHECK_ERROR_RETURN(NULL)
+
+    CHECKPOINTER(strcpy(destination, val))
+    CHECK_ERROR_RETURN(NULL)
+
+    return destination;
+}
+
 int doStringRead(const char *id)
 {
     log_trace("doStringRead(%s)", id)
-    MemorySlot slot = getIdentifier((char *) id, true, false)->memory;
-    if(slot == NULL) return RETURN_FAILURE;
+
+    Identifier iden = getIdentifier((char *) id, true, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    MemorySlot slot = iden->memory;
+    if(slot == NULL)
+    {
+        setErrorFailure();
+        return RETURN_FAILURE;
+    }
 
     asm_code_printf("\tla $a0, %s\n", ASM_VAR_GLOBAL_READ_BUFFER_NAME)
     asm_code_printf("\tla $a1, %d\n", ASM_VAR_GLOBAL_READ_BUFFER_SIZE)
@@ -968,12 +1095,14 @@ int doStringRead(const char *id)
     // At the end write $zero
     asm_code_printf("\tsb $zero, 0($t1)\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 MemorySlot convertIntToString(MemorySlot slot)
 {
     log_trace("convertIntToString(%s)", slot)
+
     // /!\ slot not reallocated because it should always be temp
 
     asm_getStackAddress("$t0", getMipsOffset(slot));
@@ -984,6 +1113,7 @@ MemorySlot convertIntToString(MemorySlot slot)
     // rewrite stack to new address
     asm_code_printf("\tsw $t1, 0($t0)\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
@@ -991,11 +1121,15 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
 {
     log_trace("doUnaryCheck(%d, %s)", slot, negative ? "-" : "+")
     if(!negative) return slot;
+
     // /!\ slot not reallocated because it should always be temp
+
     asm_getStackAddress("$t0", getMipsOffset(slot));
     asm_code_printf("\tlw $t1, 0($t0)\n")
     asm_code_printf("\tli $t2, -1\n")
     asm_code_printf("\tmul $t1, $t1, $t2\n")
     asm_code_printf("\tsw $t1, 0($t0)\n")
+
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
