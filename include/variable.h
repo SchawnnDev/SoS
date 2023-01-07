@@ -25,6 +25,15 @@
 #define FUNCTION 4
 #define MAXTYPEVALUE 5 /* /!\  A modifier lors de l'ajout ou suppression d'un type */
 
+/* Blocks */
+#define BLOCK_MAIN 0
+#define BLOCK_IF 1
+#define BLOCK_FOR 2
+#define BLOCK_WHILE 3
+#define BLOCK_UNTIL 4
+#define BLOCK_FUNCTION 5
+#define BLOCK_CASE 6
+
 /* Operations */
 #define PLUS_OPE 1
 #define MINUS_OPE 2
@@ -60,5 +69,9 @@
 #define ASM_VAR_ERROR_NAN "_error_nan"
 #define ASM_VAR_ERROR_OUTOFBOUNDS "_error_outofbounds"
 #define ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED "_error_array_element_not_allocated"
+#define ASM_VAR_ARGC "_argc"
+#define ASM_VAR_ARGV_START "_argv_start"
+#define ASM_VAR_REGISTERS_CACHE_COUNT 17
+#define ASM_VAR_REGISTERS_CACHE_SIZE ASM_VAR_REGISTERS_CACHE_COUNT * ASM_INTEGER_SIZE
 
 #endif

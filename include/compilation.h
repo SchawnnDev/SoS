@@ -7,6 +7,7 @@
 #include "listInstructionMips.h"
 #include "boolExpr.h"
 #include "memory.h"
+#include "marker.h"
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
 
@@ -111,13 +112,45 @@ int getValues();
 
 int setMarker();
 
-int doMarkerThen();
+int doMarkerTest();
 
 int doMarkerElse();
 
 int doMarkerFi();
 
 int doMarkerEndInstruction();
+
+int doMarkerLoop();
+
+int doMarkerEndLoop();
+
+int doMarkerDone();
+
+int addBlock();
+
+int deleteBlock();
+
+/**
+ *
+ * @param id Id label
+ * @return
+ */
+Marker doFunctionStartMarker(char* id);
+
+/**
+ *
+ * @param marker
+ * @return
+ */
+int doDeclareFunction(Marker marker);
+
+/**
+ *
+ * @param id
+ * @param list
+ * @return
+ */
+int doFunctionCall(char* id, MemorySlotList list);
 
 /**
  *
@@ -137,7 +170,7 @@ MemorySlot doBoolExpression(MemorySlot left, boolExpr_t boolExpr, MemorySlot rig
  */
 MemorySlot doEmptyBoolExpression( boolExpr_t boolExpr, MemorySlot right);
 
-
+int doNegBoolExpression();
 /**
  *
  * @param slot NULL if no exit code

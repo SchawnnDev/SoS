@@ -1,0 +1,20 @@
+test_function_no_return()
+{
+    var_glob=66
+}
+
+test_function_return_1()
+{
+    return 1
+}
+
+$(test_function_no_return);
+no_return_val=$?;
+echo $?;
+echo "\n";
+echo ${no_return_val};
+echo "\n";
+
+$(test_function_return_1);
+return_1=$?;
+echo ${return_1};

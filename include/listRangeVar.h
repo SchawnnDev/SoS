@@ -8,6 +8,7 @@
 typedef struct rangeVariable_t{
     ListIdentifier listIdentifier;
     int rangeLevel;
+    int blockType;
 
     struct rangeVariable_t* nextLevel;
     struct rangeVariable_t* previousLevel;
@@ -32,7 +33,8 @@ typedef struct {
  *
  * \return RangeVariable, un pointeur d'une structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel);
+RangeVariable
+initRangeVariable(int rangeLevel, int blockType, RangeVariable previousLevel);
 
 /*!
  * \fn void cleanRangeVariable(RangeVariable addr)
@@ -60,7 +62,7 @@ void cleanListRangeVariable(ListRangeVariable addr);
 
 /*!
  * \fn int increaseGlobalRangeVariable(ListRangeVariable addr)
- * \brief Fonction qui augmente la taille de la liste de portée de vaiable global en ajoutant un nouveau bloque
+ * \brief Fonction qui augmente la taille de la liste de portée de variable global en ajoutant un nouveau block
  *
  * \param addr : ListRangeVariable, la liste de structure de portée de variable
  *
@@ -76,7 +78,7 @@ int increaseGlobalRangeVariable(ListRangeVariable addr);
  *
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
-int addRangeVariable(ListRangeVariable addr);
+int addRangeVariable(ListRangeVariable addr, int blockType);
 
 /*!
  * \fn int deleteRangeVariable(ListRangeVariable addr)

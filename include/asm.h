@@ -189,7 +189,15 @@ int asm_useAtoiFunction(const char *strAddressRegister, const char * into);
  * @param reg
  * @return
  */
-int asm_loadLabelIntoRegister(const char *label, const char* reg);
+int asm_loadLabelAddressIntoRegister(const char *label, const char* reg);
+
+/**
+ *  Loads label value into register (lw)
+ * @param label
+ * @param reg
+ * @return
+ */
+int asm_loadLabelIntoRegister(const char *label, const char *reg);
 
 /**
  *
@@ -213,6 +221,12 @@ int asm_addArgumentsOnStack(int size, ...);
  * @return
  */
 int asm_allocateOnHeap(const char* into, int size);
+
+/**
+ *
+ * @return
+ */
+int asm_writeArgsToStack();
 
 // UTILS
 

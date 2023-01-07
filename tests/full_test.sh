@@ -83,7 +83,7 @@ compilation_error_tests()
 # ------
 # Compilation
 echo "${BOLD}-- Compilation tests --"
-#compilation_error_tests
+compilation_error_tests
 # Assign
 echo "${BOLD}-- Assignment tests --"
 #test_loop "assign"
@@ -104,7 +104,13 @@ echo "${BOLD}-- Conditional test block tests --"
 #test_loop "conditional_test_block"
 # If
 echo "${BOLD}-- If tests --"
-#test_loop "if"
+test_loop "if"
+# While
+echo "${BOLD}-- While tests --"
+test_loop "while"
+# Fizzbuzz
+echo "${BOLD}-- Fizzbuzz tests --"
+test_loop "fizzbuzz"
 echo "${BOLD}-- Array tests --"
 test_loop "array"
 

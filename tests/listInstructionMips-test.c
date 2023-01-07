@@ -36,9 +36,9 @@ TEST initCodeTest(void) {
     ASSERT_EQ(NULL, addr->previousCode);
     ASSERT_EQ(NULL, addr->nextCode);
     ASSERT_NEQ(NULL, addr->lineCode);
-    ASSERT_NEQ(NULL, addr->unDefineGoto);
+    // ASSERT_NEQ(NULL, addr->unDefineGoto);
     ASSERT_EQ_FMT(0, addr->numberCode,"%d");
-    ASSERT_EQ_FMT(0, addr->numberGoto,"%d");
+    // ASSERT_EQ_FMT(0, addr->numberGoto,"%d");
     PASS();
 }
 
@@ -175,8 +175,8 @@ TEST addIntoUnDefineGotoTest(void) {
     addIntoUnDefineGoto(addr,"");
 
     ASSERT_EQ_FMT(1, addr->cursorCode->numberCode,"%d");
-    ASSERT_EQ_FMT(1, addr->cursorCode->numberGoto,"%d");
-    ASSERT_EQ_FMT(0, addr->cursorCode->unDefineGoto[0],"%d");
+   // ASSERT_EQ_FMT(1, addr->cursorCode->numberGoto,"%d");
+    // ASSERT_EQ_FMT(0, addr->cursorCode->unDefineGoto[0],"%d");
     PASS();
 }
 
@@ -191,7 +191,7 @@ TEST completeUnDefineGotoSameTableTest(void) {
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(3, addr->cursorCode->numberCode,"%d");
-    ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
+    // ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->lineCode[0]);
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[1]);
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->lineCode[2]);
@@ -213,8 +213,8 @@ TEST completeUnDefineGotoDifferentTableTest(void) {
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(2, addr->cursorCode->numberCode,"%d");
-    ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
-    ASSERT_EQ_FMT(0, addr->cursorCode->previousCode->numberGoto,"%d");
+   // ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
+    // ASSERT_EQ_FMT(0, addr->cursorCode->previousCode->numberGoto,"%d");
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->previousCode->lineCode[CODE_TAB_MAX-1]);
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[0]);
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->lineCode[1]);

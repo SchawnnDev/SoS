@@ -1,0 +1,11 @@
+a=50;
+b=80;
+c=10;
+if test (${a} -eq ${a}) -a (${b} -eq ${b}) then echo "1" else echo "0" fi;
+echo "\n";
+if test (${c} -eq ${a}) -a (${b} -eq ${b}) then echo "1" else echo "0" fi;
+echo "\n";
+if test (${a} -eq ${a}) -a (${c} -eq ${b}) then echo "1" else echo "0" fi;
+echo "\n";
+if test (${c} -eq ${a}) -a (${c} -eq ${b}) then echo "1" else echo "0" fi;
+exit

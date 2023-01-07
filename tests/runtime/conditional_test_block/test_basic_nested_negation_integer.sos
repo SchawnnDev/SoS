@@ -1,0 +1,8 @@
+if test 80 -eq 50 -a ! ((80 -eq 80) -o (10 -eq 50)) then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq 50 -a ! ((80 -eq 80) -o (10 -eq 50)) then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq 50 -a ! ((80 -eq 80) -o (50 -eq 50)) then echo "1" else echo "0" fi;
+echo "\n";
+if test 50 -eq 50 -a ! ((10 -eq 80) -o (10 -eq 50)) then echo "1" else echo "0" fi;
+exit
