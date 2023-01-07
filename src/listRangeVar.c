@@ -343,6 +343,10 @@ MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
     MemorySlot mem = reserveMemorySlot(addr->cursor->memorySlot,
                                        addr->cursor->memoryCurrentStackOffset);
 
+    // to get args
+    if(addr->cursor->blockType == BLOCK_FOR)
+        asm_code_printf("\taddi $s7, $s7, 1\n")
+
     if (addr->cursor->memorySlot == NULL)
     {
         addr->cursor->memorySlot = mem;

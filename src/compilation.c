@@ -438,7 +438,9 @@ Marker doMarkerForList(MemorySlotList list)
     if(list == NULL) { log_error("list == NULL;") return NULL; }
     MemorySlotList first = list;
 
-    int count = 0;
+    asm_writeRegistersToStack();
+
+    int count = 1;
 
     do
     {
@@ -486,9 +488,19 @@ Marker doMarkerForList(MemorySlotList list)
 
     destroyMemoryList(first);
 
+    asm_code_printf("\tli $s7, 0\n")
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     return mark;
+}
+
+int doDeleteLocalOffset(Marker mark)
+{
+    // mark contains only int for number of elements on stack
+    asm_subtractInternalOffset(mark->index);
+    destroyMarker(mark);
+    asm_loadRegistersFromStack();
+    return RETURN_SUCCESS;
 }
 
 int addBlock(int blockType)

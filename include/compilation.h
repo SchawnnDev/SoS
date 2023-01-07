@@ -128,7 +128,19 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
+/**
+ *
+ * @param list
+ * @return
+ */
 Marker doMarkerForList(MemorySlotList list);
+
+/**
+ *
+ * @param mark
+ * @return
+ */
+int doDeleteLocalOffset(Marker mark);
 
 int addBlock(int blockType);
 

@@ -51,7 +51,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); deleteBlock();}
     | FOR marker_for id DO list_instructions marker_done DONE
-    | FOR marker_for id IN list_operand marker_for_list DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
+    | FOR marker_for id IN marker_for_list DO list_instructions marker_done DONE { doMarkerEndLoop(); doDeleteLocalOffset($5); deleteBlock();}
     | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | CASE operand IN list_case ESAC
