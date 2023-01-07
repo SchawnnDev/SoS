@@ -51,7 +51,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); }
     | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); deleteBlock();}
     | FOR marker_loop id DO list_instructions marker_done DONE
-    | FOR marker_loop id IN list_operand marker_for DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
+    | FOR marker_loop id IN marker_for DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); deleteBlock();}
     | CASE operand IN list_case ESAC
@@ -211,7 +211,7 @@ marker_if : { $$ = ""; addBlock(BLOCK_IF);}
 
 marker_until : { $$ = "";doNegBoolExpression();}
 
-marker_for : { $$ = ""; doMarkerForList();}
+marker_for : list_operand { $$ = doMarkerForList($1);}
 %%
 
 int yyerror (char * s)

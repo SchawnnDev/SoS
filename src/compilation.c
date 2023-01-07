@@ -328,8 +328,6 @@ int doEcho(MemorySlotList list)
     log_trace("doEcho")
     asm_code_printf("\n\t# Do echo section\n\n")
 
-    log_trace("doConcatenation")
-
     list = firstMemorySlotList(list);
     if(list == NULL) { log_error("list == NULL;") return RETURN_FAILURE; }
     MemorySlotList first = list;
@@ -431,9 +429,66 @@ int doMarkerDone()
     return RETURN_SUCCESS;
 }
 
-int doMarkerForList()
+Marker doMarkerForList(MemorySlotList list)
 {
+    log_trace("doMarkerForList")
+    asm_code_printf("\n\t# Do marker for list section\n\n")
 
+    list = firstMemorySlotList(list);
+    if(list == NULL) { log_error("list == NULL;") return NULL; }
+    MemorySlotList first = list;
+
+    int count = 0;
+
+    do
+    {
+        if (list->slot == NULL)
+        {
+            log_error("list->slot == NULL;")
+            destroyMemoryList(first);
+            return NULL;
+        }
+
+        count++;
+
+        list = list->next;
+    } while (list != NULL);
+
+    asm_code_printf("\taddi $sp, $sp, -%d\n", count * ASM_INTEGER_SIZE)
+    asm_appendInternalOffset(count);
+
+    list = first;
+
+    asm_code_printf("\tli $t0, %d\n", count)
+    asm_code_printf("\tsw $t0, 0($sp)\n")
+
+    Marker mark = newMarker();
+    mark->index = count;
+
+    count = 0;
+
+    do {
+
+        count += ASM_INTEGER_SIZE;
+
+        if(list->slot->label == NULL)
+        {
+            asm_readFromStack("$a0", CALCULATE_OFFSET(list->slot));
+            freeMemory(list->slot);
+        } else {
+            asm_loadLabelIntoRegister(list->slot->label, "$a0");
+        }
+
+        asm_code_printf("\tsw $a0, %d($sp)\n", count)
+
+        list = list->next;
+    } while(list != NULL);
+
+    destroyMemoryList(first);
+
+    asm_code_printf("\n\t# End do marker for list section\n\n")
+
+    return mark;
 }
 
 int addBlock(int blockType)
