@@ -1,4 +1,4 @@
-#include "../include/listRangeVar.h"
+#include "listRangeVar.h"
 
 /*!
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
@@ -133,18 +133,15 @@ int addRangeVariable(ListRangeVariable addr, int blockType)
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     // Change here the memory
-    if(blockType == BLOCK_FUNCTION)
-    {
-        newCursor->memorySlot = NULL;
-        CHECKPOINTER(newCursor->memoryCurrentStackOffset = malloc(sizeof(int)))
-        CHECK_ERROR_RETURN(RETURN_FAILURE)
-    } else {
-        newCursor->memorySlot = addr->cursor->memorySlot;
-        newCursor->memoryCurrentStackOffset = addr->cursor->memoryCurrentStackOffset;
-    }
-    
+    newCursor->memorySlot = NULL;
+    CHECKPOINTER(newCursor->memoryCurrentStackOffset = malloc(sizeof(int)))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
+
+    asm_writeRegistersToStack();
+    asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
 
     return RETURN_SUCCESS;
 }
@@ -169,15 +166,14 @@ int deleteRangeVariable(ListRangeVariable addr)
     RangeVariable tmp = addr->cursor;
 
     // Change here the memory
-    if(tmp->blockType == BLOCK_FUNCTION || tmp->blockType == BLOCK_MAIN)
-    {
-        destroyMemorySlot(tmp->memorySlot);
-        free(tmp->memoryCurrentStackOffset);
-    }
+    destroyMemorySlot(tmp->memorySlot);
+    free(tmp->memoryCurrentStackOffset);
 
     addr->cursor = tmp->previousLevel;
     addr->cursor->nextLevel = NULL;
     cleanRangeVariable(tmp);
+    asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    asm_loadRegistersFromStack();
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -388,6 +384,10 @@ MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
     MemorySlot mem = reserveMemorySlot(addr->cursor->memorySlot,
                                        addr->cursor->memoryCurrentStackOffset);
     CHECK_ERROR_RETURN(NULL)
+
+    // to get args
+    if(addr->cursor->blockType == BLOCK_FOR)
+        asm_code_printf("\taddi $s7, $s7, 1\n")
 
     if (addr->cursor->memorySlot == NULL)
     {

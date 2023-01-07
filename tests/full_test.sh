@@ -33,6 +33,7 @@ test_loop()
     test_name=$(echo $f | sed -e 's/.sos*//')
 
     $EXEC_FILE "tests/runtime/${test_type}/${test_name}.sos" -o "$temp_asm_file"
+    echo "tests/runtime/${test_type}/${test_name}.sos"
     rcode=$?
     # Checking if a unexpected error occurred
     if [ ! $rcode == 0 ]; then

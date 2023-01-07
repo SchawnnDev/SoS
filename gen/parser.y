@@ -34,7 +34,7 @@
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <markerval> marker_fct_id
+%type <markerval> marker_fct_id marker_for_list
 %type <boolexprval> operator1 operator2
 %start program
 
@@ -50,8 +50,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); if(HAS_ERROR()) YYABORT ; }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); if(HAS_ERROR()) YYABORT ; }
     | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
-    | FOR marker_loop id DO list_instructions marker_done DONE
-    | FOR marker_loop id IN marker_for DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
+    | FOR marker_for id DO list_instructions marker_done DONE
+    | FOR marker_for id IN marker_for_list DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; doDeleteLocalOffset($5); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ;}
     | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
     | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
     | CASE operand IN list_case ESAC
@@ -119,10 +119,10 @@ test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolE
     | operand operator2 operand { log_debug("operand %d operand", $2); $$ = doBoolExpression($1, $2, $3); if(HAS_ERROR()) YYABORT ; }
     ;
 
-operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); if(HAS_ERROR()) YYABORT ; }
+operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); if(HAS_ERROR()) YYABORT ;}
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 0); if(HAS_ERROR()) YYABORT ; }
-    | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); if(HAS_ERROR()) YYABORT ; }
-    | DOLLAR int { $$ = $2; /* TODO */}
+    | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); if(HAS_ERROR()) YYABORT ;}
+    | DOLLAR int { $$ = doGetArgument($2); if(HAS_ERROR()) YYABORT ; /* TODO */}
     | DOLLAR MULT
     | DOLLAR QMARK
     | QUOTED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
@@ -203,15 +203,18 @@ marker_else : {$$ = ""; doMarkerElse(); if(HAS_ERROR()) YYABORT ; }
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction(); if(HAS_ERROR()) YYABORT ; }
 
-marker_loop : {$$ = ""; addBlock(BLOCK_LOOP); if(HAS_ERROR()) YYABORT ; doMarkerLoop(); if(HAS_ERROR()) YYABORT ; }
+marker_loop : {$$ = ""; addBlock(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; doMarkerLoop(); if(HAS_ERROR()) YYABORT ; }
+
+marker_for : {$$ = ""; addBlock(BLOCK_FOR); doMarkerLoop();}
 
 marker_done : {$$ = ""; doMarkerDone(); if(HAS_ERROR()) YYABORT ; }
 
 marker_if : { $$ = ""; addBlock(BLOCK_IF); if(HAS_ERROR()) YYABORT ; }
 
-marker_until : { $$ = "";doNegBoolExpression(); if(HAS_ERROR()) YYABORT ; }
+marker_until : { $$ = ""; doNegBoolExpression(); if(HAS_ERROR()) YYABORT ; }
 
-marker_for : list_operand { $$ = doMarkerForList($1); if(HAS_ERROR()) YYABORT ; }
+marker_for_list : list_operand { $$ = doMarkerForList($1); if(HAS_ERROR()) YYABORT ; }
+
 %%
 
 int yyerror (char * s)

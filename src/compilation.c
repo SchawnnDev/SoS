@@ -64,8 +64,6 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeHeader();
     asm_code_printf("\t# Args handling\n")
     asm_writeArgsToStack();
-    //asm_code_printf("\n")
-    //asm_code_printf("j _main\n")
     asm_code_printf("\n")
     asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")
@@ -91,7 +89,6 @@ int compile(FILE *inputFile, FILE *outputFile)
     int result = yyparse();
     if (result != RETURN_SUCCESS)
     {
-        destroyMemorySlot(NULL);
         freeStruct();
         return RETURN_FAILURE;
     }
@@ -99,12 +96,10 @@ int compile(FILE *inputFile, FILE *outputFile)
     result = writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
     if (result != RETURN_SUCCESS)
     {
-        destroyMemorySlot(NULL);
         freeStruct();
         return RETURN_FAILURE;
     }
 
-    destroyMemorySlot(NULL);
     freeStruct();
     return RETURN_SUCCESS;
 }
@@ -508,7 +503,9 @@ Marker doMarkerForList(MemorySlotList list)
     }
     MemorySlotList first = list;
 
-    int count = 0;
+    // asm_writeRegistersToStack();
+
+    int count = 1;
 
     do
     {
@@ -558,10 +555,20 @@ Marker doMarkerForList(MemorySlotList list)
 
     destroyMemoryList(first);
 
+    asm_code_printf("\tli $s7, 0\n")
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     CHECK_ERROR_RETURN(NULL)
     return mark;
+}
+
+int doDeleteLocalOffset(Marker mark)
+{
+    // mark contains only int for number of elements on stack
+    asm_subtractInternalOffset(mark->index);
+    destroyMarker(mark);
+    asm_loadRegistersFromStack();
+    return RETURN_SUCCESS;
 }
 
 int addBlock(int blockType)
@@ -1418,7 +1425,6 @@ int doDeclareFunction(Marker mark)
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
     asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
-    asm_loadRegistersFromStack();
     asm_code_printf("\tjr $ra\n")
     asm_code_printf("\tend_%s:\n", mark->lbl)
 
@@ -1447,18 +1453,16 @@ Marker doFunctionStartMarker(char* id)
     CHECK_ERROR_RETURN(NULL)
     identifier->type = FUNCTION;
 
-    // creation du nouveau block
-    addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
-
     asm_code_printf("\tj end_%s\n", id)
 
     mark->code = listInstruction->cursorCode;
     mark->index = listInstruction->cursorCode->numberCode - 1;
 
     asm_code_printf("\tstart_%s:\n", id) // function name
-    asm_writeRegistersToStack(); // 3
 
-    asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    // creation du nouveau block
+    addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
+
     CHECK_ERROR_RETURN(NULL)
     return mark;
 }
@@ -1486,4 +1490,9 @@ int doFunctionCall(char* id, MemorySlotList list)
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
+}
+
+MemorySlot doGetArgument(MemorySlot slot)
+{
+    return 0;
 }

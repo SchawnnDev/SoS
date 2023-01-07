@@ -1,5 +1,5 @@
-#ifndef __VAR_H
-#define __VAR_H
+#ifndef VAR_H
+#define VAR_H
 
 /* Bool */
 #define FALSE 0
@@ -28,9 +28,10 @@
 /* Blocks */
 #define BLOCK_MAIN 0
 #define BLOCK_IF 1
-#define BLOCK_LOOP 2
-#define BLOCK_FUNCTION 3
-#define BLOCK_CASE 4
+#define BLOCK_WHILE_UNTIL 2
+#define BLOCK_FOR 3
+#define BLOCK_FUNCTION 4
+#define BLOCK_CASE 5
 
 /* Operations */
 #define PLUS_OPE 1
