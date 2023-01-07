@@ -125,6 +125,8 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
+int doMarkerForList();
+
 int addBlock();
 
 int deleteBlock();

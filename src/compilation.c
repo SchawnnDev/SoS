@@ -366,6 +366,11 @@ int doMarkerDone()
     return RETURN_SUCCESS;
 }
 
+int doMarkerForList()
+{
+
+}
+
 int addBlock()
 {
     int returnValue;
