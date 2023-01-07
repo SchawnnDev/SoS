@@ -10,6 +10,17 @@
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
 
+/**
+ *
+ * @return
+ */
+int hasError();
+
+/**
+ *
+ */
+void setErrorTrue();
+
 void initStruct();
 
 /**

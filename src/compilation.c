@@ -21,6 +21,27 @@ ListRangeVariable listRangeVariable;
 ListInstruction listInstruction;
 int marker;
 
+int error = RETURN_SUCCESS;
+
+/*!
+ * int hasError()
+ * \brief Fonction qui verifie si erreur
+ */
+int hasError()
+{
+    // if(hasError()) YYABORT ;
+    return error != RETURN_SUCCESS;
+}
+
+/*!
+ * void setErrorFailure()
+ * \brief Fonction qui active le statut d'erreur
+ */
+void setErrorFailure()
+{
+    error = RETURN_FAILURE;
+}
+
 /*!
  * \fn void initStruct()
  * \brief Fonction qui initialise les structures
@@ -30,6 +51,17 @@ void initStruct()
     log_trace("Started initStruct")
     listRangeVariable = initListRangeVariable();
     listInstruction = initListInstruction();
+}
+
+/*!
+ * \fn void freeStruct()
+ * \brief Fonction qui libère les structures
+*/
+void freeStruct()
+{
+    log_trace("Started freeStruct")
+    cleanListRangeVariable(listRangeVariable);
+    cleanListInstruction(listInstruction);
 }
 
 /*!
@@ -70,9 +102,16 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_code_printf("_main:\n")
     // Parse
     int result = yyparse();
-    if (result != RETURN_SUCCESS) return result;
+    if (result != RETURN_SUCCESS)
+    {
+        destroyMemorySlot();
+        freeStruct();
+        return result;
+    }
+    result = writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
     destroyMemorySlot();
-    return writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
+    freeStruct();
+    return result;
 }
 
 MemorySlot doConcatenation(MemorySlotList slotList)
