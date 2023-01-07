@@ -107,6 +107,7 @@ int asm_freeMemoryOnStack(int words)
 int asm_loadLabelAddressIntoRegister(const char *label, const char *reg)
 {
     asm_code_printf("\tla %s, %s\n", reg, label)
+
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
@@ -114,12 +115,15 @@ int asm_loadLabelAddressIntoRegister(const char *label, const char *reg)
 int asm_loadLabelIntoRegister(const char *label, const char *reg)
 {
     asm_code_printf("\tlw %s, %s\n", reg, label)
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
 int asm_jal(const char* name)
 {
     asm_code_printf("\tjal %s\n", name)
+
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
@@ -275,5 +279,7 @@ int asm_writeArgsToStack()
     syscall                # tells system to print
     li $v0, 10              # exit code
     syscall                # terminate cleanly*/
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

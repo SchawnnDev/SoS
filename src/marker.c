@@ -4,6 +4,7 @@ Marker newMarker()
 {
     Marker marker;
     CHECKPOINTER(marker = malloc(sizeof(struct marker_t)))
+    CHECK_ERROR_RETURN(NULL)
     marker->lbl = NULL;
     return marker;
 }

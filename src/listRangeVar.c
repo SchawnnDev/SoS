@@ -54,7 +54,7 @@ ListRangeVariable initListRangeVariable()
     log_trace("initListRangeVariable (void)")
 
     ListRangeVariable addr;
-    CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
+    CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)))
     CHECK_ERROR_RETURN(NULL)
     RangeVariable rangeAddr = initRangeVariable(0, BLOCK_MAIN, NULL);
     CHECK_ERROR_RETURN(NULL)
@@ -62,7 +62,8 @@ ListRangeVariable initListRangeVariable()
     addr->cursorGlobal = rangeAddr;
 
     rangeAddr->memorySlot = NULL;
-    rangeAddr->memoryCurrentStackOffset = malloc(sizeof(int));
+    CHECKPOINTER(rangeAddr->memoryCurrentStackOffset = malloc(sizeof(int)))
+    CHECK_ERROR_RETURN(NULL)
     *rangeAddr->memoryCurrentStackOffset = 0;
 
     return addr;
@@ -135,7 +136,8 @@ int addRangeVariable(ListRangeVariable addr, int blockType)
     if(blockType == BLOCK_FUNCTION)
     {
         newCursor->memorySlot = NULL;
-        newCursor->memoryCurrentStackOffset = malloc(sizeof(int));
+        CHECKPOINTER(newCursor->memoryCurrentStackOffset = malloc(sizeof(int)))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
     } else {
         newCursor->memorySlot = addr->cursor->memorySlot;
         newCursor->memoryCurrentStackOffset = addr->cursor->memoryCurrentStackOffset;
@@ -262,16 +264,19 @@ int addIdentifier(ListRangeVariable addr, char *name)
 
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     space->used = false;
     space->offset = -1;
     space->next = NULL;
     // len(var_ + NUL char) = 5
     size_t len = strlen(name) + 5;
     CHECKPOINTER(space->label = malloc(len))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     snprintf(space->label, len, "var_%s", name);
 
     asm_data_printf("\t%s: .word 0\n", space->label)
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, space);
 }
 
@@ -382,6 +387,7 @@ MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
 {
     MemorySlot mem = reserveMemorySlot(addr->cursor->memorySlot,
                                        addr->cursor->memoryCurrentStackOffset);
+    CHECK_ERROR_RETURN(NULL)
 
     if (addr->cursor->memorySlot == NULL)
     {
