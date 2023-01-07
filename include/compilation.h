@@ -11,6 +11,8 @@
 
 #define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
 
+#define CALCULATE_OFFSET(slot) getMipsOffset(slot, *listRangeVariable->cursor->memoryCurrentStackOffset)
+
 void initStruct();
 
 /**
@@ -126,7 +128,9 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
-int addBlock();
+int doMarkerForList();
+
+int addBlock(int blockType);
 
 int deleteBlock();
 

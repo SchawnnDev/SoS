@@ -1,16 +1,13 @@
 #include <stddef.h>
 #include "memory.h"
 
-int memoryCurrentStackOffset = 0;
-MemorySlot memory = NULL;
-
-MemorySlot reserveMemorySlot()
+MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
 {
     MemorySlot mem = NULL;
 
     if (memory == NULL)
     {
-        memory = newMemorySlot(true);
+        memory = newMemorySlot(memoryCurrentStackOffset);
         memory->used = true;
         return memory;
     }
@@ -25,85 +22,52 @@ MemorySlot reserveMemorySlot()
         }
     } while (mem->next != NULL);
 
-    mem->next = newMemorySlot(true);
+    mem->next = newMemorySlot(memoryCurrentStackOffset);
     mem->next->used = true;
 
     return mem->next;
 }
 
-void expandMemorySlots(int offset_target, bool appendStack)
-{
-    if(memory == NULL || offset_target <= memoryCurrentStackOffset)
-        return;
-
-    MemorySlot temp = memory;
-
-    while(temp->offset <= offset_target)
-    {
-        if(temp->next != NULL)
-        {
-            temp = temp->next;
-            continue;
-        }
-
-        temp->next = newMemorySlot(appendStack);
-        temp = memory->next;
-    }
-}
-
-MemorySlot newMemorySlot(bool appendStack)
+MemorySlot newMemorySlot(int *memoryCurrentStackOffset)
 {
     log_trace("newMemorySlot()")
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
-
-    if(appendStack)
-    {
-        asm_allocateMemoryOnStack(1);
-    }
+    asm_allocateMemoryOnStack(1);
 
     space->used = false;
-    space->offset = memoryCurrentStackOffset;
+    space->offset = *memoryCurrentStackOffset;
     space->next = NULL;
     space->label = NULL;
-    memoryCurrentStackOffset += ASM_INTEGER_SIZE;
+    *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
 }
 
-MemorySlot searchByOffset(int offset)
-{
-    MemorySlot mem = memory;
-    while (mem != NULL)
-    {
-        if (mem->offset == offset) return mem;
-        mem = mem->next;
-    }
-    return NULL;
-}
-
-int getMipsOffset(MemorySlot space)
+int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset)
 {
     return space == NULL ? RETURN_FAILURE : memoryCurrentStackOffset -
                                             space->offset;
 }
 
-void destroyMemorySlot()
+void destroyMemorySlot(MemorySlot memory)
 {
     if (memory == NULL)
         return;
 
     MemorySlot mem = memory;
     MemorySlot temp;
+    int i = 0;
 
     do
     {
+        i++;
         temp = mem->next;
         free(mem);
         mem = temp;
     } while (mem != NULL);
 
-    memory = NULL;
+    asm_freeMemoryOnStack(i);
 
 }
 
@@ -111,16 +75,6 @@ void freeMemory(MemorySlot mem)
 {
     if (mem == NULL) return;
     mem->used = false;
-}
-
-int getMemoryCurrentStackOffset()
-{
-    return memoryCurrentStackOffset;
-}
-
-void setMemoryCurrentStackOffset(int memCurrentStackOffset)
-{
-    memCurrentStackOffset = memoryCurrentStackOffset;
 }
 
 // MemorySlotList

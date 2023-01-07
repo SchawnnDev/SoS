@@ -10,21 +10,22 @@ int asm_writeLoadRegistersFromStackFunction()
     asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
     int count = 0;
 
-    //asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    const int tempRegisters = 7;
+    const int savedRegisters = 7;
 
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < tempRegisters; ++i)
     {
         asm_code_printf("\t\tlw $t%d, %d($sp)\n", i, count)
         count += 4;
     }
 
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < savedRegisters; ++i)
     {
         asm_code_printf("\t\tlw $s%d, %d($sp)\n", i, count)
         count += 4;
     }
 
-    asm_code_printf("\t\taddi $sp, $sp, 64\n")
+    asm_code_printf("\t\taddi $sp, $sp, %d\n", (tempRegisters + savedRegisters) * ASM_INTEGER_SIZE)
     asm_code_printf("\t\tjr $ra\n")
 
     return RETURN_SUCCESS;

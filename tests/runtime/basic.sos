@@ -1,13 +1,14 @@
 ite=0;
-ite_bis=0;
+char="a";
 while test ${ite} -lt 5 do
     echo ${ite} "\n";
     ite = $( expr ${ite} + 1 );
-    while test ${ite_bis} -lt 2 do
-        echo ${ite_bis} "\n";
-        ite_bis = $( expr ${ite_bis} + 1 )
+
+    ite_bis="";
+    while test ${ite_bis} != "aaa" do
+        ite_bis = ${ite_bis} ${char};
+        echo ${ite_bis} "\n"
     done
 done;
-echo ${ite} "\n";
 echo ${ite_bis} "\n";
 exit

@@ -33,7 +33,7 @@ TEST initListIdentifierTest(void) {
 TEST addIntoListIdentifierTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
 
     ASSERT_EQ_FMT(1, addr->numberIdentifiers,"%d");
     ASSERT_STR_EQ(name, addr->Identifiers[0]->name);
@@ -47,24 +47,22 @@ TEST addIntoListIdentifierMaxSizeTest(void) {
     //simule le remplissage de la liste
     int i;
     for(i = 0; i < IDEN_MAX; i++){
-        addIntoListIdentifier(addr, names[i], newMemorySlot(true));
+        addIntoListIdentifier(addr, names[i], newMemorySlot(NULL));
     }
 
     ASSERT_EQ_FMT(IDEN_MAX, addr->numberIdentifiers,"%d");
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoListIdentifier(addr, name,
-                                                        newMemorySlot(
-                                                                true)), "%d");
+                                                        newMemorySlot(NULL)), "%d");
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name),"%d");
     PASS();
 }
 TEST addIntoListIdentifierWithBadNameTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
 
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoListIdentifier(addr, name,
-                                                        newMemorySlot(
-                                                                true)), "%d");
+                                                        newMemorySlot(NULL)), "%d");
     ASSERT_EQ_FMT(0, addr->numberIdentifiers,"%d");
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name),"%d");
     PASS();
@@ -85,7 +83,7 @@ TEST searchIdentifierPositionWithoutIdentifierTest(void) {
 TEST searchIdentifierPositionWithIdentifierTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
 
     ASSERT_EQ_FMT(0, searchIntoListIdentifier(addr,name),"%d");
     PASS();
@@ -95,7 +93,7 @@ TEST searchIdentifierPositionWithAnOtherIdentifierTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
     char* name1 = "test1";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
 
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name1),"%d");
     PASS();
@@ -128,7 +126,7 @@ TEST setTypeWithBadPositionTest(void) {
 TEST setTypeWithBadTypeTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
 
     int position = searchIntoListIdentifier(addr,name);
     int type = UNSET;
@@ -142,7 +140,7 @@ TEST setTypeWithBadTypeTest(void) {
 TEST setTypeWithGoodTypesTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
     int position = searchIntoListIdentifier(addr,name);
 
     int type = CHAIN;
@@ -183,7 +181,7 @@ TEST setArraySizeWithBadPositionTest(void) {
 TEST setArraySizeWithBadArraySizeTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
 
     int position = searchIntoListIdentifier(addr,name);
     int arraySize = 0;
@@ -195,7 +193,7 @@ TEST setArraySizeWithBadArraySizeTest(void) {
 TEST setArraySizeWithGoodArraySizeTest(void) {
     ListIdentifier addr = initListIdentifier();
     char* name = "test";
-    addIntoListIdentifier(addr, name, newMemorySlot(true));
+    addIntoListIdentifier(addr, name, newMemorySlot(NULL));
     int position = searchIntoListIdentifier(addr,name);
 
     int arraySize = 1;

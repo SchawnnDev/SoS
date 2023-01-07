@@ -54,6 +54,10 @@ ListRangeVariable initListRangeVariable()
     addr->cursor = rangeAddr;
     addr->cursorGlobal = rangeAddr;
 
+    rangeAddr->memorySlot = NULL;
+    rangeAddr->memoryCurrentStackOffset = malloc(sizeof(int));
+    *rangeAddr->memoryCurrentStackOffset = 0;
+
     return addr;
 }
 
@@ -112,6 +116,17 @@ int addRangeVariable(ListRangeVariable addr, int blockType)
 
     RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,
                                                 blockType, addr->cursor);
+
+    // Change here the memory
+    if(blockType == BLOCK_FUNCTION)
+    {
+        newCursor->memorySlot = NULL;
+        newCursor->memoryCurrentStackOffset = malloc(sizeof(int));
+    } else {
+        newCursor->memorySlot = addr->cursor->memorySlot;
+        newCursor->memoryCurrentStackOffset = addr->cursor->memoryCurrentStackOffset;
+    }
+
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
@@ -134,6 +149,14 @@ int deleteRangeVariable(ListRangeVariable addr)
     }
 
     RangeVariable tmp = addr->cursor;
+
+    // Change here the memory
+    if(tmp->blockType == BLOCK_FUNCTION || tmp->blockType == BLOCK_MAIN)
+    {
+        destroyMemorySlot(tmp->memorySlot);
+        free(tmp->memoryCurrentStackOffset);
+    }
+
     addr->cursor = tmp->previousLevel;
     addr->cursor->nextLevel = NULL;
     cleanRangeVariable(tmp);
@@ -254,7 +277,7 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
 
     // TODO: impl offset management
 
-    return addIntoListIdentifier(addr->cursor->listIdentifier, name, reserveMemorySlot());
+    return addIntoListIdentifier(addr->cursor->listIdentifier, name,reserveBlockMemorySlot(addr));
 }
 
 /*!
@@ -308,4 +331,23 @@ int printIdentifierFromListRange(ListRangeVariable addr,char* name)
         return RETURN_FAILURE;
     }
     return printIdentifier(variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier);
+}
+
+/**
+ *
+ * @param addr
+ * @return
+ */
+MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
+{
+    MemorySlot mem = reserveMemorySlot(addr->cursor->memorySlot,
+                                       addr->cursor->memoryCurrentStackOffset);
+
+    if (addr->cursor->memorySlot == NULL)
+    {
+        addr->cursor->memorySlot = mem;
+        return addr->cursor->memorySlot;
+    }
+
+    return mem;
 }
