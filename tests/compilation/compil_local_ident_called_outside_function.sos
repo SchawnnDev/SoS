@@ -1,0 +1,8 @@
+test_function()
+{
+    local var=88;
+}
+
+echo ${var};
+
+exit
