@@ -130,7 +130,7 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
-int doMarkerForList();
+Marker doMarkerForList(MemorySlotList list);
 
 int addBlock(int blockType);
 
