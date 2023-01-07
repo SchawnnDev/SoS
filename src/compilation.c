@@ -277,7 +277,6 @@ MemorySlot doOperation(MemorySlot left, int operation, MemorySlot right)
     if(left->label == NULL)
     {
         asm_readFromStack("$t0", getMipsOffset(left));
-        freeMemory(left);
     } else {
         asm_loadLabelIntoRegister(left->label, "$t0");
         // identifier so find a new memory slot

@@ -34,7 +34,6 @@
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
-%type <boolexprval> operator1 operator2
 %type <markerval> marker_fct_id
 %type <boolexprval> operator1 operator2
 %start program
