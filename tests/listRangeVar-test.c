@@ -17,7 +17,7 @@ ListInstruction listInstruction;
 // initRangeVariable //
 //-------------------//
 TEST initRangeVariableLvlZeroTest(void) {
-    RangeVariable addr = initRangeVariable(0,NULL);
+    RangeVariable addr = initRangeVariable(0, BLOCK_MAIN, NULL);
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(0, addr->rangeLevel,"%d");
@@ -28,8 +28,8 @@ TEST initRangeVariableLvlZeroTest(void) {
 }
 
 TEST initRangeVariableLvlNTest(void) {
-    RangeVariable addr1 = initRangeVariable(0,NULL);
-    RangeVariable addr = initRangeVariable(10,addr1);
+    RangeVariable addr1 = initRangeVariable(0, BLOCK_MAIN, NULL);
+    RangeVariable addr = initRangeVariable(10, BLOCK_MAIN, addr1);
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(10, addr->rangeLevel,"%d");
@@ -52,7 +52,7 @@ TEST initVariablePositionWithoutIdentifierFoundTest(void) {
 }
 
 TEST initVariablePositionWithIdentifierFoundTest(void) {
-    RangeVariable rangeVariable = initRangeVariable(0,NULL);
+    RangeVariable rangeVariable = initRangeVariable(0, BLOCK_MAIN, NULL);
     VariablePosition addr = initVariablePosition(rangeVariable,10);
 
     ASSERT_NEQ(NULL, addr);
@@ -97,7 +97,7 @@ TEST addRangeVariableTest(void) {
     RangeVariable lastCursor = addr->cursor;
     int lastLvl = addr->cursor->rangeLevel;
 
-    ASSERT_EQ_FMT(RETURN_SUCCESS, addRangeVariable(addr),"%d");
+    ASSERT_EQ_FMT(RETURN_SUCCESS, addRangeVariable(addr, BLOCK_MAIN), "%d");
     ASSERT_NEQ(NULL, addr->cursor);
     ASSERT_NEQ(lastCursor, addr->cursor);
     ASSERT_EQ( addr->cursor,lastCursor->nextLevel);
@@ -133,7 +133,7 @@ TEST increaseGlobalRangeVariableTest(void) {
 
 TEST increaseGlobalRangeVariableWithNextLocalRangeTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
     RangeVariable lastCursor = addr->cursor;
     RangeVariable lastGlobalCursor = addr->cursorGlobal;
     int lastLvl = addr->cursor->rangeLevel;
@@ -177,7 +177,7 @@ TEST deleteRangeVariableWithNextLvlTest(void) {
     RangeVariable lastCursor = addr->cursor;
     int lastLvl = addr->cursor->rangeLevel;
 
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
 
     ASSERT_EQ_FMT(RETURN_SUCCESS, deleteRangeVariable(addr),"%d");
     ASSERT_NEQ(NULL, addr->cursor);
@@ -193,7 +193,7 @@ TEST deleteRangeVariableWithNextLvlWithValuesTest(void) {
     RangeVariable lastCursor = addr->cursor;
     int lastLvl = addr->cursor->rangeLevel;
 
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
     addIdentifier(addr, "test");
 
     ASSERT_EQ_FMT(RETURN_SUCCESS, deleteRangeVariable(addr),"%d");
@@ -249,8 +249,8 @@ TEST searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest(void) {
 
 TEST searchIdentifierPositionWithIdentifierInRangeListWithMayLvlTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
+    addRangeVariable(addr, BLOCK_MAIN);
     addIdentifier(addr, "test");
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
@@ -263,8 +263,8 @@ TEST searchIdentifierPositionWithIdentifierOnFirstLvlInRangeListWithMayLvlTest(v
     ListRangeVariable addr = initListRangeVariable();
     RangeVariable firstRange = addr->cursor;
     addIdentifier(addr, "test");
-    addRangeVariable(addr);
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
+    addRangeVariable(addr, BLOCK_MAIN);
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
     ASSERT_EQ(0, variablePosition->indexIdentifier);
@@ -274,7 +274,7 @@ TEST searchIdentifierPositionWithIdentifierOnFirstLvlInRangeListWithMayLvlTest(v
 
 TEST searchIdentifierPositionWithIdentifierWithOneLvlInGlobalListTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
     addIdentifier(addr, "test");
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
@@ -287,11 +287,11 @@ TEST searchIdentifierPositionWithIdentifierWithOneLvlInGlobalListTest(void) {
 
 TEST searchIdentifierPositionWithIdentifierOnNLvlInRangeListWithMayLvlAndNotFirstIdentifierTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
     RangeVariable firstRange = addr->cursor;
     addLocalIdentifier(addr, "hello");
     addLocalIdentifier(addr, "test");
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
 
     ASSERT_EQ(1, variablePosition->indexIdentifier);
@@ -316,7 +316,7 @@ TEST addIdentifierWithoutAnOtherRangeVariableTest(void) {
 
 TEST addIdentifierWithAnOtherRangeVariableTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
 
     ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test"));
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
@@ -337,7 +337,7 @@ TEST addIdentifierTwiceTest(void) {
 
 TEST addIdentifierToManyIdentifierTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
 
     //simule le remplissage de la liste
     int i;
@@ -355,7 +355,7 @@ TEST addIdentifierToManyIdentifierTest(void) {
 //--------------------//
 TEST addLocalIdentifierTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
 
     ASSERT_EQ(RETURN_SUCCESS, addLocalIdentifier(addr, "test"));
     VariablePosition variablePosition = searchIdentifierPosition(addr,"test");
@@ -368,7 +368,7 @@ TEST addLocalIdentifierTest(void) {
 
 TEST addLocalIdentifierTwiceTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
 
     ASSERT_EQ(RETURN_SUCCESS, addLocalIdentifier(addr, "test"));
     ASSERT_EQ(RETURN_FAILURE, addLocalIdentifier(addr, "test"));
@@ -377,7 +377,7 @@ TEST addLocalIdentifierTwiceTest(void) {
 
 TEST addLocalIdentifierToManyIdentifierTest(void) {
     ListRangeVariable addr = initListRangeVariable();
-    addRangeVariable(addr);
+    addRangeVariable(addr, BLOCK_MAIN);
 
     //simule le remplissage de la liste
     int i;

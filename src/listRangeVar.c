@@ -4,7 +4,8 @@
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
  * \brief Fonction qui initialise la structure de portée de variable
 */
-RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
+RangeVariable
+initRangeVariable(int rangeLevel, int blockType, RangeVariable previousLevel)
 {
     log_trace("initRangeVariable (int %d, RangeVariable %p)", rangeLevel,previousLevel)
 
@@ -18,6 +19,7 @@ RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
     CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)));
     addr->listIdentifier = initListIdentifier();
     addr->rangeLevel = rangeLevel;
+    addr->blockType = blockType;
 
     addr->previousLevel = previousLevel;
     addr->nextLevel = NULL;
@@ -48,7 +50,7 @@ ListRangeVariable initListRangeVariable()
 
     ListRangeVariable addr;
     CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
-    RangeVariable rangeAddr = initRangeVariable(0,NULL);
+    RangeVariable rangeAddr = initRangeVariable(0, BLOCK_MAIN, NULL);
     addr->cursor = rangeAddr;
     addr->cursorGlobal = rangeAddr;
 
@@ -85,7 +87,8 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
     CHECKPOINTER(addr->cursorGlobal);
     CHECKPOINTER(addr->cursor);
 
-    RangeVariable newCursor = initRangeVariable(0, addr->cursorGlobal);
+    RangeVariable newCursor = initRangeVariable(0, BLOCK_MAIN,
+                                                addr->cursorGlobal);
     if(addr->cursorGlobal->nextLevel != NULL){
         newCursor->nextLevel = addr->cursorGlobal->nextLevel;
     } else {
@@ -102,12 +105,13 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
  * \fn int addRangeVariable(ListRangeVariable addr)
  * \brief Fonction qui ajoute un niveau de portée à la liste de structure de portée de variable
 */
-int addRangeVariable(ListRangeVariable addr)
+int addRangeVariable(ListRangeVariable addr, int blockType)
 {
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
     CHECKPOINTER(addr);
 
-    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1, addr->cursor);
+    RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,
+                                                blockType, addr->cursor);
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
 
@@ -209,7 +213,19 @@ int addIdentifier(ListRangeVariable addr, char *name)
         increaseGlobalRangeVariable(addr);
     }
 
-    return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, reserveMemorySlot());
+    MemorySlot space;
+    CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
+    space->used = false;
+    space->offset = -1;
+    space->next = NULL;
+    // len(var_ + NUL char) = 5
+    size_t len = strlen(name) + 5;
+    CHECKPOINTER(space->label = malloc(len))
+    snprintf(space->label, len, "var_%s", name);
+
+    asm_data_printf("\t%s: .word 0\n", space->label)
+
+    return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, space);
 }
 
 /*!
@@ -235,6 +251,8 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
         perror("addLocalIdentifier : you try to add into global context.");
         return RETURN_FAILURE;
     }
+
+    // TODO: impl offset management
 
     return addIntoListIdentifier(addr->cursor->listIdentifier, name, reserveMemorySlot());
 }

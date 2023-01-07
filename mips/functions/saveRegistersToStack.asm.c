@@ -10,8 +10,7 @@ int asm_writeSaveRegistersToStackFunction()
 
     asm_code_printf("\t%s:\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
     asm_code_printf("\t\taddi $sp, $sp, -64\n")
-    // TODO: fix this ($t0 should not be written in this fct) (maybe add value to stack)
-    //asm_appendInternalOffset(16);
+
     int count = 0;
 
     for (int i = 0; i < 7; ++i)
@@ -25,6 +24,8 @@ int asm_writeSaveRegistersToStackFunction()
         asm_code_printf("\t\tsw $s%d, %d($sp)\n", i, count)
         count += 4;
     }
+
+    //asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
 
     asm_code_printf("\t\tjr $ra\n")
 

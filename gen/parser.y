@@ -5,9 +5,10 @@
 #include "compilation.h"
 #include "memory.h"
 #include "boolExpr.h"
+#include "marker.h"
 %}
 
-%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; }
+%union { char *strval; int intval; MemorySlot memval; MemorySlotList memlistval; boolExpr_t boolexprval; Marker markerval; }
 
 %right ASSIGN
 %left ARG_N ARG_Z ARG_EQ ARG_NE ARG_GT ARG_GE ARG_LT ARG_LE ARG_A ARG_O
@@ -33,6 +34,7 @@
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
+%type <markerval> marker_fct_id
 %type <boolexprval> operator1 operator2
 %start program
 
@@ -169,15 +171,18 @@ mult_div_mod : MULT { $$ = MULT_OPE; }
      | MOD { $$ = MOD_OPE;}
      ;
 
-declare_fct : id LPAREN RPAREN LBRACE declare_loc list_instructions RBRACE
+declare_fct : marker_fct_id declare_loc list_instructions RBRACE { doDeclareFunction($1); }
+    ;
+
+marker_fct_id: id LPAREN RPAREN LBRACE { $$ = doFunctionStartMarker($1); }
     ;
 
 declare_loc : declare_loc LOCAL id ASSIGN final_concatenation SEMICOLON
     |
     ;
 
-function_call : id list_operand
-    | id
+function_call : id list_operand { doFunctionCall($1, $2); }
+    | id { doFunctionCall($1, NULL); }
     ;
 
 id : WORD { log_debug("id: WORD (%s)", $1); CHECK_TYPE(checkWordIsId($1)); char* destination;

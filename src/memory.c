@@ -4,17 +4,19 @@
 int memoryCurrentStackOffset = 0;
 MemorySlot memory = NULL;
 
-MemorySlot reserveMemorySlot() {
+MemorySlot reserveMemorySlot()
+{
     MemorySlot mem = NULL;
 
     if (memory == NULL)
     {
-        memory = newMemorySlot();
+        memory = newMemorySlot(true);
         memory->used = true;
         return memory;
     }
 
-    do {
+    do
+    {
         mem = mem == NULL ? memory : mem->next;
         if (!mem->used)
         {
@@ -23,49 +25,79 @@ MemorySlot reserveMemorySlot() {
         }
     } while (mem->next != NULL);
 
-    mem->next = newMemorySlot();
+    mem->next = newMemorySlot(true);
     mem->next->used = true;
 
     return mem->next;
 }
 
-MemorySlot newMemorySlot() {
+void expandMemorySlots(int offset_target, bool appendStack)
+{
+    if(memory == NULL || offset_target <= memoryCurrentStackOffset)
+        return;
+
+    MemorySlot temp = memory;
+
+    while(temp->offset <= offset_target)
+    {
+        if(temp->next != NULL)
+        {
+            temp = temp->next;
+            continue;
+        }
+
+        temp->next = newMemorySlot(appendStack);
+        temp = memory->next;
+    }
+}
+
+MemorySlot newMemorySlot(bool appendStack)
+{
     log_trace("newMemorySlot()")
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
 
-    asm_allocateMemoryOnStack(1);
+    if(appendStack)
+    {
+        asm_allocateMemoryOnStack(1);
+    }
 
     space->used = false;
     space->offset = memoryCurrentStackOffset;
     space->next = NULL;
-    space->temp = true;
+    space->label = NULL;
     memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
 }
 
-MemorySlot searchByOffset(int offset) {
+MemorySlot searchByOffset(int offset)
+{
     MemorySlot mem = memory;
-    while (mem != NULL) {
+    while (mem != NULL)
+    {
         if (mem->offset == offset) return mem;
         mem = mem->next;
     }
     return NULL;
 }
 
-int getMipsOffset(MemorySlot space) {
-    return space == NULL ? RETURN_FAILURE : memoryCurrentStackOffset - space->offset;
+int getMipsOffset(MemorySlot space)
+{
+    return space == NULL ? RETURN_FAILURE : memoryCurrentStackOffset -
+                                            space->offset;
 }
 
-void destroyMemorySlot() {
+void destroyMemorySlot()
+{
     if (memory == NULL)
         return;
 
     MemorySlot mem = memory;
     MemorySlot temp;
 
-    do {
+    do
+    {
         temp = mem->next;
         free(mem);
         mem = temp;
@@ -77,8 +109,18 @@ void destroyMemorySlot() {
 
 void freeMemory(MemorySlot mem)
 {
-    if(mem == NULL) return;
+    if (mem == NULL) return;
     mem->used = false;
+}
+
+int getMemoryCurrentStackOffset()
+{
+    return memoryCurrentStackOffset;
+}
+
+void setMemoryCurrentStackOffset(int memCurrentStackOffset)
+{
+    memCurrentStackOffset = memoryCurrentStackOffset;
 }
 
 // MemorySlotList
@@ -89,9 +131,10 @@ void freeMemory(MemorySlot mem)
  */
 MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 {
+    if (memorySlot == NULL) return NULL;
     log_trace("newMemorySlotList(%d)", memorySlot->offset)
     MemorySlotList list;
-    CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)));
+    CHECKPOINTER(list = malloc(sizeof(struct list_memory_space_t)));
     list->slot = memorySlot;
     list->next = NULL;
     list->previous = NULL;
@@ -101,7 +144,8 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 MemorySlotList appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
 {
     log_trace("appendMemorySlot(%d)", slot->offset)
-    if(memorySlotList == NULL) {
+    if (memorySlotList == NULL)
+    {
         return NULL;
     }
     MemorySlotList m = newMemorySlotList(slot);
@@ -119,7 +163,8 @@ void destroyMemoryList(MemorySlotList memorySlotList)
     memorySlotList = firstMemorySlotList(memorySlotList);
     MemorySlotList temp;
 
-    do {
+    do
+    {
         temp = memorySlotList->next;
         free(memorySlotList);
         memorySlotList = temp;
@@ -129,10 +174,10 @@ void destroyMemoryList(MemorySlotList memorySlotList)
 
 MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList)
 {
-    if(memorySlotList == NULL) return NULL;
+    if (memorySlotList == NULL) return NULL;
     MemorySlotList result = memorySlotList;
 
-    while(result->previous != NULL)
+    while (result->previous != NULL)
         result = result->previous;
 
     return result;
