@@ -8,24 +8,25 @@ int asm_writeSaveRegistersToStackFunction()
         return RETURN_SUCCESS;
     asm_fctSaveRegistersToStackWritten = TRUE;
 
+    const int tempRegisters = 7;
+    const int savedRegisters = 7;
+
     asm_code_printf("\t%s:\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
-    asm_code_printf("\t\taddi $sp, $sp, -64\n")
+    asm_code_printf("\t\taddi $sp, $sp, -%d\n", (tempRegisters + savedRegisters) * ASM_INTEGER_SIZE)
 
     int count = 0;
 
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < tempRegisters; ++i)
     {
         asm_code_printf("\t\tsw $t%d, %d($sp)\n", i, count)
         count += 4;
     }
 
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < savedRegisters; ++i)
     {
         asm_code_printf("\t\tsw $s%d, %d($sp)\n", i, count)
         count += 4;
     }
-
-    //asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
 
     asm_code_printf("\t\tjr $ra\n")
 

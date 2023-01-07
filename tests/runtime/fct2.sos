@@ -1,0 +1,17 @@
+bla = 2;
+testFct()
+{
+  echo "Test" 22 "Bla";
+  echo $(expr 5 + 8)
+
+};
+
+test2Fct() {
+  echo "bla: " ${bla}
+};
+
+echo "Ancienne fonction: \n";
+testFct;
+echo "Nouvelle fonction: \n";
+test2Fct;
+exit
