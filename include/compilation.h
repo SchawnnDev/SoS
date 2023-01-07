@@ -250,4 +250,12 @@ MemorySlot addWordToMemory(const char *str);
  */
 MemorySlot convertIntToString(MemorySlot slot);
 
+/**
+ *
+ * @param slot
+ * @return
+ */
+MemorySlot doGetArgument(MemorySlot slot);
+
+
 #endif //SOS_COMPILATION_H

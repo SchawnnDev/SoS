@@ -50,8 +50,6 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeHeader();
     asm_code_printf("\t# Args handling\n")
     asm_writeArgsToStack();
-    //asm_code_printf("\n")
-    //asm_code_printf("j _main\n")
     asm_code_printf("\n")
     asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")
@@ -74,7 +72,6 @@ int compile(FILE *inputFile, FILE *outputFile)
     // Parse
     int result = yyparse();
     if (result != RETURN_SUCCESS) return result;
-    destroyMemorySlot(NULL);
     return writeToFile(listInstruction, outputFile == NULL ? stdout : outputFile);
 }
 
@@ -438,7 +435,7 @@ Marker doMarkerForList(MemorySlotList list)
     if(list == NULL) { log_error("list == NULL;") return NULL; }
     MemorySlotList first = list;
 
-    asm_writeRegistersToStack();
+    // asm_writeRegistersToStack();
 
     int count = 1;
 
@@ -1264,7 +1261,6 @@ int doDeclareFunction(Marker mark)
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
     asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
-    asm_loadRegistersFromStack();
     asm_code_printf("\tjr $ra\n")
     asm_code_printf("\tend_%s:\n", mark->lbl)
     return RETURN_SUCCESS;
@@ -1289,18 +1285,15 @@ Marker doFunctionStartMarker(char* id)
     identifier = getIdentifier(id, true, false);
     identifier->type = FUNCTION;
 
-    // creation du nouveau block
-    addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
-
     asm_code_printf("\tj end_%s\n", id)
 
     mark->code = listInstruction->cursorCode;
     mark->index = listInstruction->cursorCode->numberCode - 1;
 
     asm_code_printf("\tstart_%s:\n", id) // function name
-    asm_writeRegistersToStack(); // 3
 
-    asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    // creation du nouveau block
+    addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
 
     return mark;
 }
@@ -1327,4 +1320,9 @@ int doFunctionCall(char* id, MemorySlotList list)
     free(id);
 
     return RETURN_SUCCESS;
+}
+
+MemorySlot doGetArgument(MemorySlot slot)
+{
+    return 0;
 }

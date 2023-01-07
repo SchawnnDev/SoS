@@ -1,5 +1,5 @@
-#ifndef __VAR_H
-#define __VAR_H
+#ifndef VAR_H
+#define VAR_H
 
 /* Bool */
 #define FALSE 0

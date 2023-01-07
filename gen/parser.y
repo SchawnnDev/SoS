@@ -122,7 +122,7 @@ test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolE
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 0); }
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); }
-    | DOLLAR int { $$ = $2; /* TODO */}
+    | DOLLAR int { $$ = doGetArgument($2); /* TODO */}
     | DOLLAR MULT
     | DOLLAR QMARK
     | QUOTED_STRING { $$ = addStringToMemory($1); }

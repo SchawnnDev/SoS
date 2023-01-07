@@ -235,6 +235,18 @@ int asm_allocateOnHeap(const char* into, int size);
  */
 int asm_writeArgsToStack();
 
+/**
+ *
+ * @return
+ */
+int asm_writeRegistersToStack();
+
+/**
+ *
+ * @return
+ */
+int asm_loadRegistersFromStack();
+
 // UTILS
 
 /**

@@ -225,15 +225,24 @@ int asm_writeArgsToStack()
     asm_code_printf("\tj _fct_argv_loop\n")
     asm_code_printf("\t_fct_argv_loop_end:\n")
     asm_code_printf("\t\tj _main\n")
-/*    asm_c
-#
-# 4($a1) is first command line argv 8($a1) is second
+    return RETURN_SUCCESS;
+}
 
-    main:
-    lw $a0, 8($a1)       # get second command line argv
-    li $v0, 4              # print code for the argument (string)
-    syscall                # tells system to print
-    li $v0, 10              # exit code
-    syscall                # terminate cleanly*/
+
+int asm_writeRegistersToStack()
+{
+    // Save registers to stack
+    asm_code_printf("\t\taddi $sp, $sp, -4\n")
+    asm_code_printf("\t\tsw $ra, 0($sp)\n")
+    asm_code_printf("\t\tjal %s\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
+    return RETURN_SUCCESS;
+}
+
+int asm_loadRegistersFromStack()
+{
+    // Load registers from stack
+    asm_code_printf("\t\tjal %s\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
+    asm_code_printf("\t\tlw $ra, 0($sp)\n")
+    asm_code_printf("\t\taddi $sp, $sp, 4\n")
     return RETURN_SUCCESS;
 }
