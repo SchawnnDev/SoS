@@ -1,7 +1,5 @@
-
-
-for mot do
+for mot in "salut" "Hello" "Test" do
   echo ${mot};
-  echo 10 "\n"
-done;
+  echo 10
+done ;
 exit
