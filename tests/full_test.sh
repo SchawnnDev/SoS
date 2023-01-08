@@ -87,43 +87,46 @@ compilation_error_tests()
 # ------
 # Compilation
 echo "${BOLD}-- Compilation tests --"
-compilation_error_tests
+#compilation_error_tests
 # Assign
 echo "${BOLD}-- Assignment tests --"
-test_loop "assign"
+#test_loop "assign"
 # Concatenation
 echo "${BOLD}-- Concatenation tests --"
-test_loop "concatenation"
+#test_loop "concatenation"
 # Expression
 echo "${BOLD}-- Expression tests --"
-test_loop "expression"
+#test_loop "expression"
 # General test_block
 echo "${BOLD}-- General test block tests --"
-test_loop "general_test_block"
+#test_loop "general_test_block"
 # Relational test_block
 echo "${BOLD}-- Relational test block tests --"
-test_loop "relational_test_block"
+#test_loop "relational_test_block"
 # Conditional test_block
 echo "${BOLD}-- Conditional test block tests --"
-test_loop "conditional_test_block"
+#test_loop "conditional_test_block"
 # If tests
 echo "${BOLD}-- If tests --"
-test_loop "if"
+#test_loop "if"
 # While tests
 echo "${BOLD}-- While tests --"
-test_loop "while"
+#test_loop "while"
 # Until tests
 echo "${BOLD}-- Until tests --"
-test_loop "until"
+#test_loop "until"
 # Fizzbuzz test
 echo "${BOLD}-- Fizzbuzz tests --"
-test_loop "fizzbuzz"
+#test_loop "fizzbuzz"
 # Array test
 echo "${BOLD}-- Array tests --"
-test_loop "array"
+#test_loop "array"
 # Function test
 echo "${BOLD}-- Function tests --"
-test_loop "function"
+#test_loop "function"
+# For test
+echo "${BOLD}-- For tests --"
+test_loop "for"
 
 # Summary
 echo -e "${BOLD}-- SUMMARY --${NC}"

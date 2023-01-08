@@ -189,11 +189,15 @@ int printIdentifierFromListRange(ListRangeVariable addr,char* name);
  * \return int, un entier permettant de connaitre l'état de sortie du programme
 */
 int printAllIdentifier(ListRangeVariable addr);
+
 /**
+ * \fn MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
+ * \brief Réserve un memorySlot
  *
- * @param addr
- * @return
- */
+ * \param ListRangeVariable : addr
+ *
+ * \return MemorySlot, memorySlot réservé
+*/
 MemorySlot reserveBlockMemorySlot(ListRangeVariable addr);
 
 #endif

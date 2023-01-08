@@ -1,0 +1,14 @@
+declare ite_array[3];
+ite_fill_array=0;
+while test ${ite_fill_array} -lt 3 do
+    ite_array[${ite_fill_array}]=${ite_fill_array};
+    ite_fill_array=$( expr ${ite_fill_array} + 1)
+done;
+
+ite=0;
+for ite1 in ${ite_array[*]} do
+    for ite2 in ${ite_array[*]} do
+        echo ${ite_array[${it1}]} ${ite_array[${it2}]} "\n"
+    done
+done;
+exit

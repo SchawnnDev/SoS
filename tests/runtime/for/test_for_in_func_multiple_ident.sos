@@ -1,0 +1,14 @@
+test_function()
+{
+    for ite in $* do
+        echo ${ite} "\n"
+    done
+} ;
+
+a="hello";
+b="how";
+c="do";
+d="you";
+test_function ${a} ${b} ${c} ${d} ${c};
+
+exit

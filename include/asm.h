@@ -78,140 +78,160 @@ static inline const char *stringFromSyscall(syscall_t syscall)
 }
 
 /**
+ * @brief allocate memory on the stack
  *
- * @param reg
- * @param words
- * @return
+ * @param int : words, number of words
+ * @return  0 if success, -1 if it fails
  */
 int asm_allocateMemoryOnStack(int words);
 
 /**
+ * @brief free memory on the stack
  *
- * @param words
- * @return
+ * @param int : words, number of words to free
+ * @return 0 if success, -1 if it fails
  */
 int asm_freeMemoryOnStack(int words);
 
 /**
+ * @brief add an integer on the stack
+ *
  * /!\ INCREASES _offset
- * @param value
- * @return
+ * @param int : value, value of the integer to add
+ * @return 0 if success, -1 if it fails
  */
 int asm_addIntOnStack(int value);
 
 /**
+ * @brief increase the offset of the stack
  *
- * @param count
- * @return
+ * @param int : count, number of words from which increase the stack
+ * @return 0 if success, -1 if it fails
  */
 int asm_appendInternalOffset(int count);
 
 /**
+ * @brief decrease the offset of the stack
  *
- * @param words
- * @return
+ * @param int : words, number of words from which decrease the stack
+ * @return 0 if success, -1 if it fails
  */
 int asm_subtractInternalOffset(int words);
 
 /**
+ * @brief read data from stack at a given offset
  *
- * @param into
- * @param offset
- * @return
+ * @param const char* : into, value into which store the read data
+ * @param int : offset
+ * @return 0 if success, -1 if it fails
  */
 int asm_readFromStack(const char *into, int offset);
 
 /**
+ * @brief gets the address of the stack at a given offset
  *
- * @param into
- * @param offset
- * @return
+ * @param const char* : into, value into which store the address
+ * @param int : offset
+ * @return 0 if success, -1 if it fails
  */
 int asm_getStackAddress(const char *into, int offset);
 
 /**
+ * @brief calls a MIPS syscall function
  *
- * @param type
- * @return
+ * @param syscall_t : type, type of syscall called
+ * @return 0 if success, -1 if it fails
  */
 int asm_syscall(syscall_t type);
 
 /**
+ * @brief writes an .asciiz value in the MIPS code
  *
- * @param label
- * @param content
- * @return
+ * @param const char* : label, label of the .asciiz value
+ * @param const char* : content, content of the .asciiz value
+ * @param int : addQuotes, 1 if quotes are needed, 0 otherwise
+ * @return 0 if success, -1 if it fails
  */
 int asm_writeAsciiz(const char *label, const char *content, int addQuotes);
 
 /**
+ * @brief write a static array
  *
- * @param label
- * @param size
- * @return
+ * @param const char* : label, label of the array
+ * @param int : size, size of the array
+ * @return 0 if success, -1 if it fails
  */
 int asm_writeStaticArray(const char* label, int size);
 
 /**
+ * @brief calls the bufferWrite function
  *
- * @param reg
- * @return
+ * @param const char* : source
+ * @param const char* destination
+ * @param const char* into
+ * @return 0 if success, -1 if it fails
  */
 int asm_useBufferWriteFunction(const char* source, const char* destination, const char* into);
 
 /**
+ * @brief calls the bufferLen function
  *
- * @param bufStartAddressRegister
- * @param into
- * @return
+ * @param const char* : bufStartAddressRegister
+ * @param const char* : into
+ * @return 0 if success, -1 if it fails
  */
 int asm_useBufferLenFunction(const char *bufStartAddressRegister, const char *into);
 
 /**
+ * @brief calls the intToString function
  *
- * @param intAddressRegister
- * @param into
- * @return
+ * @param const char* : intAddressRegister
+ * @param const char* : into
+ * @return 0 if success, -1 if it fails
  */
 int asm_useIntToStringFunction(const char *intAddressRegister, const char *into);
 
 /**
+ * @brief calls the strCmp function
  *
- * @param leftStrAddressRegister
- * @param rightStrAddressRegister
- * @param into
- * @return
+ * @param const char* : leftStrAddressRegister
+ * @param const char* : rightStrAddressRegister
+ * @param const char* : into
+ * @return 0 if success, -1 if it fails
  */
 int asm_useStrCmpFunction(const char *leftStrAddressRegister, const char *rightStrAddressRegister, const char * into);
 
 /**
+ * @brief calls the atoi function
  *
- * @param strAddressRegister
- * @param into
- * @return
+ * @param const char* : strAddressRegister
+ * @param const char* : into
+ * @return 0 if success, -1 if it fails
  */
 int asm_useAtoiFunction(const char *strAddressRegister, const char * into);
 
 /**
+ * @brief calls the loadLabelAddressIntoRegister function
  *
- * @param label
- * @param reg
- * @return
+ * @param const char* : label
+ * @param const char* : reg, register into which load the address
+ * @return 0 if success, -1 if it fails
  */
 int asm_loadLabelAddressIntoRegister(const char *label, const char* reg);
 
 /**
  *  Loads label value into register (lw)
- * @param label
- * @param reg
- * @return
+ * @param const char* : label
+ * @param const char* : reg, register into which load the address
+ * @return 0 if success, -1 if it fails
  */
 int asm_loadLabelIntoRegister(const char *label, const char *reg);
 
 /**
+ * @brief writes a jal instruction in MIPS
  *
- * @param name
- * @return
+ * @param const char* : name, label to which jump
+ * @return 0 if success, -1 if it fails
  */
 int asm_jal(const char* name);
 
@@ -219,33 +239,37 @@ int asm_jal(const char* name);
  *
  * @param size
  * @param ...
- * @return
+ * @return 0 if success, -1 if it fails
  */
 int asm_addArgumentsOnStack(int size, ...);
 
 /**
+ * @brief allocate on heap
  *
- * @param into
- * @param size
- * @return
+ * @param const char* : into
+ * @param int : size
+ * @return 0 if success, -1 if it fails
  */
 int asm_allocateOnHeap(const char* into, int size);
 
 /**
+ * @brief writes the arguments of a function on the stack
  *
- * @return
+ * @return 0 if success, -1 if it fails
  */
 int asm_writeArgsToStack();
 
 /**
+ * @brief calls the saveRegisterToStack function
  *
- * @return
+ * @return 0 if success, -1 if it fails
  */
 int asm_writeRegistersToStack();
 
 /**
+ * @brief calls the loadRegisterFromStack function
  *
- * @return
+ * @return 0 if success, -1 if it fails
  */
 int asm_loadRegistersFromStack();
 
@@ -258,9 +282,10 @@ int asm_writeEmptyCharToLastEcho();
 // UTILS
 
 /**
+ * @brief transforms an id into a usable label
  *
- * @param id
- * @return
+ * @param const char* : id, id to transform
+ * @return the label created
  */
 char* idToLabel(const char* id);
 

@@ -7,19 +7,19 @@
 
 /**
  * Creates a new unique label in data
- * @return
+ * @return const char*, created label
  */
 const char* createNewLabel();
 
 /**
  * Creates a new unique for label in data
- * @return
+ * @return const char*, created label
  */
 const char* createNewForLabel();
 
 /**
  * Creates a new unique for label in data
- * @return
+ * @return const char*, created unique for label
  */
 const char* getForLabel();
 
