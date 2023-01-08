@@ -62,7 +62,7 @@ void expandMemorySlots(int offset_target, bool appendStack);
 /**
  *
  */
-void destroyMemorySlot(MemorySlot memory);
+int destroyMemorySlot(MemorySlot memory);
 
 /**
  *

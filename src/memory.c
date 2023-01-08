@@ -62,10 +62,10 @@ int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset) {
     return -space->offset;
 }
 
-void destroyMemorySlot(MemorySlot memory)
+int destroyMemorySlot(MemorySlot memory)
 {
     if (memory == NULL)
-        return;
+        return RETURN_FAILURE;
 
     MemorySlot mem = memory;
     MemorySlot temp;
@@ -79,7 +79,9 @@ void destroyMemorySlot(MemorySlot memory)
         mem = temp;
     } while (mem != NULL);
 
-    asm_freeMemoryOnStack(i);
+    //asm_freeMemoryOnStack(i);
+    asm_code_printf("\tadd $sp, $sp, $s7\n")
+    return RETURN_SUCCESS;
 }
 
 void freeMemory(MemorySlot mem)
