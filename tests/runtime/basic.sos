@@ -1,5 +1,3 @@
-for mot in "salut" "Hello" "Test" do
-  echo ${mot};
   echo 10 "\n"
 done;
 
