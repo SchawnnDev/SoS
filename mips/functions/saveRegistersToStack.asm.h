@@ -3,7 +3,7 @@
 #include "asm.h"
 
 /**
- *
+ * Save all registers into the stack.
  *
  * @return 0 if success, -1 if it fails
  */
