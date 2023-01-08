@@ -203,11 +203,11 @@ marker_else : {$$ = ""; doMarkerElse(); if(HAS_ERROR()) YYABORT ; }
 
 marker_end_instruction : {$$ = ""; doMarkerEndInstruction(); if(HAS_ERROR()) YYABORT ; }
 
-marker_loop : {$$ = ""; addBlock(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; doMarkerLoop(); if(HAS_ERROR()) YYABORT ; }
+marker_loop : {$$ = ""; addBlock(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; doMarkerLoop(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; }
 
 marker_for : {$$ = ""; addBlock(BLOCK_FOR);}
 
-marker_do : {$$ = ""; doMarkerFor(); doMarkerLoop(); doMarkerTestFor();}
+marker_do : {$$ = ""; doMarkerFor(); doMarkerLoop(BLOCK_FOR); doMarkerTestFor();}
 
 marker_done : {$$ = ""; doMarkerDone(); if(HAS_ERROR()) YYABORT ; }
 
