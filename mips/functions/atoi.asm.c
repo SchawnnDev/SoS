@@ -25,6 +25,7 @@ int asm_writeAtoiFunction()
     asm_code_printf("\t\tbeq $v0, $zero, %s\n", ASM_NOT_A_NUMBER_ERROR_FUNCTION_NAME)
     asm_code_printf("\t\tmove $a0, $a1\n")
     asm_code_printf("\t\tlb $t0, 0($a0)\n")
+    asm_code_printf("\t\tli $t5, 0\n")
     asm_code_printf("\t\tli $t6, 1\n")
     asm_code_printf("\t\tli $t7, '+'\n")
     asm_code_printf("\t\tbltu $t0, $t7, %s\n", ASM_NOT_A_NUMBER_ERROR_FUNCTION_NAME)
@@ -80,5 +81,7 @@ int asm_writeAtoiFunction()
     asm_code_printf("\t\t%s_end:\n", ASM_ATOI_FUNCTION_NAME)
     asm_loadRegistersFromStack();
     asm_code_printf("\t\tjr $ra\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

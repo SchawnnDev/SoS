@@ -1,5 +1,7 @@
 #include "utils.h"
 
+int error;
+
 void raler(int syserr, const char *msg, ...) {
     va_list ap;
 
@@ -11,7 +13,7 @@ void raler(int syserr, const char *msg, ...) {
     if (syserr == 1)
         perror("");
 
-    exit(EXIT_FAILURE);
+    setErrorFailure();
 }
 
 int countWithoutBackslash(char *str) {
@@ -24,4 +26,15 @@ int countWithoutBackslash(char *str) {
         }
     }
     return len <= 0 ? 0 : len;
+}
+
+/*!
+ * void setErrorFailure()
+ * \brief Fonction qui active le statut d'erreur
+ */
+void setErrorFailure()
+{
+    log_trace("setErrorFailure ()")
+    if(HAS_ERROR()) return;
+    error = TRUE;
 }

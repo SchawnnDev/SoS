@@ -8,6 +8,10 @@ int labelCount = 0;
 int size = LABEL_NAME_LEN + 1;
 int currDiz = 10;
 
+int labelForCount = 0;
+int sizeFor = LABEL_NAME_LEN + 1;
+int currDizFor = 10;
+
 const char* createNewLabel()
 {
     if(labelCount >= currDiz)
@@ -18,8 +22,37 @@ const char* createNewLabel()
 
     char* result;
     CHECKPOINTER(result = malloc(size))
+    CHECK_ERROR_RETURN(NULL)
     CHECK(snprintf(result, size, LABEL_NAME, labelCount))
+    CHECK_ERROR_RETURN(NULL)
     labelCount++;
+    return result;
+}
+
+const char* createNewForLabel()
+{
+    if(labelForCount >= currDizFor)
+    {
+        currDizFor *= 10;
+        sizeFor++;
+    }
+    labelForCount++;
+
+    char* result;
+    CHECKPOINTER(result = malloc(sizeFor))
+    CHECK_ERROR_RETURN(NULL)
+    CHECK(snprintf(result, sizeFor, LABEL_FOR, labelForCount))
+    CHECK_ERROR_RETURN(NULL)
+    return result;
+}
+
+const char* getForLabel()
+{
+    char* result;
+    CHECKPOINTER(result = malloc(sizeFor))
+    CHECK_ERROR_RETURN(NULL)
+    CHECK(snprintf(result, sizeFor, LABEL_FOR, labelForCount))
+    CHECK_ERROR_RETURN(NULL)
     return result;
 }
 

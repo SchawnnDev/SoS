@@ -7,13 +7,12 @@ typedef struct memory_space_t *MemorySlot;
 struct memory_space_t {
     int used;
     int offset;
-    //int temp; // temp -> temporary value (identifiers are not temp values)
     char* label; // temp replaced by label, label == null -> temp
+    char* value;
 
     MemorySlot next;
 };
 
-//
 
 /**
  * Searches a free memory space, if no space available, creates a new one

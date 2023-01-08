@@ -9,7 +9,8 @@ Data initData(Data previousData)
     log_trace("initData (Data %p)", previousData)
 
     Data addr;
-    CHECKPOINTER(addr = (Data) malloc(sizeof(struct data_t)));
+    CHECKPOINTER(addr = (Data) malloc(sizeof(struct data_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->previousData = previousData;
     addr->nextData = NULL;
     addr->numberData = 0;
@@ -25,7 +26,8 @@ Code initCode(Code previousCode)
     log_trace("initCode (Code %p)", previousCode)
 
     Code addr;
-    CHECKPOINTER(addr = (Code) malloc(sizeof(struct code_t)));
+    CHECKPOINTER(addr = (Code) malloc(sizeof(struct code_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->previousCode = previousCode;
     addr->nextCode = NULL;
     addr->numberCode = 0;
@@ -51,6 +53,7 @@ GoTo initGoTo(GoTo previousGoTo)
 
     GoTo addr;
     CHECKPOINTER(addr = (GoTo) malloc(sizeof(struct goTo_t)));
+    CHECK_ERROR_RETURN(NULL)
     addr->previousGoTo = previousGoTo;
     addr->numberGoto = 0;
     addr->numberTrue = 0;
@@ -66,10 +69,12 @@ ListInstruction initListInstruction()
     log_trace("initListInstruction (void)")
 
     ListInstruction addr;
-    CHECKPOINTER(addr = (ListInstruction) malloc(sizeof(listInstruction_t)));
+    CHECKPOINTER(addr = (ListInstruction) malloc(sizeof(listInstruction_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->cursorData = initData(NULL);
     addr->cursorCode = initCode(NULL);
     addr->cursorGoTo = initListGoTo();
+    CHECK_ERROR_RETURN(NULL)
     return addr;
 }
 
@@ -85,8 +90,10 @@ ListGoTo initListGoTo()
 
     ListGoTo addr;
     CHECKPOINTER(addr = (ListGoTo) malloc(sizeof(struct listGoTo_t)));
+    CHECK_ERROR_RETURN(NULL)
     addr->cursor = initGoTo(NULL);
     addr->previousListGoTo = NULL;
+    CHECK_ERROR_RETURN(NULL)
     return addr;
 }
 
@@ -97,7 +104,8 @@ ListGoTo initListGoTo()
 void cleanData(Data addr)
 {
     log_trace("cleanData (Data %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     Data tmp, addrToFree = addr;
     while (addrToFree != NULL)
@@ -115,7 +123,8 @@ void cleanData(Data addr)
 void cleanCode(Code addr)
 {
     log_trace("cleanCode (Code %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     Code tmp, addrToFree = addr;
     while (addrToFree != NULL)
@@ -136,6 +145,7 @@ void cleanGoTo(GoTo addr)
 {
     log_trace("cleanGoTo (GoTo %p)", addr)
     CHECKPOINTER(addr);
+    CHECK_ERROR_NORETURN()
 
     GoTo tmp, addrToFree = addr;
     while (addrToFree != NULL)
@@ -153,7 +163,8 @@ void cleanGoTo(GoTo addr)
 void cleanListInstruction(ListInstruction addr)
 {
     log_trace("cleanListInstruction (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     cleanData(addr->cursorData);
     cleanCode(addr->cursorCode);
@@ -171,6 +182,7 @@ void cleanListGoTo(ListGoTo addr)
 {
     log_trace("cleanListGoTo (ListGoTo %p)", addr)
     CHECKPOINTER(addr);
+    CHECK_ERROR_NORETURN()
 
     ListGoTo tmp, addrToFree = addr;
     while (addrToFree != NULL)
@@ -191,6 +203,7 @@ void cleanOneListGoTo(ListGoTo addr)
 {
     log_trace("cleanOneListGoTo (ListGoTo %p)", addr)
     CHECKPOINTER(addr);
+    CHECK_ERROR_NORETURN()
 
     cleanGoTo(addr->cursor);
     free(addr);
@@ -203,9 +216,11 @@ void cleanOneListGoTo(ListGoTo addr)
 void addStructData(ListInstruction addr)
 {
     log_trace("addStructData (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     addr->cursorData = initData(addr->cursorData);
+    CHECK_ERROR_NORETURN()
     addr->cursorData->previousData->nextData = addr->cursorData;
 }
 
@@ -216,23 +231,27 @@ void addStructData(ListInstruction addr)
 void addIntoData(ListInstruction addr, char *data)
 {
    // log_trace("addIntoData (ListInstruction %p, char* %s)", addr, data)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(data);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(data)
+    CHECK_ERROR_NORETURN()
 
     if (addr->cursorData->numberData >= DATA_TAB_MAX)
     {
         log_info("struct data is full, numberData %d",
                  addr->cursorData->numberData)
         addStructData(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     ulong size = strlen(data) + 1;
     CHECKPOINTER(
             addr->cursorData->lineData[addr->cursorData->numberData] = (char *) malloc(
-                    sizeof(char) * size));
+                    sizeof(char) * size))
+    CHECK_ERROR_NORETURN()
     CHECKPOINTER(
             strcpy(addr->cursorData->lineData[addr->cursorData->numberData],
-                   data));
+                   data))
+    CHECK_ERROR_NORETURN()
 
     addr->cursorData->numberData++;
 }
@@ -244,9 +263,11 @@ void addIntoData(ListInstruction addr, char *data)
 void addStructCode(ListInstruction addr)
 {
     log_trace("addStructCode (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     addr->cursorCode = initCode(addr->cursorCode);
+    CHECK_ERROR_NORETURN()
     addr->cursorCode->previousCode->nextCode = addr->cursorCode;
 }
 
@@ -261,9 +282,11 @@ void addIntoCode(ListInstruction addr, char *code)
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     addIntoCodeWithIndex(addr->cursorCode, code, addr->cursorCode->numberCode);
+    CHECK_ERROR_NORETURN()
     addr->cursorCode->numberCode++;
 }
 
@@ -274,19 +297,23 @@ void addIntoCode(ListInstruction addr, char *code)
 int addIntoCodeWithIndex(Code addr, char *code, int index)
 {
 //    log_trace("addIntoCode (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(code);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(code)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if ((index < 0) || (index >= CODE_TAB_MAX))
     {
         log_error("index out of range : position : %d", index)
         perror("addIntoCodeWithIndex : can not set code of non-existent table index.");
-        return RETURN_FAILURE;
+        setErrorFailure();
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
     }
 
     ulong size = strlen(code) + 1;
-    CHECKPOINTER(addr->lineCode[index] = (char *) malloc(sizeof(char) * size));
-    CHECKPOINTER(strcpy(addr->lineCode[index], code));
+    CHECKPOINTER(addr->lineCode[index] = (char *) malloc(sizeof(char) * size))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(strcpy(addr->lineCode[index], code))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return RETURN_SUCCESS;
 }
@@ -298,7 +325,8 @@ int addIntoCodeWithIndex(Code addr, char *code, int index)
 void addStructGoTo(ListInstruction addr)
 {
     log_trace("addStructGoTo (ListInstruction %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     addr->cursorGoTo->cursor = initGoTo(addr->cursorGoTo->cursor);
 }
@@ -311,8 +339,10 @@ int addStructListGoTo(ListInstruction addr)
 {
     log_trace("addStructListGoTo(ListInstruction %p)", addr)
     CHECKPOINTER(addr);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     ListGoTo tmp = initListGoTo();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     tmp->previousListGoTo = addr->cursorGoTo;
     addr->cursorGoTo = tmp;
 
@@ -327,11 +357,13 @@ int deleteStructListGoTo(ListInstruction addr)
 {
     log_trace("deleteStructListGoTo(ListInstruction %p)", addr)
     CHECKPOINTER(addr);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     ListGoTo tmp = addr->cursorGoTo;
     addr->cursorGoTo = tmp->previousListGoTo;
     cleanOneListGoTo(tmp);
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -342,19 +374,22 @@ int deleteStructListGoTo(ListInstruction addr)
 void addIntoTrueList(ListInstruction addr, char* code)
 {
     log_trace("addIntoTrueList (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     if (addr->cursorCode->numberCode >= CODE_TAB_MAX)
     {
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+        CHECK_ERROR_NORETURN()
     }
     if (addr->cursorGoTo->cursor->numberTrue >= CODE_TAB_MAX)
     {
         log_info("struct GoTo is full, numberTrue %d",
                  addr->cursorGoTo->cursor->numberTrue)
         addStructGoTo(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     int index = addr->cursorCode->numberCode + addr->cursorCode->rangeCode * CODE_TAB_MAX;
@@ -370,19 +405,22 @@ void addIntoTrueList(ListInstruction addr, char* code)
 void addIntoFalseList(ListInstruction addr, char* code)
 {
     log_trace("addIntoFalseList (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     if (addr->cursorCode->numberCode >= CODE_TAB_MAX)
     {
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+        CHECK_ERROR_NORETURN()
     }
     if (addr->cursorGoTo->cursor->numberFalse >= CODE_TAB_MAX)
     {
         log_info("struct GoTo is full, numberTrue %d",
                  addr->cursorGoTo->cursor->numberFalse)
         addStructGoTo(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     int index = addr->cursorCode->numberCode + addr->cursorCode->rangeCode * CODE_TAB_MAX;
@@ -398,19 +436,22 @@ void addIntoFalseList(ListInstruction addr, char* code)
 void addIntoUnDefineGoto(ListInstruction addr, char* code)
 {
     log_trace("addIntoUnDefineGoto (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     if (addr->cursorCode->numberCode >= CODE_TAB_MAX)
     {
         log_info("struct Code is full, numberCode %d",
                  addr->cursorCode->numberCode)
         addStructCode(addr);
+        CHECK_ERROR_NORETURN()
     }
     if (addr->cursorGoTo->cursor->numberGoto >= CODE_TAB_MAX)
     {
         log_info("struct GoTo is full, numberTrue %d",
                  addr->cursorGoTo->cursor->numberGoto)
         addStructGoTo(addr);
+        CHECK_ERROR_NORETURN()
     }
 
     int index = addr->cursorCode->numberCode + addr->cursorCode->rangeCode * CODE_TAB_MAX;
@@ -426,8 +467,9 @@ void addIntoUnDefineGoto(ListInstruction addr, char* code)
 int completeTrueList(ListInstruction addr, char *code)
 {
     log_trace("completeTrueList (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(code);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(code)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     GoTo tmp = addr->cursorGoTo->cursor;
     while ((tmp != NULL) && (tmp->numberTrue == 0)){
@@ -435,7 +477,7 @@ int completeTrueList(ListInstruction addr, char *code)
     }
 
     if(tmp == NULL){
-        log_trace("completeTrueList : there is no goto to complete")
+        log_info("completeTrueList : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -457,19 +499,22 @@ int completeTrueList(ListInstruction addr, char *code)
     int size2 = strlen(code)+1;
     int size1 = strlen(tmpCode->lineCode[index]);
     if(size2 == 1){
-        log_trace("completeTrueList : code is empty")
+        log_info("completeTrueList : code is empty")
         return RETURN_FAILURE;
     }
     size1 = size1 + size2 + 2;
 
     CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     CHECKPOINTER(strcat(newCode," "))
     CHECKPOINTER(strcat(newCode,code))
 
     free(tmpCode->lineCode[index]);
     tmpCode->lineCode[index] = newCode;
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -480,8 +525,9 @@ int completeTrueList(ListInstruction addr, char *code)
 int completeFalseList(ListInstruction addr, char *code)
 {
     log_trace("completeFalseList (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(code);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(code)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     GoTo tmp = addr->cursorGoTo->cursor;
     while ((tmp != NULL) && (tmp->numberFalse == 0)){
@@ -489,7 +535,7 @@ int completeFalseList(ListInstruction addr, char *code)
     }
 
     if(tmp == NULL){
-        log_trace("completeFalseList : there is no goto to complete")
+        log_info("completeFalseList : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -502,7 +548,7 @@ int completeFalseList(ListInstruction addr, char *code)
     }
 
     if(tmpCode == NULL){
-        log_trace("completeTrueList : there is no goto to complete")
+        log_info("completeTrueList : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -513,13 +559,15 @@ int completeFalseList(ListInstruction addr, char *code)
     int size1 = strlen(tmpCode->lineCode[index]);
 
     if(size2 == 1){
-        log_trace("completeFalseList : code is empty")
+        log_info("completeFalseList : code is empty")
         newCode = "";
     } else {
         size1 = size1 + size2 + 2;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
         CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
         CHECKPOINTER(strcat(newCode," "))
         CHECKPOINTER(strcat(newCode,code))
     }
@@ -527,6 +575,7 @@ int completeFalseList(ListInstruction addr, char *code)
     free(tmpCode->lineCode[index]);
     tmpCode->lineCode[index] = newCode;
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -537,8 +586,9 @@ int completeFalseList(ListInstruction addr, char *code)
 int completeUnDefineGoto(ListInstruction addr, char *code)
 {
     log_trace("completeUnDefineGoto (ListInstruction %p, char* %s)", addr, code)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(code);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(code)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     GoTo tmp = addr->cursorGoTo->cursor;
     while(tmp != NULL){
@@ -547,7 +597,7 @@ int completeUnDefineGoto(ListInstruction addr, char *code)
         }
 
         if(tmp == NULL){
-            log_trace("completeUnDefineGoto : there is no goto to complete")
+            log_info("completeUnDefineGoto : there is no goto to complete")
             return RETURN_FAILURE;
         }
 
@@ -560,7 +610,7 @@ int completeUnDefineGoto(ListInstruction addr, char *code)
         }
 
         if(tmpCode == NULL){
-            log_trace("completeTrueList : there is no goto to complete")
+            log_info("completeTrueList : there is no goto to complete")
             return RETURN_FAILURE;
         }
 
@@ -569,14 +619,16 @@ int completeUnDefineGoto(ListInstruction addr, char *code)
         int size1 = strlen(tmpCode->lineCode[index]);
         if(size1 >= 2){
             if(size2 == 1){
-                log_trace("completeUnDefineGoto : code is empty")
+                log_info("completeUnDefineGoto : code is empty")
                 return RETURN_FAILURE;
             }
             tmp->numberGoto--;
             size1 = size1 + size2 + 2;
 
             CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
             CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
             CHECKPOINTER(strcat(newCode," "))
             CHECKPOINTER(strcat(newCode,code))
         } else {
@@ -588,7 +640,9 @@ int completeUnDefineGoto(ListInstruction addr, char *code)
             size1 = size2 + 4;
 
             CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
             CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
             CHECKPOINTER(strcat(newCode,code))
             CHECKPOINTER(strcat(newCode,":"))
         }
@@ -597,6 +651,7 @@ int completeUnDefineGoto(ListInstruction addr, char *code)
         tmpCode->lineCode[index] = newCode;
     }
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -609,6 +664,7 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
     log_trace("completeUnDefineGoto (ListInstruction %p, char* %s)", addr, code)
     CHECKPOINTER(addr);
     CHECKPOINTER(code);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     GoTo tmp = addr->cursorGoTo->cursor;
     while ((tmp != NULL) && (tmp->numberGoto == 0)){
@@ -646,7 +702,9 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
         size1 = size1 + size2 + 2;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
         CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
         CHECKPOINTER(strcat(newCode," "))
         CHECKPOINTER(strcat(newCode,code))
     } else {
@@ -658,7 +716,9 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
         size1 = size2 + 4;
 
         CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
         CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
         CHECKPOINTER(strcat(newCode,code))
         CHECKPOINTER(strcat(newCode,":"))
         returnValue++;
@@ -667,6 +727,7 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
     free(tmpCode->lineCode[index]);
     tmpCode->lineCode[index] = newCode;
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return returnValue;
 }
 
@@ -684,7 +745,7 @@ int switchTrueFalseList(ListInstruction addr)
     }
 
     if(tmpGoTo == NULL){
-        log_trace("switchTrueFalseList : there is no goto to complete")
+        log_info("switchTrueFalseList : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -721,24 +782,28 @@ int writeToFile(ListInstruction list, FILE *file)
 {
     Data data = getFirstDataCursor(list->cursorData);
     Code code = getFirstCodeCursor(list->cursorCode);
-    CHECK(fprintf(file, ".data\n"));
+    CHECK(fprintf(file, ".data\n"))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     do
     {
         for (int i = 0; i < data->numberData; ++i)
         {
-            CHECK(fprintf(file, "%s", data->lineData[i]));
+            CHECK(fprintf(file, "%s", data->lineData[i]))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
         }
         data = data->nextData;
     } while (data != NULL);
 
     CHECK(fprintf(file, ".text\n"));
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     do
     {
         for (int i = 0; i < code->numberCode; ++i)
         {
-            CHECK(fprintf(file, "%s", code->lineCode[i]));
+            CHECK(fprintf(file, "%s", code->lineCode[i]))
+            CHECK_ERROR_RETURN(RETURN_FAILURE)
         }
         code = code->nextCode;
     } while (code != NULL);

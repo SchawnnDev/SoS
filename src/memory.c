@@ -8,6 +8,7 @@ MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
     if (memory == NULL)
     {
         memory = newMemorySlot(memoryCurrentStackOffset);
+        CHECK_ERROR_RETURN(NULL)
         memory->used = true;
         return memory;
     }
@@ -23,6 +24,7 @@ MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
     } while (mem->next != NULL);
 
     mem->next = newMemorySlot(memoryCurrentStackOffset);
+    CHECK_ERROR_RETURN(NULL)
     mem->next->used = true;
 
     return mem->next;
@@ -33,21 +35,27 @@ MemorySlot newMemorySlot(int *memoryCurrentStackOffset)
     log_trace("newMemorySlot()")
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
+    CHECK_ERROR_RETURN(NULL)
     asm_allocateMemoryOnStack(1);
+    CHECK_ERROR_RETURN(NULL)
 
     space->used = false;
     space->offset = *memoryCurrentStackOffset;
     space->next = NULL;
     space->label = NULL;
+    space->value = NULL;
     *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
 }
 
-int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset)
-{
-    return space == NULL ? RETURN_FAILURE : memoryCurrentStackOffset -
-                                            space->offset;
+int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset) {
+    if(space == NULL)
+    {
+        setErrorFailure();
+        return RETURN_FAILURE;
+    }
+    return memoryCurrentStackOffset - space->offset;
 }
 
 void destroyMemorySlot(MemorySlot memory)
@@ -68,12 +76,16 @@ void destroyMemorySlot(MemorySlot memory)
     } while (mem != NULL);
 
     asm_freeMemoryOnStack(i);
-
 }
 
 void freeMemory(MemorySlot mem)
 {
     if (mem == NULL) return;
+/*    if(mem->value != NULL)
+    {
+        free(mem->value);
+        mem->value = NULL;
+    }*/
     mem->used = false;
 }
 
@@ -88,7 +100,8 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot)
     if (memorySlot == NULL) return NULL;
     log_trace("newMemorySlotList(%d)", memorySlot->offset)
     MemorySlotList list;
-    CHECKPOINTER(list = malloc(sizeof(struct list_memory_space_t)));
+    CHECKPOINTER(list = malloc(sizeof (struct list_memory_space_t)))
+    CHECK_ERROR_RETURN(NULL)
     list->slot = memorySlot;
     list->next = NULL;
     list->previous = NULL;
@@ -98,11 +111,12 @@ MemorySlotList newMemorySlotList(MemorySlot memorySlot)
 MemorySlotList appendMemorySlot(MemorySlotList memorySlotList, MemorySlot slot)
 {
     log_trace("appendMemorySlot(%d)", slot->offset)
-    if (memorySlotList == NULL)
-    {
+    if(memorySlotList == NULL) {
+        setErrorFailure();
         return NULL;
     }
     MemorySlotList m = newMemorySlotList(slot);
+    CHECK_ERROR_RETURN(NULL)
     m->previous = memorySlotList;
     memorySlotList->next = m;
 

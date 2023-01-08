@@ -1,5 +1,5 @@
-#ifndef __LISTRANGEVAR_H
-#define __LISTRANGEVAR_H
+#ifndef LISTRANGEVAR_H
+#define LISTRANGEVAR_H
 
 #include "utils.h"
 #include "variable.h"
@@ -11,6 +11,7 @@ typedef struct rangeVariable_t{
     int blockType;
     MemorySlot memorySlot;
     int* memoryCurrentStackOffset;
+    Identifier currentFunction;
 
     struct rangeVariable_t* nextLevel;
     struct rangeVariable_t* previousLevel;

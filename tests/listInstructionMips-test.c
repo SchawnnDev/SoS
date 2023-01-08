@@ -24,6 +24,9 @@ TEST initDataTest(void) {
     ASSERT_NEQ(NULL, addr->lineData);
     ASSERT_EQ_FMT(0, addr->numberData,"%d");
     PASS();
+
+    error = 0;
+    cleanData(addr);
 }
 
 //----------//
@@ -36,9 +39,10 @@ TEST initCodeTest(void) {
     ASSERT_EQ(NULL, addr->previousCode);
     ASSERT_EQ(NULL, addr->nextCode);
     ASSERT_NEQ(NULL, addr->lineCode);
-    // ASSERT_NEQ(NULL, addr->unDefineGoto);
     ASSERT_EQ_FMT(0, addr->numberCode,"%d");
-    // ASSERT_EQ_FMT(0, addr->numberGoto,"%d");
+
+    error = 0;
+    cleanCode(addr);
     PASS();
 }
 
@@ -51,6 +55,9 @@ TEST initListInstructionTest(void) {
     ASSERT_NEQ(NULL, addr);
     ASSERT_NEQ(NULL, addr->cursorCode);
     ASSERT_NEQ(NULL, addr->cursorData);
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -99,6 +106,9 @@ TEST addIntoDataEmptyTest(void) {
     ASSERT_EQ(NULL, addr->cursorData->previousData);
     ASSERT_EQ_FMT(1, addr->cursorData->numberData,"%d");
     ASSERT_STR_EQ("test", addr->cursorData->lineData[addr->cursorData->numberData-1]);
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -118,6 +128,9 @@ TEST addIntoDataFullTest(void) {
     ASSERT_STR_EQ("test", addr->cursorData->lineData[addr->cursorData->numberData-1]);
     ASSERT_NEQ(NULL, addr->cursorData->previousData);
     ASSERT_EQ_FMT(DATA_TAB_MAX, addr->cursorData->previousData->numberData,"%d");
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -132,6 +145,9 @@ TEST addIntoCodeEmptyTest(void) {
     ASSERT_EQ(NULL, addr->cursorCode->previousCode);
     ASSERT_EQ_FMT(1, addr->cursorCode->numberCode,"%d");
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[addr->cursorCode->numberCode-1]);
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -153,6 +169,9 @@ TEST addIntoCodeFullTest(void) {
     ASSERT_EQ(NULL, addr->cursorCode->nextCode);
     ASSERT_NEQ(NULL, addr->cursorCode->previousCode->nextCode);
     ASSERT_EQ_FMT(CODE_TAB_MAX, addr->cursorCode->previousCode->numberCode,"%d");
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -164,6 +183,9 @@ TEST addIntoCodeWithIndexBadIndexTest(void) {
 
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoCodeWithIndex(addr->cursorCode,"test",-1),"%d");
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoCodeWithIndex(addr->cursorCode,"test",CODE_TAB_MAX),"%d");
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -175,8 +197,11 @@ TEST addIntoUnDefineGotoTest(void) {
     addIntoUnDefineGoto(addr,"");
 
     ASSERT_EQ_FMT(1, addr->cursorCode->numberCode,"%d");
-   // ASSERT_EQ_FMT(1, addr->cursorCode->numberGoto,"%d");
-    // ASSERT_EQ_FMT(0, addr->cursorCode->unDefineGoto[0],"%d");
+    ASSERT_EQ_FMT(1, addr->cursorGoTo->cursor->numberGoto,"%d");
+    ASSERT_EQ_FMT(0, addr->cursorGoTo->cursor->unDefineGoto[0],"%d");
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -191,10 +216,13 @@ TEST completeUnDefineGotoSameTableTest(void) {
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(3, addr->cursorCode->numberCode,"%d");
-    // ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
+    ASSERT_EQ_FMT(0, addr->cursorGoTo->cursor->numberGoto,"%d");
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->lineCode[0]);
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[1]);
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->lineCode[2]);
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 
@@ -213,11 +241,13 @@ TEST completeUnDefineGotoDifferentTableTest(void) {
     completeUnDefineGoto(addr,"unDefineGoto");
 
     ASSERT_EQ_FMT(2, addr->cursorCode->numberCode,"%d");
-   // ASSERT_EQ_FMT(0, addr->cursorCode->numberGoto,"%d");
-    // ASSERT_EQ_FMT(0, addr->cursorCode->previousCode->numberGoto,"%d");
+    ASSERT_EQ_FMT(0, addr->cursorGoTo->cursor->numberGoto,"%d");
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->previousCode->lineCode[CODE_TAB_MAX-1]);
     ASSERT_STR_EQ("test", addr->cursorCode->lineCode[0]);
     ASSERT_STR_EQ("unDefineGoto:", addr->cursorCode->lineCode[1]);
+
+    error = 0;
+    cleanListInstruction(addr);
     PASS();
 }
 

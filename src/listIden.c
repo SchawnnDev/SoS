@@ -9,7 +9,8 @@ ListIdentifier initListIdentifier()
     log_trace("initListIdentifier (void)")
 
     ListIdentifier addr;
-    CHECKPOINTER(addr = (ListIdentifier)malloc(sizeof(listIdentifier_t)));
+    CHECKPOINTER(addr = (ListIdentifier)malloc(sizeof(listIdentifier_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->numberIdentifiers = 0;
     return addr;
 }
@@ -21,7 +22,8 @@ ListIdentifier initListIdentifier()
 void cleanListIdentifier(ListIdentifier addr)
 {
     log_trace("cleanListIdentifier (ListIdentifier %p)",addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     int index;
     int size = addr->numberIdentifiers;
@@ -43,17 +45,21 @@ Identifier initIdentifier(char* name)
     if(strcmp(name, "") == 0){
         log_error("name : %s, notEmpty",name)
         perror("initIdentifier : name is Empty or identifier can't be empty.");
+        setErrorFailure();
         return NULL;
     }
 
     Identifier addr;
-    CHECKPOINTER(addr = (Identifier)malloc(sizeof(identifier_t)));
+    CHECKPOINTER(addr = (Identifier)malloc(sizeof(identifier_t)))
+    CHECK_ERROR_RETURN(NULL)
     ulong size = strlen( name ) + 1;
-    CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size));
-    CHECKPOINTER(strcpy(addr->name,name));
+    CHECKPOINTER(addr->name = (char*)malloc(sizeof(char) * size))
+    CHECK_ERROR_RETURN(NULL)
+    CHECKPOINTER(strcpy(addr->name,name))
+    CHECK_ERROR_RETURN(NULL)
     addr->memory = NULL;
     addr->type = UNSET;
-    addr->arraySize = 1;
+    addr->size = 1;
 
     return addr;
 }
@@ -66,6 +72,7 @@ void cleanIdentifier(Identifier addr)
 {
     log_trace("cleanIdentifier (Identifier %p)",addr)
     CHECKPOINTER(addr);
+    CHECK_ERROR_NORETURN()
     free(addr->memory);
     free(addr);
 }
@@ -79,8 +86,9 @@ int searchIntoListIdentifier(ListIdentifier addr, char* name)
     log_trace("searchIntoListIdentifier (ListIdentifier %p, char* %s)",addr,name)
 
     int position = NOTFOUND;
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     int size = addr->numberIdentifiers;
 
     int index;
@@ -102,20 +110,24 @@ int searchIntoListIdentifier(ListIdentifier addr, char* name)
 int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset)
 {
     log_trace("addIntoListIdentifier (ListIdentifier %p, char* %s)",addr,name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
-    CHECKPOINTER(offset);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECKPOINTER(offset)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(addr->numberIdentifiers == IDEN_MAX){
         log_error("numberIdentifiers : %d, %d",addr->numberIdentifiers,IDEN_MAX)
         perror("addIntoListIdentifier : to many Identifier.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     Identifier identifier = initIdentifier(name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     if(identifier == NULL){
         log_error("identifier : %p, name %s",identifier,name)
         perror("addIntoListIdentifier : identifier isn't well initialized.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -133,17 +145,20 @@ int addIntoListIdentifier(ListIdentifier addr, char* name, MemorySlot offset)
 int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
 {
     log_trace("setTypeOfIdentifier (ListIdentifier %p, int %d,int %d)",addr,position,type)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if((type <= UNSET ) || (type >= MAXTYPEVALUE)){
         log_error("type : %d : %d > type < %d",type,UNSET,MAXTYPEVALUE)
         perror("setTypeOfIdentifier : this type value doesn't exist.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
         perror("setTypeOfIdentifier : can not set type of non-existent identifier.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -159,21 +174,24 @@ int setTypeOfIdentifier(ListIdentifier addr, int position,int type)
 int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
 {
     log_trace("setArraySizeOfIdentifier (ListIdentifier %p, int %d,int %d)",addr,position,arraySize)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(arraySize < 1){
         log_error("arraySize : %d : %d",arraySize,1)
         perror("setTypeOfIdentifier : arraySize must be more than 1.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
         perror("setArraySizeOfIdentifier : can not set type of non-existent identifier.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
-    addr->Identifiers[position]->arraySize = arraySize;
+    addr->Identifiers[position]->size = arraySize;
 
     return RETURN_SUCCESS;
 }
@@ -185,12 +203,14 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
 int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySlot offset)
 {
     log_trace("setOffsetOfIdentifier (ListIdentifier %p, int %d, int %d)",addr,position,offset)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(offset);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(offset)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
         perror("setOffsetOfIdentifier : can not set the offset of non-existent identifier.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -206,11 +226,13 @@ int setOffsetOfIdentifier(ListIdentifier addr, int position, MemorySlot offset)
 MemorySlot getOffsetOfIdentifier(ListIdentifier addr, int position)
 {
     log_trace("getOffsetOfIdentifier (ListIdentifier %p, int %d)", addr, position)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(NULL)
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
         perror("getOffsetOfIdentifier : can not get offset of non-existent identifier.");
+        setErrorFailure();
         return NULL;
     }
 
@@ -224,11 +246,13 @@ MemorySlot getOffsetOfIdentifier(ListIdentifier addr, int position)
 int printIdentifier(ListIdentifier addr,int position)
 {
     log_trace("printIdentifier (ListIdentifier %p, int %d)",addr,position)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if((position <= NOTFOUND) || (position >= addr->numberIdentifiers)){
         log_error("Position out of range : position : %d",position)
         perror("printIdentifier : can not print values of non-existent identifier.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -244,7 +268,8 @@ int printIdentifier(ListIdentifier addr,int position)
 void printListIdentifier(ListIdentifier addr)
 {
     log_trace("printListIdentifier (ListIdentifier %p)",addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     int index;
     int size = addr->numberIdentifiers;

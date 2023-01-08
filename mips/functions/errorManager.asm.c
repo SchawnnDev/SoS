@@ -9,6 +9,7 @@ int asm_writePrintErrorAndExit(){
     asm_code_printf("\t\tli $v0, 17\n")
     asm_code_printf("\t\tsyscall\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -25,6 +26,7 @@ int asm_writeOutOfBoundsErrorFunction(){
     asm_code_printf("\t\tli $a1, 1\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -40,7 +42,8 @@ int asm_writeNotANumberErrorFunction(){
     // Error code for nan : 2
     asm_code_printf("\t\tli $a1, 2\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
-
+    
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -54,6 +57,23 @@ int asm_writeArrayElementNotAllocatedErrorFunction(){
     asm_code_printf("\t%s:\n", ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME)
     asm_code_printf("\t\tla $a0, %s\n", ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED)
     // Error code for array element not allocated : 3
+    asm_code_printf("\t\tli $a1, 3\n")
+    asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
+}
+
+int asm_fctNonExistentArgumentErrorWritten = FALSE;
+
+int asm_writeNonExistentArgumentErrorFunction(){
+    if(asm_fctNonExistentArgumentErrorWritten)
+        return RETURN_SUCCESS;
+    asm_fctNonExistentArgumentErrorWritten = TRUE;
+
+    asm_code_printf("\t%s:\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
+    asm_code_printf("\t\tla $a0, %s\n", ASM_VAR_ERROR_NON_EXISTENT_ARGUMENT)
+    // Error code for argument non existent : 4
     asm_code_printf("\t\tli $a1, 3\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 

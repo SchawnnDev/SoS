@@ -1,4 +1,4 @@
-#include "../include/listRangeVar.h"
+#include "listRangeVar.h"
 
 /*!
  * \fn RangeVariable initRangeVariable(int rangeLevel, RangeVariable previousLevel)
@@ -12,17 +12,23 @@ initRangeVariable(int rangeLevel, int blockType, RangeVariable previousLevel)
     if(rangeLevel < 0){
         log_error("rangeLevel : %d : %d",rangeLevel,0)
         perror("initRangeVariable : rangeLevel must be more than 0.");
-        return NULL;
+        setErrorFailure();
+        CHECK_ERROR_RETURN(NULL)
     }
 
     RangeVariable addr;
-    CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)));
+    CHECKPOINTER(addr = (RangeVariable)malloc(sizeof(struct rangeVariable_t)))
+    CHECK_ERROR_RETURN(NULL)
+
     addr->listIdentifier = initListIdentifier();
+    CHECK_ERROR_RETURN(NULL)
     addr->rangeLevel = rangeLevel;
     addr->blockType = blockType;
 
     addr->previousLevel = previousLevel;
     addr->nextLevel = NULL;
+
+    addr->currentFunction = NULL;
 
     return addr;
 }
@@ -34,7 +40,8 @@ initRangeVariable(int rangeLevel, int blockType, RangeVariable previousLevel)
 void cleanRangeVariable(RangeVariable addr)
 {
     log_trace("cleanRangeVariable (RangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     cleanListIdentifier(addr->listIdentifier);
     free(addr);
@@ -49,13 +56,16 @@ ListRangeVariable initListRangeVariable()
     log_trace("initListRangeVariable (void)")
 
     ListRangeVariable addr;
-    CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)));
+    CHECKPOINTER(addr = (ListRangeVariable)malloc(sizeof(listRangeVariable_t)))
+    CHECK_ERROR_RETURN(NULL)
     RangeVariable rangeAddr = initRangeVariable(0, BLOCK_MAIN, NULL);
+    CHECK_ERROR_RETURN(NULL)
     addr->cursor = rangeAddr;
     addr->cursorGlobal = rangeAddr;
 
     rangeAddr->memorySlot = NULL;
-    rangeAddr->memoryCurrentStackOffset = malloc(sizeof(int));
+    CHECKPOINTER(rangeAddr->memoryCurrentStackOffset = malloc(sizeof(int)))
+    CHECK_ERROR_RETURN(NULL)
     *rangeAddr->memoryCurrentStackOffset = 0;
 
     return addr;
@@ -68,7 +78,8 @@ ListRangeVariable initListRangeVariable()
 void cleanListRangeVariable(ListRangeVariable addr)
 {
     log_trace("cleanListRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_NORETURN()
 
     RangeVariable tmp, addrToFree = addr->cursor;
     while(addrToFree != NULL){
@@ -87,12 +98,16 @@ void cleanListRangeVariable(ListRangeVariable addr)
 int increaseGlobalRangeVariable(ListRangeVariable addr)
 {
     log_trace("increaseGlobalRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addr->cursorGlobal);
-    CHECKPOINTER(addr->cursor);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(addr->cursorGlobal)
+    CHECKPOINTER(addr->cursor)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     RangeVariable newCursor = initRangeVariable(0, BLOCK_MAIN,
                                                 addr->cursorGlobal);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(addr->cursorGlobal->nextLevel != NULL){
         newCursor->nextLevel = addr->cursorGlobal->nextLevel;
     } else {
@@ -112,23 +127,23 @@ int increaseGlobalRangeVariable(ListRangeVariable addr)
 int addRangeVariable(ListRangeVariable addr, int blockType)
 {
     log_trace("addRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     RangeVariable newCursor = initRangeVariable(addr->cursor->rangeLevel + 1,
                                                 blockType, addr->cursor);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     // Change here the memory
-    if(blockType == BLOCK_FUNCTION)
-    {
-        newCursor->memorySlot = NULL;
-        newCursor->memoryCurrentStackOffset = malloc(sizeof(int));
-    } else {
-        newCursor->memorySlot = addr->cursor->memorySlot;
-        newCursor->memoryCurrentStackOffset = addr->cursor->memoryCurrentStackOffset;
-    }
+    newCursor->memorySlot = NULL;
+    CHECKPOINTER(newCursor->memoryCurrentStackOffset = malloc(sizeof(int)))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     addr->cursor->nextLevel = newCursor;
     addr->cursor = newCursor;
+
+    asm_writeRegistersToStack();
+    asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
 
     return RETURN_SUCCESS;
 }
@@ -140,27 +155,29 @@ int addRangeVariable(ListRangeVariable addr, int blockType)
 int deleteRangeVariable(ListRangeVariable addr)
 {
     log_trace("deleteRangeVariable (ListRangeVariable %p)", addr)
-    CHECKPOINTER(addr);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(addr->cursor->rangeLevel == 0){
         log_error("rangeLevel : %d",addr->cursor->rangeLevel)
         perror("deleteRangeVariable : there is no negative rangeLevel.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
     RangeVariable tmp = addr->cursor;
 
     // Change here the memory
-    if(tmp->blockType == BLOCK_FUNCTION || tmp->blockType == BLOCK_MAIN)
-    {
-        destroyMemorySlot(tmp->memorySlot);
-        free(tmp->memoryCurrentStackOffset);
-    }
+    destroyMemorySlot(tmp->memorySlot);
+    free(tmp->memoryCurrentStackOffset);
 
     addr->cursor = tmp->previousLevel;
     addr->cursor->nextLevel = NULL;
     cleanRangeVariable(tmp);
+    asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    asm_loadRegistersFromStack();
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -173,7 +190,8 @@ VariablePosition initVariablePosition(RangeVariable rangePosition, int indexIden
     log_trace("initVariablePosition (RangeVariable %p, int %d)", rangePosition, indexIdentifier)
 
     VariablePosition addr;
-    CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)));
+    CHECKPOINTER(addr = (VariablePosition)malloc(sizeof(variablePosition_t)))
+    CHECK_ERROR_RETURN(NULL)
     addr->rangePosition = rangePosition;
     addr->indexIdentifier = indexIdentifier;
 
@@ -197,13 +215,15 @@ void cleanVariablePosition(VariablePosition addr)
 VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
 {
     log_trace("searchIdentifierPosition (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(NULL)
 
     int position = NOTFOUND;
     RangeVariable tmp = addr->cursor;
     while((tmp != NULL) && (position == NOTFOUND)){
         position = searchIntoListIdentifier(tmp->listIdentifier,name);
+        CHECK_ERROR_RETURN(NULL)
 
         if(position == NOTFOUND){
             tmp = tmp->previousLevel;
@@ -220,11 +240,14 @@ VariablePosition searchIdentifierPosition(ListRangeVariable addr, char* name)
 int addIdentifier(ListRangeVariable addr, char *name)
 {
     log_trace("addIdentifier (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addr->cursorGlobal);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(addr->cursorGlobal)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(variablePosition->indexIdentifier != NOTFOUND){
         log_info("Identifier found : position : %d",variablePosition->indexIdentifier)
@@ -234,20 +257,24 @@ int addIdentifier(ListRangeVariable addr, char *name)
     if(addr->cursorGlobal->listIdentifier->numberIdentifiers >= IDEN_MAX){
         log_info("No more place into global range variable, so auto increase is called")
         increaseGlobalRangeVariable(addr);
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
     }
 
     MemorySlot space;
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     space->used = false;
     space->offset = -1;
     space->next = NULL;
     // len(var_ + NUL char) = 5
     size_t len = strlen(name) + 5;
     CHECKPOINTER(space->label = malloc(len))
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     snprintf(space->label, len, "var_%s", name);
 
     asm_data_printf("\t%s: .word 0\n", space->label)
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return addIntoListIdentifier(addr->cursorGlobal->listIdentifier, name, space);
 }
 
@@ -258,11 +285,14 @@ int addIdentifier(ListRangeVariable addr, char *name)
 int addLocalIdentifier(ListRangeVariable addr, char *name)
 {
     log_trace("addLocalIdentifier (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(addr->cursor);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECKPOINTER(addr->cursor)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(variablePosition->indexIdentifier != NOTFOUND){
         log_info("Identifier found : position : %d",variablePosition->indexIdentifier)
@@ -272,6 +302,7 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
     if(addr->cursor->rangeLevel == 0){
         log_error("You can't add local variable into a global context : rangeLevel %d", addr->cursor->rangeLevel)
         perror("addLocalIdentifier : you try to add into global context.");
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -287,11 +318,15 @@ int addLocalIdentifier(ListRangeVariable addr, char *name)
 int setType(ListRangeVariable addr, char* name, int type)
 {
     log_trace("setType (ListRangeVariable %p, char* %s, int %d)", addr, name, type)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(variablePosition->rangePosition == NULL){
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     return setTypeOfIdentifier(variablePosition->rangePosition->listIdentifier,
@@ -305,11 +340,15 @@ int setType(ListRangeVariable addr, char* name, int type)
 int setArraySize(ListRangeVariable addr, char* name, int arraySize)
 {
     log_trace("setArraySize (ListRangeVariable %p, char* %s, int %d)", addr, name, arraySize)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(variablePosition->rangePosition == NULL){
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     return setArraySizeOfIdentifier(variablePosition->rangePosition->listIdentifier,
@@ -323,11 +362,15 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize)
 int printIdentifierFromListRange(ListRangeVariable addr,char* name)
 {
     log_trace("printIdentifierFromListRange (ListRangeVariable %p, char* %s)", addr, name)
-    CHECKPOINTER(addr);
-    CHECKPOINTER(name);
+    CHECKPOINTER(addr)
+    CHECKPOINTER(name)
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     VariablePosition variablePosition = searchIdentifierPosition(addr,name);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     if(variablePosition->rangePosition == NULL){
+        setErrorFailure();
         return RETURN_FAILURE;
     }
     return printIdentifier(variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier);
@@ -342,6 +385,11 @@ MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
 {
     MemorySlot mem = reserveMemorySlot(addr->cursor->memorySlot,
                                        addr->cursor->memoryCurrentStackOffset);
+    CHECK_ERROR_RETURN(NULL)
+
+    // to get args
+    if(addr->cursor->blockType == BLOCK_FOR)
+        asm_code_printf("\taddi $s7, $s7, 1\n")
 
     if (addr->cursor->memorySlot == NULL)
     {
