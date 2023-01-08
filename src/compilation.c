@@ -65,6 +65,9 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_code_printf("\t# Args handling\n")
     asm_writeArgsToStack();
     asm_code_printf("\n")
+    asm_code_printf("# Write empty to lastecho\n")
+    asm_writeEmptyCharToLastEcho();
+    asm_code_printf("\n")
     asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")
     asm_writeLoadRegistersFromStackFunction();
@@ -1803,6 +1806,19 @@ MemorySlot doGetLastStatus()
 
     asm_getStackAddress("$t2", CALCULATE_OFFSET(mem));
     asm_code_printf("\tsw $t1, 0($t2)\n")
+
+    CHECK_ERROR_RETURN(NULL)
+    return mem;
+}
+
+MemorySlot doGetLastEchoCall()
+{
+    MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
+    CHECK_ERROR_RETURN(NULL)
+
+    asm_loadLabelIntoRegister(ASM_VAR_FCT_RETURN_VALUE, "$t0");
+    asm_getStackAddress("$t1", CALCULATE_OFFSET(mem));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
 
     CHECK_ERROR_RETURN(NULL)
     return mem;
