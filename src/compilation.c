@@ -101,8 +101,12 @@ int compile(FILE *inputFile, FILE *outputFile)
         return RETURN_FAILURE;
     }
 
-    freeStruct();
-    return RETURN_SUCCESS;
+    return result;
+}
+
+void printSymbolTable()
+{
+    printAllIdentifier(listRangeVariable);
 }
 
 MemorySlot doConcatenation(MemorySlotList slotList)
