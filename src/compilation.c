@@ -591,7 +591,7 @@ Marker doMarkerForList(MemorySlotList list)
     Marker mark = newMarker();
     CHECK_ERROR_RETURN(NULL)
     mark->index = count;
-
+    const int finalC = count;
     count = 0;
 
     do {
@@ -614,7 +614,7 @@ Marker doMarkerForList(MemorySlotList list)
     destroyMemoryList(first);
 
     //asm_code_printf("\tli $s7, 0\n")
-    asm_code_printf("\n\tli $s1, %d\n", count)
+    asm_code_printf("\n\tli $s1, %d\n", finalC)
 
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
