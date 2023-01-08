@@ -89,7 +89,7 @@ echo "${BOLD}-- Compilation tests --"
 compilation_error_tests
 # Assign
 echo "${BOLD}-- Assignment tests --"
-#test_loop "assign"
+test_loop "assign"
 # Concatenation
 echo "${BOLD}-- Concatenation tests --"
 #test_loop "concatenation"

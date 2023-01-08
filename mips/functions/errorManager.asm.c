@@ -59,3 +59,19 @@ int asm_writeArrayElementNotAllocatedErrorFunction(){
 
     return RETURN_SUCCESS;
 }
+
+int asm_fctNonExistentArgumentErrorWritten = FALSE;
+
+int asm_writeNonExistentArgumentErrorFunction(){
+    if(asm_fctNonExistentArgumentErrorWritten)
+        return RETURN_SUCCESS;
+    asm_fctNonExistentArgumentErrorWritten = TRUE;
+
+    asm_code_printf("\t%s:\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
+    asm_code_printf("\t\tla $a0, %s\n", ASM_VAR_ERROR_NON_EXISTENT_ARGUMENT)
+    // Error code for argument non existent : 4
+    asm_code_printf("\t\tli $a1, 3\n")
+    asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
+
+    return RETURN_SUCCESS;
+}

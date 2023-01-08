@@ -14,5 +14,6 @@ int asm_writeHeader()
     asm_data_printf("\t%s: .asciiz \"Nan\"\n", ASM_VAR_ERROR_NAN)
     asm_data_printf("\t%s: .asciiz \"Index out of bounds\"\n", ASM_VAR_ERROR_OUTOFBOUNDS)
     asm_data_printf("\t%s: .asciiz \"Segfault: Array element not allocated\"\n", ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED)
+    asm_data_printf("\t%s: .asciiz \"Referenced a non-existent argument\"\n", ASM_VAR_ERROR_NON_EXISTENT_ARGUMENT)
     return RETURN_SUCCESS;
 }
