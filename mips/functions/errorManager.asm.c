@@ -1,5 +1,15 @@
 #include "errorManager.asm.h"
 
+int asm_writeErrorManagerFunctions()
+{
+    asm_writePrintErrorAndExit();
+    asm_writeOutOfBoundsErrorFunction();
+    asm_writeNotANumberErrorFunction();
+    asm_writeArrayElementNotAllocatedErrorFunction();
+    asm_writeNonExistentArgumentErrorFunction();
+    return RETURN_SUCCESS;
+}
+
 int asm_writePrintErrorAndExit(){
     asm_code_printf("\t%s:\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 

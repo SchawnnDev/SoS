@@ -43,4 +43,10 @@ int asm_writeNonExistentArgumentErrorFunction();
  */
 int asm_writePrintErrorAndExit();
 
+/**
+ * Writes all errors into data segment.
+ * @return 0 if success, -1 if it fails
+ */
+int asm_writeErrorManagerFunctions();
+
 #endif //SOS_ERRORMANAGER_ASM_H
