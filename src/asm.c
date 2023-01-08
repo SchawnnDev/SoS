@@ -238,37 +238,11 @@ int asm_writeArgsToStack()
     asm_code_printf("\tble $a0, $zero, _main\n")
     asm_code_printf("\tla $t0, %s\n", ASM_VAR_ARGC)
     asm_code_printf("\tsw $a0, 0($t0)\n") // sets argv to ASM_VAR_ARGC
-    asm_code_printf("\taddi $t0, $zero, 1\n") // counter
-    asm_code_printf("\taddi $t1, $a1, %d\n", ASM_INTEGER_SIZE) // address
-    asm_code_printf("\tmul $t2, $a0, %d\n", ASM_INTEGER_SIZE) // total offset size
 
-    // Update offset
-    asm_code_printf("\tla $t3, %s\n", ASM_VAR_OFFSET_NAME)
-    asm_code_printf("\tlw $t4, 0($t3)\n")
-    asm_code_printf("\tadd $t4, $t4, $t2\n")
-    asm_code_printf("\tsw $t4, 0($t3)\n")
+    asm_code_printf("\tla $t0, %s\n", ASM_VAR_ARGV_START)
+    asm_code_printf("\tsw $a1, 0($t0)\n") // sets argv to ASM_VAR_ARGC
 
-    // Allocate first memory
-    asm_allocateMemoryOnStack(1);
-    // Set start address to ARGV
-    asm_code_printf("\tla $t2, %s\n", ASM_VAR_ARGV_START)
-    asm_code_printf("\tsw $sp, 0($t2)\n")
-
-    // first value on stack
-    asm_code_printf("\tlw $a1, 0($t1)\n")
-    asm_code_printf("\tsw $t0, 0($sp)\n")
-
-    // nothing on stack at this moment
-    asm_code_printf("\t_fct_argv_loop:\n")
-    asm_code_printf("\t\tbge $t0, $a0, _fct_argv_loop_end\n")
-    asm_code_printf("\t\taddi $t0, $t0, 1\n") // counter
-    asm_code_printf("\t\taddi $t1, $t1, %d\n", ASM_INTEGER_SIZE) // address
-    asm_allocateMemoryOnStack(1);
-    asm_code_printf("\tlw $a1, 0($t1)\n")
-    asm_code_printf("\tsw $t0, 0($sp)\n")
-    asm_code_printf("\tj _fct_argv_loop\n")
-    asm_code_printf("\t_fct_argv_loop_end:\n")
-    asm_code_printf("\t\tj _main\n")
+    asm_code_printf("\tj _main\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
