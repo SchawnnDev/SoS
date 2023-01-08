@@ -298,4 +298,9 @@ MemorySlot doGetLastStatus();
  */
 Marker getOrCreateForIdMarker(char* id);
 
+/**
+ *
+ */
+void printSymbolTable();
+
 #endif //SOS_COMPILATION_H

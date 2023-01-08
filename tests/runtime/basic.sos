@@ -1,8 +1,7 @@
-testFct()
-{
-    return 1
-};
-echo $?;
-testFct;
-echo $?;
+for mot in "salut" "Hello" "Test" do
+  echo ${mot};
+  echo 10
+done ;
+testfr = 2;
+test2fr = 3;
 exit

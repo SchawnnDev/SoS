@@ -65,6 +65,9 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_code_printf("\t# Args handling\n")
     asm_writeArgsToStack();
     asm_code_printf("\n")
+    asm_code_printf("# Write empty to lastecho\n")
+    asm_writeEmptyCharToLastEcho();
+    asm_code_printf("\n")
     asm_code_printf("# Functions library section\n")
     asm_code_printf("\n")
     asm_writeLoadRegistersFromStackFunction();
@@ -98,8 +101,12 @@ int compile(FILE *inputFile, FILE *outputFile)
         return RETURN_FAILURE;
     }
 
-    freeStruct();
-    return RETURN_SUCCESS;
+    return result;
+}
+
+void printSymbolTable()
+{
+    printAllIdentifier(listRangeVariable);
 }
 
 MemorySlot doConcatenation(MemorySlotList slotList)
@@ -477,6 +484,8 @@ int DoMarkerArg()
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     if(rangeVariable == NULL){
         asm_code_printf("\tlw $s1, %s\n", ASM_VAR_ARGC)
+    } else {
+        asm_code_printf("\tli $s1, %d\n", rangeVariable->currentFunction->size);
     }
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -561,6 +570,14 @@ int doForIdAssignArg(Marker mark)
         asm_code_printf("\tlw $t4, %s\n", ASM_VAR_ARGV_START)
         asm_code_printf("\tadd $t4, $t4, $t3\n")
         asm_code_printf("\tlw $t5, 0($t4)\n")
+        asm_code_printf("\tsw $t5, 0($t2)\n")
+    } else {
+        asm_code_printf("\tadd $t3, $sp, $s7\n")
+        asm_code_printf("\tadd $t3, $t3, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+        asm_code_printf("\tmul $t4, $s0, %d\n", ASM_INTEGER_SIZE)
+        asm_code_printf("\tadd $t3, $t3, $t4\n")
+        asm_code_printf("\taddi $t3, $t3, %d\n",ASM_INTEGER_SIZE)
+        asm_code_printf("\tlw $t5, 0($t3)\n")
         asm_code_printf("\tsw $t5, 0($t2)\n")
     }
 
@@ -1803,6 +1820,19 @@ MemorySlot doGetLastStatus()
 
     asm_getStackAddress("$t2", CALCULATE_OFFSET(mem));
     asm_code_printf("\tsw $t1, 0($t2)\n")
+
+    CHECK_ERROR_RETURN(NULL)
+    return mem;
+}
+
+MemorySlot doGetLastEchoCall()
+{
+    MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
+    CHECK_ERROR_RETURN(NULL)
+
+    asm_loadLabelIntoRegister(ASM_VAR_FCT_RETURN_VALUE, "$t0");
+    asm_getStackAddress("$t1", CALCULATE_OFFSET(mem));
+    asm_code_printf("\tsw $t0, 0($t1)\n")
 
     CHECK_ERROR_RETURN(NULL)
     return mem;

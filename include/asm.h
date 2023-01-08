@@ -273,6 +273,12 @@ int asm_writeRegistersToStack();
  */
 int asm_loadRegistersFromStack();
 
+/**
+ *
+ * @return
+ */
+int asm_writeEmptyCharToLastEcho();
+
 // UTILS
 
 /**
