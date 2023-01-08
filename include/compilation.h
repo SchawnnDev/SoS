@@ -128,8 +128,6 @@ int doMarkerLoop(int blockType);
 
 int doMarkerTestFor();
 
-int doMarkerFor();
-
 int doForIdAssign(Marker mark);
 
 int doMarkerEndLoop();

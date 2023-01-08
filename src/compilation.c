@@ -480,12 +480,6 @@ int doMarkerTestFor()
     return RETURN_SUCCESS;
 }
 
-int doMarkerFor()
-{
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
-    return RETURN_SUCCESS;
-}
-
 int doForIdAssign(Marker mark)
 {
     asm_code_printf("\t %s:\n",getForLabel())
