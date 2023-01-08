@@ -105,6 +105,12 @@ int compile(FILE *inputFile, FILE *outputFile)
     return RETURN_SUCCESS;
 }
 
+void printSymbolTable()
+{
+    ListRangeVariable var;
+    printListIdentifier(listRangeVariable->cursor->listIdentifier);
+}
+
 MemorySlot doConcatenation(MemorySlotList slotList)
 {
     log_trace("doConcatenation")
