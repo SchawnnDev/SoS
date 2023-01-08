@@ -36,13 +36,23 @@ const char* createNewForLabel()
         currDizFor *= 10;
         sizeFor++;
     }
+    labelForCount++;
 
     char* result;
     CHECKPOINTER(result = malloc(sizeFor))
     CHECK_ERROR_RETURN(NULL)
     CHECK(snprintf(result, sizeFor, LABEL_FOR, labelForCount))
     CHECK_ERROR_RETURN(NULL)
-    labelForCount++;
+    return result;
+}
+
+const char* getForLabel()
+{
+    char* result;
+    CHECKPOINTER(result = malloc(sizeFor))
+    CHECK_ERROR_RETURN(NULL)
+    CHECK(snprintf(result, sizeFor, LABEL_FOR, labelForCount))
+    CHECK_ERROR_RETURN(NULL)
     return result;
 }
 
