@@ -1,24 +1,5 @@
-  echo 10 "\n"
-done;
-
-for mot in "salut" "Hello" "Test" do
+for mot do
   echo ${mot};
   echo 10 "\n"
 done;
-
-forTest()
-{
-    echo $1;
-    echo $2 $3;
-
-    forTest2()
-    {
-        echo $1
-    };
-
-    return 0
-};
-
-forTest "test" "FRRRRRRR" "\n";
-forTest2 "\nflemme\n";
 exit

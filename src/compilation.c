@@ -550,7 +550,7 @@ int doForIdAssignArg(Marker mark)
 
     RangeVariable rangeVariable = getLastBlockFunction();
     if(rangeVariable == NULL){
-<<<<<<< HEAD
+
         asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
         asm_code_printf("\tlw $t4, %s\n", ASM_VAR_ARGV_START)
         asm_code_printf("\tadd $t4, $t4, $t3\n")
@@ -559,13 +559,8 @@ int doForIdAssignArg(Marker mark)
     }
 
     asm_code_printf("\n\tj %s_\n",getForLabel())
-
     CHECK_ERROR_RETURN(RETURN_FAILURE)
-=======
-        asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
-        //asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
-    }
->>>>>>> 25a4b8c07e626cffcd18d40b68d2a12581a9f121
+
     return RETURN_SUCCESS;
 }
 
