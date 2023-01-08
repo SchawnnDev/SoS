@@ -1665,9 +1665,13 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
         log_error("Arguments are starting at index 1")
         return NULL;
     }
-    RangeVariable currCursor = listRangeVariable->cursor;
+    RangeVariable currCursor = getLastBlockFunction();
+    bool function = false;
 
-    if(currCursor->blockType == BLOCK_FUNCTION)
+    if(currCursor == NULL) currCursor = listRangeVariable->cursor;
+    else function = true;
+
+    if(function)
     {
         // Set argument count
         if(currCursor->currentFunction != NULL)

@@ -16,8 +16,9 @@ forTest()
     forTest2()
     {
         echo $1
-    }
+    };
 
+    return 0
 };
 
 forTest "test" "FRRRRRRR" "\n";
