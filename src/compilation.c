@@ -389,6 +389,9 @@ int doEcho(MemorySlotList list)
 
         asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
 
+        asm_code_printf("\tli $a0, 32\n")
+        asm_syscall(PRINT_CHAR);
+
         list = list->next;
     } while(list != NULL);
 
