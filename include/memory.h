@@ -101,6 +101,13 @@ MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList);
 
 /**
  *
+ * @param memorySlotList
+ * @return
+ */
+MemorySlotList lastMemorySlotList(MemorySlotList memorySlotList);
+
+/**
+ *
  */
 void destroyMemoryList(MemorySlotList memorySlotList);
 
