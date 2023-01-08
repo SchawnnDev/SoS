@@ -454,10 +454,12 @@ int doMarkerEndInstruction()
     return RETURN_SUCCESS;
 }
 
-int doMarkerLoop()
+int doMarkerLoop(int blockType)
 {
     asm_code_printf("\n\t# Start of Test block of LOOP\n")
     addIntoUnDefineGoto(listInstruction,"\t");
+    asm_code_printf("\n")
+    addRangeVariable(listRangeVariable, blockType);
     asm_code_printf("\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -466,13 +468,14 @@ int doMarkerLoop()
 
 int doMarkerTestFor()
 {
-    addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
+    const char * forLabel = createNewForLabel();
+    asm_code_printf("\tblt $t0, $t1, %s",forLabel);
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
-    addIntoUnDefineGoto(listInstruction,"\t");
 
-    asm_code_printf("\n\tj %s\n",createNewForLabel())
-    asm_code_printf("\n\t %s_:\n",getForLabel())
+    asm_code_printf("\n\tj %s\n",forLabel)
+    asm_code_printf("\t %s_:\n",getForLabel())
+    asm_code_printf("\taddi $t0, $t0, 1\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -489,7 +492,7 @@ int doMarkerFor()
 
 int doForIdAssign(Marker mark)
 {
-    asm_code_printf("\n\t %s:\n",getForLabel())
+    asm_code_printf("\t %s:\n",getForLabel())
 
     asm_code_printf("\n\t# assign of %s\n", mark->lbl)
     Identifier iden = getIdentifier(mark->lbl, true, false);
@@ -510,7 +513,7 @@ int doForIdAssign(Marker mark)
     asm_code_printf("\tlw $t4, 0($t3)\n")
     asm_code_printf("\tsw $t4, 0($t2)\n")
 
-    asm_code_printf("\n\tj %s_\n",createNewForLabel())
+    asm_code_printf("\n\tj %s_\n",getForLabel())
 
     destroyMarker(mark);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -532,6 +535,7 @@ int doMarkerEndLoop()
 int doMarkerDone()
 {
     char* then = (char*)createNewLabel();
+    deleteRangeVariable(listRangeVariable);
     completeUnDefineGoto(listInstruction,then);
     asm_code_printf("\n\tj %s\n",then)
 

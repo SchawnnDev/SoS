@@ -124,7 +124,7 @@ int doMarkerFi();
 
 int doMarkerEndInstruction();
 
-int doMarkerLoop();
+int doMarkerLoop(int blockType);
 
 int doMarkerTestFor();
 
