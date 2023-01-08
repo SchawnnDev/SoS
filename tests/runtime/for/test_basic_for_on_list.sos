@@ -1,0 +1,5 @@
+ite=0;
+for ite in "hello" "how" "do" "you" "do" do
+    echo ${ite} "\n"
+done;
+exit

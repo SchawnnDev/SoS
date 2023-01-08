@@ -1,0 +1,7 @@
+declare ite_array[10];
+ite=0;
+for ite in ${ite_array[*]} do
+    val=99
+done;
+echo ${val};
+exit

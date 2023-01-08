@@ -1,0 +1,5 @@
+ite=0;
+for ite in "hello" do
+    echo "1\n"
+done;
+exit
