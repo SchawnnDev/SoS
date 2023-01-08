@@ -1,5 +1,8 @@
-for mot in "salut" "Hello" "Test" do
-  echo ${mot};
-  echo 10
-done ;
+testFct()
+{
+    return 1
+};
+echo $?;
+testFct;
+echo $?;
 exit

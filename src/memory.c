@@ -9,6 +9,8 @@ MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
     {
         memory = newMemorySlot(memoryCurrentStackOffset);
         CHECK_ERROR_RETURN(NULL)
+        memory->offset = 0;
+        *memoryCurrentStackOffset = 0;
         memory->used = true;
         return memory;
     }
@@ -37,14 +39,16 @@ MemorySlot newMemorySlot(int *memoryCurrentStackOffset)
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
     CHECK_ERROR_RETURN(NULL)
     asm_allocateMemoryOnStack(1);
+    asm_code_printf("\taddi $s7, $s7, %d\n", ASM_INTEGER_SIZE)
     CHECK_ERROR_RETURN(NULL)
+
+    *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     space->used = false;
     space->offset = *memoryCurrentStackOffset;
     space->next = NULL;
     space->label = NULL;
     space->value = NULL;
-    *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
 }
@@ -55,13 +59,13 @@ int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset) {
         setErrorFailure();
         return RETURN_FAILURE;
     }
-    return memoryCurrentStackOffset - space->offset;
+    return -space->offset;
 }
 
-void destroyMemorySlot(MemorySlot memory)
+int destroyMemorySlot(MemorySlot memory)
 {
     if (memory == NULL)
-        return;
+        return RETURN_FAILURE;
 
     MemorySlot mem = memory;
     MemorySlot temp;
@@ -75,7 +79,9 @@ void destroyMemorySlot(MemorySlot memory)
         mem = temp;
     } while (mem != NULL);
 
-    asm_freeMemoryOnStack(i);
+    //asm_freeMemoryOnStack(i);
+    asm_code_printf("\tadd $sp, $sp, $s7\n")
+    return RETURN_SUCCESS;
 }
 
 void freeMemory(MemorySlot mem)
@@ -147,6 +153,17 @@ MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList)
 
     while (result->previous != NULL)
         result = result->previous;
+
+    return result;
+}
+
+MemorySlotList lastMemorySlotList(MemorySlotList memorySlotList)
+{
+    if (memorySlotList == NULL) return NULL;
+    MemorySlotList result = memorySlotList;
+
+    while (result->next != NULL)
+        result = result->next;
 
     return result;
 }

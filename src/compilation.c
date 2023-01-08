@@ -80,6 +80,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
     asm_code_printf("_main:\n")
+    asm_code_printf("\tli $s7, 0\n")
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     // Parse
@@ -388,6 +389,9 @@ int doEcho(MemorySlotList list)
 
         asm_jal(ASM_DISPLAY_STRING_FUNCTION_NAME);
 
+        asm_code_printf("\tli $a0, 32\n")
+        asm_syscall(PRINT_CHAR);
+
         list = list->next;
     } while(list != NULL);
 
@@ -458,9 +462,22 @@ int doMarkerLoop(int blockType)
 {
     asm_code_printf("\n\t# Start of Test block of LOOP\n")
     addIntoUnDefineGoto(listInstruction,"\t");
-    asm_code_printf("\n")
+    asm_code_printf("\n\taddi $s0, $s0, 1\n")
     addRangeVariable(listRangeVariable, blockType);
     asm_code_printf("\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
+}
+
+int DoMarkerArg()
+{
+    asm_code_printf("\n\tli $s0, %d\n", -1)
+    RangeVariable rangeVariable = getLastBlockFunction();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    if(rangeVariable == NULL){
+        asm_code_printf("\tlw $s1, %s\n", ASM_VAR_ARGC)
+    }
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -469,22 +486,13 @@ int doMarkerLoop(int blockType)
 int doMarkerTestFor()
 {
     const char * forLabel = createNewForLabel();
-    asm_code_printf("\tblt $t0, $t1, %s",forLabel);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
+    asm_code_printf("\tblt $s0, $s1, %s",forLabel);
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
 
-    asm_code_printf("\n\tj %s\n",forLabel)
-    asm_code_printf("\t %s_:\n",getForLabel())
-    asm_code_printf("\taddi $t0, $t0, 1\n")
-
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
-    return RETURN_SUCCESS;
-}
-
-int doMarkerFor()
-{
-    asm_code_printf("\n\tli $t0, 0\n")
-    asm_readFromStack("$t1", 0);
+    asm_code_printf("\n\t %s_:\n",getForLabel())
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -500,6 +508,8 @@ int doForIdAssign(Marker mark)
     MemorySlot slot = iden->memory;
     if (slot == NULL) return RETURN_FAILURE;
 
+    //asm_code_printf("\tli $s7, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+
     if(slot->label == NULL)
     {
         asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
@@ -507,9 +517,11 @@ int doForIdAssign(Marker mark)
     } else {
         asm_loadLabelAddressIntoRegister(slot->label, "$t2");
     }
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
-    asm_code_printf("\tmul $t3, $t0, %d\n", ASM_INTEGER_SIZE)
+    asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
+    asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
+    asm_code_printf("\tadd $t3, $t3, $sp\n") // dont forget to add sp
+    asm_code_printf("\taddi $t3, $t3, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
     asm_code_printf("\tlw $t4, 0($t3)\n")
     asm_code_printf("\tsw $t4, 0($t2)\n")
 
@@ -520,9 +532,66 @@ int doForIdAssign(Marker mark)
     return RETURN_SUCCESS;
 }
 
+int doForIdAssignArg(Marker mark)
+{
+    asm_code_printf("\t %s:\n",getForLabel())
+
+    asm_code_printf("\n\t# assign of %s\n", mark->lbl)
+    Identifier iden = getIdentifier(mark->lbl, true, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    MemorySlot slot = iden->memory;
+    if (slot == NULL) return RETURN_FAILURE;
+
+    //asm_code_printf("\tli $s7, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+        slot->used = false;
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t2");
+    }
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
+    RangeVariable rangeVariable = getLastBlockFunction();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    if(rangeVariable == NULL){
+
+        asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
+        asm_code_printf("\tlw $t4, %s\n", ASM_VAR_ARGV_START)
+        asm_code_printf("\tadd $t4, $t4, $t3\n")
+        asm_code_printf("\tlw $t5, 0($t4)\n")
+        asm_code_printf("\tsw $t5, 0($t2)\n")
+    }
+
+    asm_code_printf("\n\tj %s_\n",getForLabel())
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
+    return RETURN_SUCCESS;
+}
+
+RangeVariable getLastBlockFunction()
+{
+    CHECKPOINTER(listRangeVariable)
+    CHECK_ERROR_RETURN(NULL)
+
+    RangeVariable tmp = listRangeVariable->cursor;
+    while((tmp->previousLevel != NULL) && (tmp->blockType != FUNCTION)){
+        tmp = tmp->previousLevel;
+    }
+
+    if(tmp->blockType == FUNCTION){
+        return tmp;
+    } else {
+        return NULL;
+    }
+}
+
 int doMarkerEndLoop()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
     completeUnDefineGoto(listInstruction,then);
@@ -535,6 +604,8 @@ int doMarkerEndLoop()
 int doMarkerDone()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     deleteRangeVariable(listRangeVariable);
     completeUnDefineGoto(listInstruction,then);
     asm_code_printf("\n\tj %s\n",then)
@@ -577,7 +648,8 @@ Marker doMarkerForList(MemorySlotList list)
     } while (list != NULL);
 
     asm_code_printf("\taddi $sp, $sp, -%d\n", count * ASM_INTEGER_SIZE)
-    asm_appendInternalOffset(count);
+    asm_code_printf("\taddi $s7, $s7, %d\n", count * ASM_INTEGER_SIZE)
+    //asm_appendInternalOffset(count);
 
     list = first;
 
@@ -587,7 +659,7 @@ Marker doMarkerForList(MemorySlotList list)
     Marker mark = newMarker();
     CHECK_ERROR_RETURN(NULL)
     mark->index = count;
-
+    const int finalC = count;
     count = 0;
 
     do {
@@ -609,7 +681,10 @@ Marker doMarkerForList(MemorySlotList list)
 
     destroyMemoryList(first);
 
-    asm_code_printf("\tli $s7, 0\n")
+    //asm_code_printf("\tli $s7, 0\n")
+    asm_code_printf("\n\tli $s0, %d\n", 0)
+    asm_code_printf("\n\tli $s1, %d\n", finalC)
+
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     CHECK_ERROR_RETURN(NULL)
@@ -619,18 +694,18 @@ Marker doMarkerForList(MemorySlotList list)
 int doDeleteLocalOffset(Marker mark)
 {
     // mark contains only int for number of elements on stack
-    asm_subtractInternalOffset(mark->index);
+    //asm_subtractInternalOffset(mark->index);
     destroyMarker(mark);
-    asm_loadRegistersFromStack();
+    //asm_loadRegistersFromStack();
     return RETURN_SUCCESS;
 }
 
 int addBlock(int blockType)
 {
     int returnValue;
-    returnValue = addRangeVariable(listRangeVariable, blockType);
+    //returnValue = addRangeVariable(listRangeVariable, blockType);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
-    returnValue += addStructListGoTo(listInstruction);
+    returnValue = addStructListGoTo(listInstruction);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return returnValue;
@@ -639,9 +714,9 @@ int addBlock(int blockType)
 int deleteBlock()
 {
     int returnValue;
-    returnValue = deleteRangeVariable(listRangeVariable);
+    //returnValue = deleteRangeVariable(listRangeVariable);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
-    returnValue += deleteStructListGoTo(listInstruction);
+    returnValue = deleteStructListGoTo(listInstruction);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return returnValue;
@@ -1481,7 +1556,9 @@ int doDeclareFunction(Marker mark)
     // TODO: handle returns
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
-    asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
+    // asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
     asm_code_printf("\tjr $ra\n")
     asm_code_printf("\tend_%s:\n", mark->lbl)
 
@@ -1520,6 +1597,7 @@ Marker doFunctionStartMarker(char* id)
     // creation du nouveau block
     addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
     listRangeVariable->cursor->currentFunction = identifier;
+    listRangeVariable->cursor->currentFunction->size = 0;
 
     CHECK_ERROR_RETURN(NULL)
     return mark;
@@ -1532,6 +1610,7 @@ int doFunctionCall(char* id, MemorySlotList list)
     if(identifier == NULL)
     {
         log_error("Function you trying to call is not existing.")
+        setErrorFailure();
         free(id);
         return RETURN_FAILURE;
     }
@@ -1539,29 +1618,63 @@ int doFunctionCall(char* id, MemorySlotList list)
     if(identifier->type != FUNCTION)
     {
         log_error("The variable you trying to call is not a function.")
+        setErrorFailure();
+        free(id);
+        return RETURN_FAILURE;
+    }
+
+    if(list == NULL && identifier->size > 0) {
+        log_error("Function call %s requires exactly %d arguments", id, identifier->size)
+        setErrorFailure();
         free(id);
         return RETURN_FAILURE;
     }
 
     int count = 0;
 
-    do
+    if(list != NULL)
     {
-        count++;
-        list = list->next;
-    } while (list != NULL);
 
-    if(count != identifier->size) {
-        log_error("Function call %s requires exactly %d arguments", id, identifier->size);
-        return RETURN_FAILURE;
+        MemorySlotList first = firstMemorySlotList(list);
+        MemorySlotList temp = first;
+
+        do
+        {
+            count++;
+            temp = temp->next;
+        } while (temp != NULL);
+
+        if(count != identifier->size) {
+            log_error("Function call %s requires exactly %d arguments", id, identifier->size)
+            setErrorFailure();
+            return RETURN_FAILURE;
+        }
+
+        temp = first;
+        asm_code_printf("\taddi $sp, $sp, -%d\n", count * ASM_INTEGER_SIZE)
+        asm_code_printf("\taddi $s7, $s7, %d\n", count * ASM_INTEGER_SIZE)
+
+        const int finalC = count;
+        count = 0;
+
+        do {
+
+            count += ASM_INTEGER_SIZE;
+
+            if(list->slot->label == NULL)
+            {
+                asm_readFromStack("$a0", CALCULATE_OFFSET(list->slot));
+                freeMemory(list->slot);
+            } else {
+                asm_loadLabelIntoRegister(list->slot->label, "$a0");
+            }
+
+            asm_code_printf("\tsw $a0, %d($sp)\n", count)
+
+            list = list->next;
+        } while(list != NULL);
+
     }
-    // TODO:
-    asm_code_printf("\t\n")
-
-    do
-    {
-        list = list->next;
-    } while (list != NULL);
 
     asm_code_printf("\tjal start_%s\n", id)
     free(id);
@@ -1572,7 +1685,7 @@ int doFunctionCall(char* id, MemorySlotList list)
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetArgument(MemorySlot slot)
+MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 {
     if(slot == NULL || slot->value == NULL)
         return NULL;
@@ -1583,11 +1696,16 @@ MemorySlot doGetArgument(MemorySlot slot)
 
     if(val < 1) {
         log_error("Arguments are starting at index 1")
+        setErrorFailure();
         return NULL;
     }
-    RangeVariable currCursor = listRangeVariable->cursor;
+    RangeVariable currCursor = getLastBlockFunction();
+    bool function = false;
 
-    if(currCursor->blockType == BLOCK_FUNCTION)
+    if(currCursor == NULL) currCursor = listRangeVariable->cursor;
+    else function = true;
+
+    if(function)
     {
         // Set argument count
         if(currCursor->currentFunction != NULL)
@@ -1596,10 +1714,11 @@ MemorySlot doGetArgument(MemorySlot slot)
                 currCursor->currentFunction->size = val;
         }
 
-        asm_code_printf("\tadd $t2, $sp, $s7\n")
-        if((val - 1) > 0)
+        asm_code_printf("\tadd $t2, $sp, $s7\n") //
+        asm_code_printf("\tadd $t2, $t2, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+        if(val > 0)
         {
-            asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+            asm_code_printf("\taddi $t2, $t2, %d\n", val * ASM_INTEGER_SIZE)
         }
     } else {
         asm_code_printf("\tli $t0, %d\n", val)
@@ -1611,13 +1730,55 @@ MemorySlot doGetArgument(MemorySlot slot)
 
     asm_code_printf("\tlw $t1, 0($t2)\n")
     asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+
+    if(isOperandInt)
+    {
+        // convert string to int (variables contains numbers as chars)
+        asm_useAtoiFunction("$t1", "$t3");
+
+        if(negative) {
+            asm_code_printf("\tli $t4, -1\n")
+            asm_code_printf("\tmul $t3, $t3, $t4\n")
+        }
+
+        asm_code_printf("\tsw $t3, 0($t2)\n")
+
+        return slot;
+    }
+
     asm_code_printf("\tsw $t1, 0($t2)\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 
 int doReturn(MemorySlot slot)
 {
+
+    RangeVariable rg = getLastBlockFunction();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
+    if(rg == NULL)
+    {
+        log_error("Could not return in this context (not in a function)")
+        setErrorFailure();
+        return RETURN_FAILURE;
+    }
+
+    asm_loadLabelAddressIntoRegister(ASM_VAR_FCT_RETURN_STATUS, "$t0");
+
+    // NO RETURN CODE
+    if(slot == NULL)
+    {
+        asm_code_printf("\t\tsw $zero, 0($t0)\n")
+        return RETURN_SUCCESS;
+    }
+
+    // RETURN CODE: int
+    asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
+    asm_code_printf("\t\tsw $t1, 0($t0)\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -1630,4 +1791,19 @@ Marker getOrCreateForIdMarker(char* id)
     mark->lbl = id;
 
     return mark;
+}
+
+MemorySlot doGetLastStatus()
+{
+    MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
+    CHECK_ERROR_RETURN(NULL)
+
+    asm_loadLabelAddressIntoRegister(ASM_VAR_FCT_RETURN_STATUS, "$t0");
+    asm_useIntToStringFunction("$t0", "$t1");
+
+    asm_getStackAddress("$t2", CALCULATE_OFFSET(mem));
+    asm_code_printf("\tsw $t1, 0($t2)\n")
+
+    CHECK_ERROR_RETURN(NULL)
+    return mem;
 }

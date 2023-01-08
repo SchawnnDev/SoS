@@ -141,13 +141,13 @@ int doMarkerLoop(int blockType);
 
 int doMarkerTestFor();
 
-int doMarkerFor();
-
 int doForIdAssign(Marker mark);
 
 int doMarkerEndLoop();
 
 int doMarkerDone();
+
+RangeVariable getLastBlockFunction();
 
 /**
  *
@@ -276,7 +276,7 @@ MemorySlot convertIntToString(MemorySlot slot);
  * @param slot
  * @return
  */
-MemorySlot doGetArgument(MemorySlot slot);
+MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt);
 
 /**
  *
@@ -284,6 +284,12 @@ MemorySlot doGetArgument(MemorySlot slot);
  * @return
  */
 int doReturn(MemorySlot slot);
+
+/**
+ *
+ * @return
+ */
+MemorySlot doGetLastStatus();
 
 /**
  *

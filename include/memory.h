@@ -71,7 +71,7 @@ void expandMemorySlots(int offset_target, bool appendStack);
  *
  * @param MemorySlot : memory, the memory to destroy
  */
-void destroyMemorySlot(MemorySlot memory);
+int destroyMemorySlot(MemorySlot memory);
 
 /**
  * @brief "Free" a part of the structure, in a sense where it is not
@@ -123,6 +123,13 @@ MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList);
  * @brief Destroys and frees the list.
  *
  * @param MemorySlotList : memorySlotList, the list to destroy
+ *
+ * @param memorySlotList
+ * @return
+ */
+MemorySlotList lastMemorySlotList(MemorySlotList memorySlotList);
+
+/**
  *
  */
 void destroyMemoryList(MemorySlotList memorySlotList);
