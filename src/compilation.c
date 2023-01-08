@@ -1294,7 +1294,7 @@ MemorySlot doWriteInt(char *val)
     int err = 0;
     if ((parsed = parseInt32(val, &err)) == RETURN_FAILURE && err)
     {
-        if(val != NULL) free(val);
+        // if(val != NULL) free(val);
         return NULL;
     } // in this case : setErrorFailure() has already been called
     mem->value = val;
@@ -1558,8 +1558,8 @@ MemorySlot doGetArgument(MemorySlot slot)
         asm_code_printf("\tsw $t1, ($t2)\n")
     }
 
-    free(slot->label);
-    slot->label = NULL;
+    free(slot->value);
+    slot->value = NULL;
 
     return slot;
 }

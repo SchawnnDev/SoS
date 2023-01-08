@@ -81,11 +81,11 @@ void destroyMemorySlot(MemorySlot memory)
 void freeMemory(MemorySlot mem)
 {
     if (mem == NULL) return;
-    if(mem->value != NULL)
+/*    if(mem->value != NULL)
     {
         free(mem->value);
         mem->value = NULL;
-    }
+    }*/
     mem->used = false;
 }
 
