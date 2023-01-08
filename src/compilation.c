@@ -1619,6 +1619,22 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 
     asm_code_printf("\tlw $t1, 0($t2)\n")
     asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+
+    if(isOperandInt)
+    {
+        // convert string to int (variables contains numbers as chars)
+        asm_useAtoiFunction("$t1", "$t3");
+
+        if(negative) {
+            asm_code_printf("\tli $t4, -1\n")
+            asm_code_printf("\tmul $t3, $t3, $t4\n")
+        }
+
+        asm_code_printf("\tsw $t3, 0($t2)\n")
+
+        return slot;
+    }
+
     asm_code_printf("\tsw $t1, 0($t2)\n")
 
     return slot;
