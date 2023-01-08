@@ -459,7 +459,7 @@ int doMarkerLoop(int blockType)
 {
     asm_code_printf("\n\t# Start of Test block of LOOP\n")
     addIntoUnDefineGoto(listInstruction,"\t");
-    asm_code_printf("\n")
+    asm_code_printf("\n\taddi $s0, $s0, 1\n")
     addRangeVariable(listRangeVariable, blockType);
     asm_code_printf("\n")
 
@@ -470,12 +470,11 @@ int doMarkerLoop(int blockType)
 int doMarkerTestFor()
 {
     const char * forLabel = createNewForLabel();
-    asm_code_printf("\tblt $s0, $t1, %s",forLabel);
+    asm_code_printf("\tblt $s0, $s1, %s",forLabel);
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
 
     asm_code_printf("\n\t %s_:\n",getForLabel())
-    asm_code_printf("\taddi $s0, $s0, 1\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
