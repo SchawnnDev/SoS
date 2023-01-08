@@ -1,6 +1,6 @@
 a="Hello";
-c="World";
+c=" World";
 d=76;
-b= ${a} ' ' ${c} ${d};
-echo ${b} ' ' '!';
+b= ${a} ${c} ${d};
+echo ${b} '!';
 exit

@@ -1,5 +1,5 @@
 a="Hello";
-c="World";
-b= ${a} ' ' ${c};
-echo ${b} ' ' '!';
+c=" World";
+b= ${a} ${c};
+echo ${b} '!';
 exit

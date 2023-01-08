@@ -5,7 +5,7 @@ lim = 20;
 
 while test ${i} -le ${lim}
 do
-    echo ${i} " " $( expr ${i} % 3 ) " " $( expr ${i} % 5 ) "\n";
+    echo ${i} $( expr ${i} % 3 ) $( expr ${i} % 5 ) "\n";
     if test $(expr ${i} % ${a}) -eq 0
     then
         if test $(expr ${i} % ${b}) -eq 0

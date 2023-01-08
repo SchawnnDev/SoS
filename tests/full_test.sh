@@ -33,7 +33,6 @@ test_loop()
     test_name=$(echo $f | sed -e 's/.sos*//')
 
     $EXEC_FILE "tests/runtime/${test_type}/${test_name}.sos" -o "$temp_asm_file"
-    echo "tests/runtime/${test_type}/${test_name}.sos"
     rcode=$?
     # Checking if a unexpected error occurred
     if [ ! $rcode == 0 ]; then
@@ -44,6 +43,9 @@ test_loop()
 
     # Getting rid of the header with Mips information and the last line
     java -jar $MARS_BIN_FILE "$temp_asm_file" | tail -n +3 1> "tests/tmp/${test_name}_result"
+    # Getting rid of the leading and ending space
+    sed -i 's/^[ ]*//g' "tests/tmp/${test_name}_result"
+    sed -i 's/[t ]*$//g' "tests/tmp/${test_name}_result"
 
     # Checking the validity of the result
     diff "tests/tmp/${test_name}_result" "tests/expected_result/${test_type}/${test_name}_result" &>/dev/null
@@ -87,7 +89,7 @@ compilation_error_tests()
 # ------
 # Compilation
 echo "${BOLD}-- Compilation tests --"
-#compilation_error_tests
+compilation_error_tests
 # Assign
 echo "${BOLD}-- Assignment tests --"
 #test_loop "assign"
@@ -105,25 +107,25 @@ echo "${BOLD}-- Relational test block tests --"
 #test_loop "relational_test_block"
 # Conditional test_block
 echo "${BOLD}-- Conditional test block tests --"
-#test_loop "conditional_test_block"
+test_loop "conditional_test_block"
 # If tests
 echo "${BOLD}-- If tests --"
-#test_loop "if"
+test_loop "if"
 # While tests
 echo "${BOLD}-- While tests --"
-#test_loop "while"
+test_loop "while"
 # Until tests
 echo "${BOLD}-- Until tests --"
-#test_loop "until"
+test_loop "until"
 # Fizzbuzz test
 echo "${BOLD}-- Fizzbuzz tests --"
-#test_loop "fizzbuzz"
+test_loop "fizzbuzz"
 # Array test
 echo "${BOLD}-- Array tests --"
-#test_loop "array"
+test_loop "array"
 # Function test
 echo "${BOLD}-- Function tests --"
-#test_loop "function"
+test_loop "function"
 # For test
 echo "${BOLD}-- For tests --"
 test_loop "for"
