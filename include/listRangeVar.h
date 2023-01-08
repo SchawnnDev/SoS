@@ -180,11 +180,14 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize);
 */
 int printIdentifierFromListRange(ListRangeVariable addr,char* name);
 
-/**
+/*!
+ * \fn MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
+ * \brief Réserve un memorySlot
  *
- * @param addr
- * @return
- */
+ * \param ListRangeVariable : addr
+ *
+ * \return MemorySlot, memorySlot réservé
+*/
 MemorySlot reserveBlockMemorySlot(ListRangeVariable addr);
 
 #endif

@@ -1,0 +1,9 @@
+ite=0;
+a="hello";
+b="how";
+c="do";
+d="you";
+for ite in ${a} ${b} ${c} ${d} ${c} do
+    echo ${ite} "\n"
+done;
+exit

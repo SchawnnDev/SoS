@@ -1,0 +1,6 @@
+declare ite_array[10];
+ite=0;
+for ite in ${ite_array[*]} do
+    echo "1\n"
+done;
+exit
