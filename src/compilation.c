@@ -75,10 +75,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_writeStrcmpFunction();
     asm_writeDisplayStringFunction();
     asm_writeIntToStringFunction();
-    asm_writePrintErrorAndExit();
-    asm_writeOutOfBoundsErrorFunction();
-    asm_writeNotANumberErrorFunction();
-    asm_writeArrayElementNotAllocatedErrorFunction();
+    asm_writeErrorManagerFunctions();
     asm_code_printf("\n")
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
@@ -1542,10 +1539,10 @@ MemorySlot doGetArgument(MemorySlot slot)
                 currCursor->currentFunction->size = val;
         }
 
-        asm_code_printf("\tadd $t0, $sp, $s7\n")
+        asm_code_printf("\tadd $t2, $sp, $s7\n")
         if((val - 1) > 0)
         {
-            asm_code_printf("\taddi $t0, $t0, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+            asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
         }
     } else {
         asm_code_printf("\tli $t0, %d\n", val)
@@ -1553,13 +1550,11 @@ MemorySlot doGetArgument(MemorySlot slot)
         asm_code_printf("\tbgt $t0, $t1, %s\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
         asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
         asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
-        asm_code_printf("\tlw $t1, 0($t2)\n")
-        asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
-        asm_code_printf("\tsw $t1, ($t2)\n")
     }
 
-    free(slot->value);
-    slot->value = NULL;
+    asm_code_printf("\tlw $t1, 0($t2)\n")
+    asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+    asm_code_printf("\tsw $t1, 0($t2)\n")
 
     return slot;
 }
