@@ -475,7 +475,7 @@ int doMarkerLoop(int blockType)
 
 int DoMarkerArg()
 {
-    asm_code_printf("\n\tli $s0, %d\n", -1)
+    asm_code_printf("\n\tli $s0, %d\n", 0)
     RangeVariable rangeVariable = getLastBlockFunction();
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     if(rangeVariable == NULL){
