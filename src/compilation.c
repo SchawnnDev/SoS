@@ -474,8 +474,7 @@ int doMarkerTestFor()
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
 
-    asm_code_printf("\n\tj %s\n",forLabel)
-    asm_code_printf("\t %s_:\n",getForLabel())
+    asm_code_printf("\n\t %s_:\n",getForLabel())
     asm_code_printf("\taddi $s0, $s0, 1\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
