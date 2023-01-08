@@ -72,7 +72,10 @@
 #define ASM_VAR_ERROR_NON_EXISTENT_ARGUMENT "_error_not_existent_argument"
 #define ASM_VAR_ARGC "_argc"
 #define ASM_VAR_ARGV_START "_argv_start"
-#define ASM_VAR_REGISTERS_CACHE_COUNT 17
+#define ASM_VAR_REGISTERS_CACHE_COUNT 18
 #define ASM_VAR_REGISTERS_CACHE_SIZE ASM_VAR_REGISTERS_CACHE_COUNT * ASM_INTEGER_SIZE
+#define ASM_VAR_FCT_RETURN_STATUS "_function_return_status"
+#define ASM_VAR_FCT_RETURN_VALUE "_function_return_value"
+
 
 #endif

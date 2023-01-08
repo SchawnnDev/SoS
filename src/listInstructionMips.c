@@ -490,7 +490,7 @@ int completeTrueList(ListInstruction addr, char *code)
     }
 
     if(tmpCode == NULL){
-        log_trace("completeTrueList : there is no goto to complete")
+        log_info("completeTrueList : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -634,7 +634,7 @@ int completeUnDefineGoto(ListInstruction addr, char *code)
         } else {
             tmp->numberGoto--;
             if(size2 == 1){
-                log_trace("completeUnDefineGoto : code is empty")
+                log_info("completeUnDefineGoto : code is empty")
                 return RETURN_FAILURE;
             }
             size1 = size2 + 4;
@@ -672,7 +672,7 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
     }
 
     if(tmp == NULL){
-        log_trace("completeUnDefineGoto : there is no goto to complete")
+        log_info("completeUnDefineGoto : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -685,7 +685,7 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
     }
 
     if(tmpCode == NULL){
-        log_trace("completeTrueList : there is no goto to complete")
+        log_info("completeTrueList : there is no goto to complete")
         return RETURN_FAILURE;
     }
 
@@ -695,7 +695,7 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
     int size1 = strlen(tmpCode->lineCode[index]);
     if(size1 >= 2){
         if(size2 == 1){
-            log_trace("completeUnDefineGoto : code is empty")
+            log_info("completeUnDefineGoto : code is empty")
             return RETURN_FAILURE;
         }
         tmp->numberGoto--;
@@ -710,7 +710,7 @@ int completeOneUnDefineGoto(ListInstruction addr, char *code)
     } else {
         tmp->numberGoto--;
         if(size2 == 1){
-            log_trace("completeUnDefineGoto : code is empty")
+            log_info("completeUnDefineGoto : code is empty")
             return RETURN_FAILURE;
         }
         size1 = size2 + 4;

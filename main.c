@@ -62,7 +62,7 @@ int handle_args(int argc, char **argv)
 
     } else
     {
-        log_set_quiet(true);
+        log_set_level(LOG_ERROR);
     }
 
     /* special case: '--help' takes precedence over error reporting */
@@ -87,7 +87,7 @@ int handle_args(int argc, char **argv)
 
     if (version->count > 0)
     {
-        printf("Version: Quentin, Axel, Matthieu, Paul\n");
+        printf("Version: Quentin GERLING, Axel GRIMMER, Matthieu FREITAG, Paul MEYER\n");
         goto exit;
     }
 

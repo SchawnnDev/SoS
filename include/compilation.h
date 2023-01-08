@@ -18,60 +18,73 @@ void initStruct();
 void freeStruct();
 
 /**
+ * @brief adds an identifier to the list
  *
- * @param name
+ * @param char* : name, identifier's name
+ * @param MemorySlot : memorySlot
+ * @param bool : local
  * @return
  */
 MemorySlot assign(char *name, MemorySlot memorySlot, bool local);
 
 /**
  *
- * @param name
- * @param offset
- * @param concat
+ * @param char* : name, identifier's name
+ * @param MemorySlot : offset, address of the offset
+ * @param MemorySlot : concat
  * @return
  */
 int assignArrayValue(char* name, MemorySlot offset, MemorySlot concat);
 
 /**
+ * @brief Executes an echo
  *
- * @return
+ * @param MemorySlotList : list, list to echo
+ * @return 0 if success, -1 if it fails
  */
 int doEcho(MemorySlotList list);
 
 /**
+ * @brief Executes an operation
  *
+ * @param memory_space_t : left, left element of the operation
+ * @param int : operation, the operation to effectuate
+ * @param memory_space_t : right, right element of the operation
+ * @return MemorySlot, the resulting memorySlot
  */
 MemorySlot doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
 
 /**
  *
- * @param val
- * @return
+ * @param const char* : val, value to parse
+ * @return int, the size of the parsed table
  */
 int doParseTableInt(const char *val);
 
 /**
+ * @brief declares a static array
  *
- * @param id
- * @param size
- * @return
+ * @param char* : id, identifier
+ * @param int : size, size of the array
+ * @return 0 if success, -1 if it fails
  */
 int doDeclareStaticArray(char *id, int size);
 
 /**
+ * @brief reads an array
  *
- * @param id
- * @param offset
- * @return
+ * @param char* : id, identifier of the array
+ * @param MemorySlot : offset
+ * @return 0 if success, -1 if it fails
  */
 int doArrayRead(char *id, MemorySlot offset);
 
 /**
+ * @brief get the variable at the specified address
  *
- * @param id
- * @param negative
- * @param isOperandInt
+ * @param char* : id, identifier of the variable
+ * @param bool : negative, if the var is negative
+ * @param bool : isOperandInt,
  * @return
  */
 MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt);
@@ -124,17 +137,17 @@ int doMarkerFi();
 
 int doMarkerEndInstruction();
 
-int doMarkerLoop();
+int doMarkerLoop(int blockType);
 
 int doMarkerTestFor();
 
-int doMarkerFor();
-
-int doForIdAssign(char *name);
+int doForIdAssign(Marker mark);
 
 int doMarkerEndLoop();
 
 int doMarkerDone();
+
+RangeVariable getLastBlockFunction();
 
 /**
  *
@@ -263,7 +276,7 @@ MemorySlot convertIntToString(MemorySlot slot);
  * @param slot
  * @return
  */
-MemorySlot doGetArgument(MemorySlot slot);
+MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt);
 
 /**
  *
@@ -271,5 +284,18 @@ MemorySlot doGetArgument(MemorySlot slot);
  * @return
  */
 int doReturn(MemorySlot slot);
+
+/**
+ *
+ * @return
+ */
+MemorySlot doGetLastStatus();
+
+/**
+ *
+ * @param id
+ * @return
+ */
+Marker getOrCreateForIdMarker(char* id);
 
 #endif //SOS_COMPILATION_H

@@ -28,6 +28,8 @@ int asm_writeSaveRegistersToStackFunction()
         count += 4;
     }
 
+    asm_code_printf("\t\taddi $sp, $sp, -%d\n", ASM_INTEGER_SIZE)
+
     asm_code_printf("\t\tjr $ra\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)

@@ -1,0 +1,12 @@
+declare ite_array[10];
+ite_fill_array=0;
+while test ${ite_fill_array} -lt 10 do
+    ite_array[${ite_fill_array}]=${ite_fill_array};
+    ite_fill_array=$( expr ${ite_fill_array} + 1)
+done;
+
+ite=0;
+for ite in ${ite_array[*]} do
+    echo ${ite_array[${ite}]} "\n"
+done;
+exit
