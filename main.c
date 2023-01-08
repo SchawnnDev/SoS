@@ -137,7 +137,7 @@ int handle_args(int argc, char **argv)
 
     if ((exitcode = compile(inputFile, outputFile)) != 0)
     {
-        printf("An error occured.\n");
+        printf("An error occurred.\n");
     }
 
     if (inputFile != NULL)

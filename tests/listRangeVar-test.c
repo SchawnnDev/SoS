@@ -24,6 +24,9 @@ TEST initRangeVariableLvlZeroTest(void) {
     ASSERT_EQ(NULL, addr->nextLevel);
     ASSERT_EQ(NULL, addr->previousLevel);
     ASSERT_NEQ(NULL, addr->listIdentifier);
+
+    error = 0;
+    cleanRangeVariable(addr);
     PASS();
 }
 
@@ -36,6 +39,9 @@ TEST initRangeVariableLvlNTest(void) {
     ASSERT_EQ(NULL, addr->nextLevel);
     ASSERT_EQ(addr1, addr->previousLevel);
     ASSERT_NEQ(NULL, addr->listIdentifier);
+
+    error = 0;
+    cleanRangeVariable(addr);
     PASS();
 }
 
@@ -48,6 +54,9 @@ TEST initVariablePositionWithoutIdentifierFoundTest(void) {
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(NOTFOUND, addr->indexIdentifier,"%d");
     ASSERT_EQ(NULL, addr->rangePosition);
+
+    error = 0;
+    cleanVariablePosition(addr);
     PASS();
 }
 
@@ -58,6 +67,10 @@ TEST initVariablePositionWithIdentifierFoundTest(void) {
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(10, addr->indexIdentifier,"%d");
     ASSERT_EQ(rangeVariable, addr->rangePosition);
+
+    error = 0;
+    cleanRangeVariable(rangeVariable);
+    cleanVariablePosition(addr);
     PASS();
 }
 //-----------------------//
@@ -77,6 +90,9 @@ TEST initListRangeVariableTest(void) {
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_NEQ(NULL, addr->cursor);
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -103,6 +119,9 @@ TEST addRangeVariableTest(void) {
     ASSERT_EQ( addr->cursor,lastCursor->nextLevel);
     ASSERT_EQ( lastCursor,addr->cursor->previousLevel);
     ASSERT_EQ_FMT(lastLvl+1, addr->cursor->rangeLevel,"%d");
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -128,6 +147,9 @@ TEST increaseGlobalRangeVariableTest(void) {
     ASSERT_EQ( lastGlobalCursor,addr->cursorGlobal->previousLevel);
     ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
     ASSERT_EQ_FMT(lastGlobalLvl, addr->cursorGlobal->rangeLevel,"%d");
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -152,6 +174,9 @@ TEST increaseGlobalRangeVariableWithNextLocalRangeTest(void) {
     ASSERT_EQ( lastGlobalCursor,addr->cursorGlobal->previousLevel);
     ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
     ASSERT_EQ_FMT(lastGlobalLvl, addr->cursorGlobal->rangeLevel,"%d");
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -169,6 +194,9 @@ TEST deleteRangeVariableWithoutPreviousLvlTest(void) {
     ASSERT_EQ(addr->cursor, addr->cursorGlobal);
     ASSERT_EQ(lastCursor, addr->cursor);
     ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -185,6 +213,9 @@ TEST deleteRangeVariableWithNextLvlTest(void) {
     ASSERT_EQ(lastCursor, addr->cursor);
     ASSERT_EQ( NULL,lastCursor->nextLevel);
     ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -202,6 +233,9 @@ TEST deleteRangeVariableWithNextLvlWithValuesTest(void) {
     ASSERT_EQ(lastCursor, addr->cursor);
     ASSERT_EQ( NULL,lastCursor->nextLevel);
     ASSERT_EQ_FMT(lastLvl, addr->cursor->rangeLevel,"%d");
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -222,6 +256,9 @@ TEST deleteRangeVariableWithTwoLvlOfGlobalWithoutLocalLvlTest(void) {
     ASSERT_NEQ(NULL, addr->cursorGlobal->previousLevel);
     ASSERT_EQ(lastCursor, addr->cursorGlobal);
     ASSERT_EQ( NULL,lastCursor->nextLevel);
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -234,6 +271,10 @@ TEST searchIdentifierPositionWithoutIdentifierInRangeListTest(void) {
 
     ASSERT_EQ(NOTFOUND, variablePosition->indexIdentifier);
     ASSERT_EQ(NULL, variablePosition->rangePosition);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -244,6 +285,10 @@ TEST searchIdentifierPositionWithIdentifierInRangeListWithOnlyOneLvlTest(void) {
 
     ASSERT_EQ(0, variablePosition->indexIdentifier);
     ASSERT_EQ(addr->cursor, variablePosition->rangePosition);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -256,6 +301,10 @@ TEST searchIdentifierPositionWithIdentifierInRangeListWithMayLvlTest(void) {
 
     ASSERT_EQ(0, variablePosition->indexIdentifier);
     ASSERT_EQ(addr->cursorGlobal, variablePosition->rangePosition);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -269,6 +318,10 @@ TEST searchIdentifierPositionWithIdentifierOnFirstLvlInRangeListWithMayLvlTest(v
 
     ASSERT_EQ(0, variablePosition->indexIdentifier);
     ASSERT_EQ(firstRange, variablePosition->rangePosition);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -282,6 +335,10 @@ TEST searchIdentifierPositionWithIdentifierWithOneLvlInGlobalListTest(void) {
     ASSERT_EQ(0, variablePosition->rangePosition->rangeLevel);
     ASSERT_EQ(1, addr->cursor->rangeLevel);
     ASSERT_EQ(0, addr->cursor->listIdentifier->numberIdentifiers);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -296,6 +353,10 @@ TEST searchIdentifierPositionWithIdentifierOnNLvlInRangeListWithMayLvlAndNotFirs
 
     ASSERT_EQ(1, variablePosition->indexIdentifier);
     ASSERT_EQ(firstRange, variablePosition->rangePosition);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -311,6 +372,10 @@ TEST addIdentifierWithoutAnOtherRangeVariableTest(void) {
     ASSERT_EQ(addr->cursor, variablePosition->rangePosition);
     ASSERT_EQ(addr->cursorGlobal, variablePosition->rangePosition);
     ASSERT_EQ(0, variablePosition->indexIdentifier);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -324,6 +389,10 @@ TEST addIdentifierWithAnOtherRangeVariableTest(void) {
     ASSERT_NEQ(addr->cursor, variablePosition->rangePosition);
     ASSERT_EQ(addr->cursorGlobal, variablePosition->rangePosition);
     ASSERT_EQ(0, variablePosition->indexIdentifier);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -332,6 +401,9 @@ TEST addIdentifierTwiceTest(void) {
 
     ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test"));
     ASSERT_EQ(RETURN_FAILURE, addIdentifier(addr, "test"));
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -347,6 +419,9 @@ TEST addIdentifierToManyIdentifierTest(void) {
 
     ASSERT_EQ(RETURN_SUCCESS, addIdentifier(addr, "test"));
     ASSERT_NEQ(NULL, addr->cursorGlobal->previousLevel);
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -363,6 +438,10 @@ TEST addLocalIdentifierTest(void) {
     ASSERT_NEQ(addr->cursorGlobal, variablePosition->rangePosition);
     ASSERT_EQ(addr->cursor, variablePosition->rangePosition);
     ASSERT_EQ(0, variablePosition->indexIdentifier);
+
+    error = 0;
+    cleanListRangeVariable(addr);
+    cleanVariablePosition(variablePosition);
     PASS();
 }
 
@@ -372,6 +451,9 @@ TEST addLocalIdentifierTwiceTest(void) {
 
     ASSERT_EQ(RETURN_SUCCESS, addLocalIdentifier(addr, "test"));
     ASSERT_EQ(RETURN_FAILURE, addLocalIdentifier(addr, "test"));
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 
@@ -386,6 +468,9 @@ TEST addLocalIdentifierToManyIdentifierTest(void) {
     }
 
     ASSERT_EQ(RETURN_FAILURE, addLocalIdentifier(addr, "test"));
+
+    error = 0;
+    cleanListRangeVariable(addr);
     PASS();
 }
 

@@ -9,11 +9,13 @@
 #include "memory.h"
 #include "marker.h"
 
-#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); return NULL; } } while (0);
+#define CHECK_TYPE(op) do { if (((op) != 1)) {log_error("not good type."); setErrorFailure(); return NULL;} } while (0);
 
 #define CALCULATE_OFFSET(slot) getMipsOffset(slot, *listRangeVariable->cursor->memoryCurrentStackOffset)
 
 void initStruct();
+
+void freeStruct();
 
 /**
  *
@@ -128,7 +130,19 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
+/**
+ *
+ * @param list
+ * @return
+ */
 Marker doMarkerForList(MemorySlotList list);
+
+/**
+ *
+ * @param mark
+ * @return
+ */
+int doDeleteLocalOffset(Marker mark);
 
 int addBlock(int blockType);
 
@@ -237,5 +251,13 @@ MemorySlot addWordToMemory(const char *str);
  * @return
  */
 MemorySlot convertIntToString(MemorySlot slot);
+
+/**
+ *
+ * @param slot
+ * @return
+ */
+MemorySlot doGetArgument(MemorySlot slot);
+
 
 #endif //SOS_COMPILATION_H

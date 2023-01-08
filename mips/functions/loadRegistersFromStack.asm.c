@@ -7,11 +7,12 @@ int asm_writeLoadRegistersFromStackFunction()
     if(asm_fctLoadRegistersFromStackWritten)
         return RETURN_SUCCESS;
     asm_fctLoadRegistersFromStackWritten = TRUE;
+
     asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
     int count = 0;
 
-    const int tempRegisters = 7;
-    const int savedRegisters = 7;
+    const int tempRegisters = 8;
+    const int savedRegisters = 8;
 
     for (int i = 0; i < tempRegisters; ++i)
     {
@@ -28,5 +29,6 @@ int asm_writeLoadRegistersFromStackFunction()
     asm_code_printf("\t\taddi $sp, $sp, %d\n", (tempRegisters + savedRegisters) * ASM_INTEGER_SIZE)
     asm_code_printf("\t\tjr $ra\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

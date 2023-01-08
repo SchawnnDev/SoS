@@ -7,6 +7,7 @@ int asm_writeDisplayStringFunction()
     if(asm_fctDisplayStringWritten)
         return RETURN_SUCCESS;
     asm_fctDisplayStringWritten = TRUE;
+
     asm_code_printf("\t%s:\n", ASM_DISPLAY_STRING_FUNCTION_NAME)
     asm_writeRegistersToStack();
     asm_code_printf("\t\tmove $t0, $a0\n")
@@ -19,5 +20,7 @@ int asm_writeDisplayStringFunction()
     asm_code_printf("\t\t%s_exit:\n", ASM_DISPLAY_STRING_FUNCTION_NAME)
     asm_loadRegistersFromStack();
     asm_code_printf("\t\t\tjr $ra\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

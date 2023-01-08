@@ -16,6 +16,7 @@ int asm_writeBufferLenFunction()
     if(asm_fctBufferLenWritten)
         return RETURN_SUCCESS;
     asm_fctBufferLenWritten = TRUE;
+
     asm_code_printf("\t%s:\n", ASM_BUFFER_LEN_FUNCTION_NAME)
     asm_writeRegistersToStack();
     asm_code_printf("\t\taddi $t0, $zero, 0\n")
@@ -30,5 +31,7 @@ int asm_writeBufferLenFunction()
     asm_code_printf("\t\t\tmove $v0, $t0\n")
     asm_loadRegistersFromStack();
     asm_code_printf("\t\t\tjr $ra\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

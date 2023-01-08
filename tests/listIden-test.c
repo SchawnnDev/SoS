@@ -39,6 +39,9 @@ TEST initListIdentifierTest(void) {
 
     ASSERT_NEQ(NULL, addr);
     ASSERT_EQ_FMT(0, addr->numberIdentifiers,"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -52,6 +55,9 @@ TEST addIntoListIdentifierTest(void) {
 
     ASSERT_EQ_FMT(1, addr->numberIdentifiers,"%d");
     ASSERT_STR_EQ(name, addr->Identifiers[0]->name);
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -68,6 +74,9 @@ TEST addIntoListIdentifierMaxSizeTest(void) {
     ASSERT_EQ_FMT(IDEN_MAX, addr->numberIdentifiers,"%d");
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoListIdentifier(addr, name,initTestMemory()), "%d");
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 TEST addIntoListIdentifierWithBadNameTest(void) {
@@ -78,6 +87,9 @@ TEST addIntoListIdentifierWithBadNameTest(void) {
     ASSERT_EQ_FMT(RETURN_FAILURE, addIntoListIdentifier(addr, name,initTestMemory()), "%d");
     ASSERT_EQ_FMT(0, addr->numberIdentifiers,"%d");
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -90,6 +102,9 @@ TEST searchIdentifierPositionWithoutIdentifierTest(void) {
     char* name = "test";
 
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -99,6 +114,9 @@ TEST searchIdentifierPositionWithIdentifierTest(void) {
     addIntoListIdentifier(addr, name, initTestMemory());
 
     ASSERT_EQ_FMT(0, searchIntoListIdentifier(addr,name),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -109,6 +127,9 @@ TEST searchIdentifierPositionWithAnOtherIdentifierTest(void) {
     addIntoListIdentifier(addr, name, initTestMemory());
 
     ASSERT_EQ_FMT(NOTFOUND, searchIntoListIdentifier(addr,name1),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -122,6 +143,9 @@ TEST setTypeWithoutIdentifierTest(void) {
     int type = INTEGER;
 
     ASSERT_EQ_FMT(RETURN_FAILURE, setTypeOfIdentifier(addr,position,type),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -133,6 +157,9 @@ TEST setTypeWithBadPositionTest(void) {
     ASSERT_EQ_FMT(RETURN_FAILURE, setTypeOfIdentifier(addr,position,type),"%d");
     position = IDEN_MAX;
     ASSERT_EQ_FMT(RETURN_FAILURE, setTypeOfIdentifier(addr,position,type),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -147,6 +174,9 @@ TEST setTypeWithBadTypeTest(void) {
     ASSERT_EQ_FMT(RETURN_FAILURE, setTypeOfIdentifier(addr,position,type),"%d");
     type = MAXTYPEVALUE;
     ASSERT_EQ_FMT(RETURN_FAILURE, setTypeOfIdentifier(addr,position,type),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -164,6 +194,9 @@ TEST setTypeWithGoodTypesTest(void) {
     ASSERT_EQ_FMT(RETURN_SUCCESS, setTypeOfIdentifier(addr,position,type),"%d");
     type = FUNCTION;
     ASSERT_EQ_FMT(RETURN_SUCCESS, setTypeOfIdentifier(addr,position,type),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -177,6 +210,9 @@ TEST setArraySizeWithoutIdentifierTest(void) {
     int arraySize = 1;
 
     ASSERT_EQ_FMT(RETURN_FAILURE, setArraySizeOfIdentifier(addr,position,arraySize),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -188,6 +224,9 @@ TEST setArraySizeWithBadPositionTest(void) {
     ASSERT_EQ_FMT(RETURN_FAILURE, setArraySizeOfIdentifier(addr,position,arraySize),"%d");
     position = IDEN_MAX;
     ASSERT_EQ_FMT(RETURN_FAILURE, setArraySizeOfIdentifier(addr,position,arraySize),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -200,6 +239,9 @@ TEST setArraySizeWithBadArraySizeTest(void) {
     int arraySize = 0;
 
     ASSERT_EQ_FMT(RETURN_FAILURE, setArraySizeOfIdentifier(addr,position,arraySize),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -213,6 +255,9 @@ TEST setArraySizeWithGoodArraySizeTest(void) {
     ASSERT_EQ_FMT(RETURN_SUCCESS, setArraySizeOfIdentifier(addr,position,arraySize),"%d");
     arraySize = 10;
     ASSERT_EQ_FMT(RETURN_SUCCESS, setArraySizeOfIdentifier(addr,position,arraySize),"%d");
+
+    error = 0;
+    cleanListIdentifier(addr);
     PASS();
 }
 
@@ -220,7 +265,7 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();
-    log_set_quiet(true); // No logs in tests
+    log_set_quiet(false); // No logs in tests
     listInstruction = initListInstruction();
 
     RUN_TEST(initListIdentifierTest);
