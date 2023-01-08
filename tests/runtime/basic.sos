@@ -1,7 +1,5 @@
-forTest()
-{
-    echo $1
-};
-
-forTest;
+for mot do
+  echo ${mot};
+  echo 10 "\n"
+done;
 exit

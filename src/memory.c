@@ -156,3 +156,14 @@ MemorySlotList firstMemorySlotList(MemorySlotList memorySlotList)
 
     return result;
 }
+
+MemorySlotList lastMemorySlotList(MemorySlotList memorySlotList)
+{
+    if (memorySlotList == NULL) return NULL;
+    MemorySlotList result = memorySlotList;
+
+    while (result->next != NULL)
+        result = result->next;
+
+    return result;
+}
