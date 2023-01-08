@@ -40,43 +40,51 @@ int assignArrayValue(char* name, MemorySlot offset, MemorySlot concat);
  * @brief Executes an echo
  *
  * @param MemorySlotList : list, list to echo
- * @return
+ * @return 0 if success, -1 if it fails
  */
 int doEcho(MemorySlotList list);
 
 /**
+ * @brief Executes an operation
  *
+ * @param memory_space_t : left, left element of the operation
+ * @param int : operation, the operation to effectuate
+ * @param memory_space_t : right, right element of the operation
+ * @return MemorySlot, the resulting memorySlot
  */
 MemorySlot doOperation(struct memory_space_t * left, int operation, struct memory_space_t * right);
 
 /**
  *
- * @param val
- * @return
+ * @param const char* : val, value to parse
+ * @return int, the size of the parsed table
  */
 int doParseTableInt(const char *val);
 
 /**
+ * @brief declares a static array
  *
- * @param id
- * @param size
- * @return
+ * @param char* : id, identifier
+ * @param int : size, size of the array
+ * @return 0 if success, -1 if it fails
  */
 int doDeclareStaticArray(char *id, int size);
 
 /**
+ * @brief reads an array
  *
- * @param id
- * @param offset
- * @return
+ * @param char* : id, identifier of the array
+ * @param MemorySlot : offset
+ * @return 0 if success, -1 if it fails
  */
 int doArrayRead(char *id, MemorySlot offset);
 
 /**
+ * @brief get the variable at the specified address
  *
- * @param id
- * @param negative
- * @param isOperandInt
+ * @param char* : id, identifier of the variable
+ * @param bool : negative, if the var is negative
+ * @param bool : isOperandInt,
  * @return
  */
 MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt);
