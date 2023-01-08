@@ -1749,6 +1749,28 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 
 int doReturn(MemorySlot slot)
 {
+
+    RangeVariable rg = getLastBlockFunction();
+
+    if(rg == NULL)
+    {
+        log_error("Could not return in this context (not in a function)")
+        return RETURN_FAILURE;
+    }
+
+    asm_loadLabelAddressIntoRegister(ASM_VAR_FCT_RETURN_STATUS, "$t0");
+
+    // NO RETURN CODE
+    if(slot == NULL)
+    {
+        asm_code_printf("\t\tsw $zero, 0($t0)\n")
+        return RETURN_SUCCESS;
+    }
+
+    // RETURN CODE: int
+    asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
+    asm_code_printf("\t\tsw $t1, 0($t0)\n")
+
     return RETURN_SUCCESS;
 }
 
