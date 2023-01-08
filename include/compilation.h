@@ -18,23 +18,28 @@ void initStruct();
 void freeStruct();
 
 /**
+ * @brief adds an identifier to the list
  *
- * @param name
+ * @param char* : name, identifier's name
+ * @param MemorySlot : memorySlot
+ * @param bool : local
  * @return
  */
 MemorySlot assign(char *name, MemorySlot memorySlot, bool local);
 
 /**
  *
- * @param name
- * @param offset
- * @param concat
+ * @param char* : name, identifier's name
+ * @param MemorySlot : offset, address of the offset
+ * @param MemorySlot : concat
  * @return
  */
 int assignArrayValue(char* name, MemorySlot offset, MemorySlot concat);
 
 /**
+ * @brief Executes an echo
  *
+ * @param MemorySlotList : list, list to echo
  * @return
  */
 int doEcho(MemorySlotList list);

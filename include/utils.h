@@ -30,6 +30,13 @@ extern int error;
 #define CHECK_ERROR_NORETURN() if(error) return;
 #define HAS_ERROR() error
 
+/*!
+ * \fn raler
+ * \brief Affiche un message d'erreur et active un statut d'erreur
+ * \param int : syserr, 1 s'il s'agit d'une erreur provenant d'un
+ *              appel système, 0 sinon
+ * \param const char : msg, le nom de la fonction à l'origine de l'erreur
+ */
 void raler(int syserr, const char *msg, ...);
 
 /**

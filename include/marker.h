@@ -12,8 +12,17 @@ struct marker_t {
     char* lbl;
 };
 
+/**
+ * @brief Creates and allocate a new marker.
+ *
+ * @return Marker, the created marker
+ */
 Marker newMarker();
 
+/**
+ * @brief Destroys and frees the marker
+ * @param Marker : marker, marker to destroy
+ */
 void destroyMarker(Marker marker);
 
 #endif //SOS_MARKER_H
