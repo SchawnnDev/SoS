@@ -635,9 +635,9 @@ int doDeleteLocalOffset(Marker mark)
 int addBlock(int blockType)
 {
     int returnValue;
-    returnValue = addRangeVariable(listRangeVariable, blockType);
+    //returnValue = addRangeVariable(listRangeVariable, blockType);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
-    returnValue += addStructListGoTo(listInstruction);
+    returnValue = addStructListGoTo(listInstruction);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return returnValue;
@@ -646,9 +646,9 @@ int addBlock(int blockType)
 int deleteBlock()
 {
     int returnValue;
-    returnValue = deleteRangeVariable(listRangeVariable);
+    //returnValue = deleteRangeVariable(listRangeVariable);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
-    returnValue += deleteStructListGoTo(listInstruction);
+    returnValue = deleteStructListGoTo(listInstruction);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return returnValue;
