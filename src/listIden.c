@@ -59,7 +59,7 @@ Identifier initIdentifier(char* name)
     CHECK_ERROR_RETURN(NULL)
     addr->memory = NULL;
     addr->type = UNSET;
-    addr->arraySize = 1;
+    addr->size = 1;
 
     return addr;
 }
@@ -191,7 +191,7 @@ int setArraySizeOfIdentifier(ListIdentifier addr, int position, int arraySize)
         return RETURN_FAILURE;
     }
 
-    addr->Identifiers[position]->arraySize = arraySize;
+    addr->Identifiers[position]->size = arraySize;
 
     return RETURN_SUCCESS;
 }
