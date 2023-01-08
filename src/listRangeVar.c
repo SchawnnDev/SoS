@@ -378,6 +378,21 @@ int printIdentifierFromListRange(ListRangeVariable addr,char* name)
     return printIdentifier(variablePosition->rangePosition->listIdentifier,variablePosition->indexIdentifier);
 }
 
+/*!
+ * \fn int printIdentifierFromListRange(ListRangeVariable addr,char* name)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+*/
+int printAllIdentifier(ListRangeVariable addr)
+{
+    RangeVariable tmp = addr->cursor;
+    while(tmp != NULL){
+        printListIdentifier(tmp->listIdentifier);
+        tmp = tmp->previousLevel;
+    }
+
+    return RETURN_SUCCESS;
+}
+
 /**
  *
  * @param addr
