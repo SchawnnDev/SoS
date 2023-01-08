@@ -1,3 +1,5 @@
+
+
 for mot do
   echo ${mot};
   echo 10 "\n"
