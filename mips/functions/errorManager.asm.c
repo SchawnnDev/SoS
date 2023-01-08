@@ -9,6 +9,7 @@ int asm_writePrintErrorAndExit(){
     asm_code_printf("\t\tli $v0, 17\n")
     asm_code_printf("\t\tsyscall\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -25,6 +26,7 @@ int asm_writeOutOfBoundsErrorFunction(){
     asm_code_printf("\t\tli $a1, 1\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -40,7 +42,8 @@ int asm_writeNotANumberErrorFunction(){
     // Error code for nan : 2
     asm_code_printf("\t\tli $a1, 2\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
-
+    
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -57,6 +60,7 @@ int asm_writeArrayElementNotAllocatedErrorFunction(){
     asm_code_printf("\t\tli $a1, 3\n")
     asm_code_printf("\t\tj %s\n", ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME)
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 

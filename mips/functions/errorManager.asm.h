@@ -1,6 +1,6 @@
 #ifndef SOS_ERRORMANAGER_ASM_H
 #define SOS_ERRORMANAGER_ASM_H
-#include "functions.asm.h"
+#include "asm.h"
 
 /**
  * Occurs when trying to access data outside

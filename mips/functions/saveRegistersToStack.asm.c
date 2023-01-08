@@ -8,8 +8,8 @@ int asm_writeSaveRegistersToStackFunction()
         return RETURN_SUCCESS;
     asm_fctSaveRegistersToStackWritten = TRUE;
 
-    const int tempRegisters = 7;
-    const int savedRegisters = 7;
+    const int tempRegisters = 8;
+    const int savedRegisters = 8;
 
     asm_code_printf("\t%s:\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
     asm_code_printf("\t\taddi $sp, $sp, -%d\n", (tempRegisters + savedRegisters) * ASM_INTEGER_SIZE)
@@ -30,5 +30,6 @@ int asm_writeSaveRegistersToStackFunction()
 
     asm_code_printf("\t\tjr $ra\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

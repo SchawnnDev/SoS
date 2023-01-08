@@ -17,6 +17,7 @@ int asm_writeBufferWriteFunction()
     if(asm_fctBufferWriteWritten)
         return RETURN_SUCCESS;
     asm_fctBufferWriteWritten = TRUE;
+
     asm_code_printf("\t%s:\n", ASM_BUFFER_WRITE_FUNCTION_NAME)
     asm_writeRegistersToStack();
     // Code
@@ -38,5 +39,7 @@ int asm_writeBufferWriteFunction()
     asm_code_printf("\t\t\tmove $v0, $t1\n")
     asm_loadRegistersFromStack();
     asm_code_printf("\t\t\tjr $ra\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }

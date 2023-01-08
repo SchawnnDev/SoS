@@ -1,6 +1,6 @@
 #ifndef SOS_SAVEREGISTERSTOSTACK_ASM_H
 #define SOS_SAVEREGISTERSTOSTACK_ASM_H
-#include "functions.asm.h"
+#include "asm.h"
 
 /**
  *

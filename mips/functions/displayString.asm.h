@@ -1,6 +1,6 @@
 #ifndef SOS_DISPLAYSTRING_ASM_H
 #define SOS_DISPLAYSTRING_ASM_H
-#include "functions.asm.h"
+#include "asm.h"
 
 /**
  *

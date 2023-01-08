@@ -11,6 +11,7 @@
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
+            if(!HAS_ERROR()) setErrorFailure();  \
             return 0; \
         } \
         addIntoCode(listInstruction, buf); \
@@ -21,6 +22,7 @@
         char buf[ASM_PRINTF_BUF_MAX]; \
         if(snprintf(buf, ASM_PRINTF_BUF_MAX, __VA_ARGS__) < 0) { \
             log_error(strerror(errno));  \
+            if(!HAS_ERROR()) setErrorFailure();  \
             return 0; \
         } \
         addIntoData(listInstruction, buf); \
@@ -234,6 +236,18 @@ int asm_allocateOnHeap(const char* into, int size);
  * @return
  */
 int asm_writeArgsToStack();
+
+/**
+ *
+ * @return
+ */
+int asm_writeRegistersToStack();
+
+/**
+ *
+ * @return
+ */
+int asm_loadRegistersFromStack();
 
 // UTILS
 
