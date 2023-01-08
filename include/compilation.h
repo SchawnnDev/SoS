@@ -90,7 +90,7 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
  * @param val
  * @return
  */
-MemorySlot doWriteInt(const char *val);
+MemorySlot doWriteInt(char *val);
 
 /**
  *
@@ -265,5 +265,11 @@ MemorySlot convertIntToString(MemorySlot slot);
  */
 MemorySlot doGetArgument(MemorySlot slot);
 
+/**
+ *
+ * @param slot
+ * @return
+ */
+int doReturn(MemorySlot slot);
 
 #endif //SOS_COMPILATION_H

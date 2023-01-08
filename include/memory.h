@@ -8,6 +8,7 @@ struct memory_space_t {
     int used;
     int offset;
     char* label; // temp replaced by label, label == null -> temp
+    char* value;
 
     MemorySlot next;
 };

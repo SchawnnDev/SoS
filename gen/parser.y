@@ -60,8 +60,8 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | READ id LBRACKET operand_int RBRACKET { doArrayRead($2,$4); if(HAS_ERROR()) YYABORT ; }
     | declare_fct
     | function_call
-    | RETURN
-    | RETURN operand_int
+    | RETURN { doReturn(NULL); }
+    | RETURN operand_int { doReturn($2); }
     | EXIT { doExit(NULL); if(HAS_ERROR()) YYABORT ; }
     | EXIT operand_int { doExit($2); if(HAS_ERROR()) YYABORT ; }
     ;

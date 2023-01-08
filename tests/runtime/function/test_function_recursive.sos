@@ -1,0 +1,45 @@
+declare array[10];
+array[0]=5;
+
+test_function_1()
+{
+    if test $1 -eq 10 then
+        var_return=0
+    else
+        var_return=$(test_function $( expr $1 + 1))
+    fi;
+
+    echo ${var_return}
+} ;
+
+test_function_2()
+{
+    if test $1 -gt 0 then
+        var_return=$(expr $1 + $(test_function_2 $(expr $1 - 1) ) )
+    else
+        var_return=0
+    fi;
+
+    echo ${var_return}
+} ;
+
+test_function_3()
+{
+    if test $1 -gt 0 then
+        var_return=$(expr $1 + $(test_function_2 $(expr $1 - 1) ) )
+    else
+        var_return=${array[0]}
+    fi;
+
+    echo ${var_return}
+} ;
+
+ret1=$(test_function_1 1);
+echo ${ret1};
+
+ret2=$(test_function_2 10);
+echo ${ret2};
+
+ret3=$(test_function_3 10);
+echo ${ret3};
+

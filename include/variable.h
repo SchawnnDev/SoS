@@ -58,6 +58,7 @@
 #define ASM_OUT_OF_BOUNDS_ERROR_FUNCTION_NAME "_fct_out_of_bounds_error"
 #define ASM_NOT_A_NUMBER_ERROR_FUNCTION_NAME "_fct_not_a_number_error"
 #define ASM_ARRAY_ELEMENT_NOT_ALLOCATED_ERROR_FUNCTION_NAME "_fct_array_element_not_allocated_error"
+#define ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME "_fct_non_existent_argument_error"
 #define ASM_PRINT_AND_EXIT_ERROR_FUNCTION_NAME "_fct_print_and_exit_error"
 
 /* ASM MIPS Variables */
@@ -68,6 +69,7 @@
 #define ASM_VAR_ERROR_NAN "_error_nan"
 #define ASM_VAR_ERROR_OUTOFBOUNDS "_error_outofbounds"
 #define ASM_VAR_ERROR_ARRAY_ELEMENT_NOT_ALLOCATED "_error_array_element_not_allocated"
+#define ASM_VAR_ERROR_NON_EXISTENT_ARGUMENT "_error_not_existent_argument"
 #define ASM_VAR_ARGC "_argc"
 #define ASM_VAR_ARGV_START "_argv_start"
 #define ASM_VAR_REGISTERS_CACHE_COUNT 17
