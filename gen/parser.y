@@ -30,7 +30,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
-%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for
+%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for marker_do
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction function_call
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
@@ -51,7 +51,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); if(HAS_ERROR()) YYABORT ; }
     | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
     | FOR marker_for id DO list_instructions marker_done DONE
-    | FOR marker_for id IN marker_for_list DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; doDeleteLocalOffset($5); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ;}
+    | FOR marker_for id IN marker_for_list marker_do DO list_instructions marker_done DONE {doForIdAssign($3); doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; doDeleteLocalOffset($5); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ;}
     | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
     | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
     | CASE operand IN list_case ESAC
@@ -205,7 +205,9 @@ marker_end_instruction : {$$ = ""; doMarkerEndInstruction(); if(HAS_ERROR()) YYA
 
 marker_loop : {$$ = ""; addBlock(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; doMarkerLoop(); if(HAS_ERROR()) YYABORT ; }
 
-marker_for : {$$ = ""; addBlock(BLOCK_FOR); doMarkerLoop();}
+marker_for : {$$ = ""; addBlock(BLOCK_FOR);}
+
+marker_do : {$$ = ""; doMarkerFor(); doMarkerLoop(); doMarkerTestFor();}
 
 marker_done : {$$ = ""; doMarkerDone(); if(HAS_ERROR()) YYABORT ; }
 

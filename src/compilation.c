@@ -467,6 +467,58 @@ int doMarkerLoop()
     return RETURN_SUCCESS;
 }
 
+int doMarkerTestFor()
+{
+    addIntoTrueList(listInstruction,"\tblt $t0, $t1,");
+    addIntoFalseList(listInstruction,"\n\tj");
+    asm_code_printf("\n")
+    addIntoUnDefineGoto(listInstruction,"\t");
+
+    asm_code_printf("\n\tj %s\n",createNewForLabel())
+    asm_code_printf("\n\t %s_:\n",getForLabel())
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
+}
+
+int doMarkerFor()
+{
+    asm_code_printf("\n\tli $t0, $zero\n")
+    asm_readFromStack("$t1", 0);
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
+}
+
+int doForIdAssign(char *name)
+{
+    asm_code_printf("\n\t %s:\n",getForLabel())
+
+    asm_code_printf("\n\t# assign of %s\n", name)
+    Identifier iden = getIdentifier(name, true, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    MemorySlot slot = iden->memory;
+    if (slot == NULL) return RETURN_FAILURE;
+
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+        slot->used = false;
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t2");
+    }
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
+    asm_code_printf("\tmul $t3, $t0, %d\n", ASM_INTEGER_SIZE)
+    asm_code_printf("\tlw $t4, 0($t3)\n")
+    asm_code_printf("\tsw $t4, 0($t2)\n")
+
+    asm_code_printf("\n\tj %s_\n",createNewForLabel())
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
+}
+
 int doMarkerEndLoop()
 {
     char* then = (char*)createNewLabel();

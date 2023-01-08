@@ -126,6 +126,12 @@ int doMarkerEndInstruction();
 
 int doMarkerLoop();
 
+int doMarkerTestFor();
+
+int doMarkerFor();
+
+int doForIdAssign(char *name);
+
 int doMarkerEndLoop();
 
 int doMarkerDone();
