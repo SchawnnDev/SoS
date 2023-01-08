@@ -124,7 +124,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); if(HAS_ERROR()) YYABORT ;}
     | DOLLAR int { $$ = doGetArgument($2, 0, 0); if(HAS_ERROR()) YYABORT ; /* TODO */}
     | DOLLAR MULT
-    | DOLLAR QMARK
+    | DOLLAR QMARK { $$ = doGetLastStatus(); }
     | QUOTED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | APOSTROPHED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = convertIntToString($4); if(HAS_ERROR()) YYABORT ; }
