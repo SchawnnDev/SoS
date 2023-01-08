@@ -1549,25 +1549,35 @@ int doFunctionCall(char* id, MemorySlotList list)
         return RETURN_FAILURE;
     }
 
-    int count = 0;
-
-    do
-    {
-        count++;
-        list = list->next;
-    } while (list != NULL);
-
-    if(count != identifier->size) {
+    if(list == NULL && identifier->size > 0) {
         log_error("Function call %s requires exactly %d arguments", id, identifier->size);
+        free(id);
         return RETURN_FAILURE;
     }
-    // TODO:
-    asm_code_printf("\t\n")
 
-    do
+    int count = 0;
+
+    if(list != NULL)
     {
-        list = list->next;
-    } while (list != NULL);
+        do
+        {
+            count++;
+            list = list->next;
+        } while (list != NULL);
+
+        if(count != identifier->size) {
+            log_error("Function call %s requires exactly %d arguments", id, identifier->size);
+            return RETURN_FAILURE;
+        }
+        // TODO:
+        asm_code_printf("\t\n")
+
+        do
+        {
+            list = list->next;
+        } while (list != NULL);
+
+    }
 
     asm_code_printf("\tjal start_%s\n", id)
     free(id);
@@ -1578,7 +1588,7 @@ int doFunctionCall(char* id, MemorySlotList list)
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetArgument(MemorySlot slot)
+MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 {
     if(slot == NULL || slot->value == NULL)
         return NULL;
