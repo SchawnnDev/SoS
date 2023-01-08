@@ -122,7 +122,7 @@ test_instruction : final_concatenation ASSIGN final_concatenation { $$ = doBoolE
 operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$ = doGetVariableAddress($3, 0, 0); if(HAS_ERROR()) YYABORT ;}
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 0); if(HAS_ERROR()) YYABORT ; }
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); if(HAS_ERROR()) YYABORT ;}
-    | DOLLAR int { $$ = doGetArgument($2); if(HAS_ERROR()) YYABORT ; /* TODO */}
+    | DOLLAR int { $$ = doGetArgument($2, 0, 0); if(HAS_ERROR()) YYABORT ; /* TODO */}
     | DOLLAR MULT
     | DOLLAR QMARK
     | QUOTED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
@@ -153,10 +153,10 @@ mult_int : mult_int mult_div_mod operand_int { log_debug("mult_int: CALCUL: %s |
 
 operand_int : DOLLAR LBRACE id RBRACE { $$ = doGetVariableAddress($3, 0, 1); if(HAS_ERROR()) YYABORT ; }
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 1); if(HAS_ERROR()) YYABORT ; }
-    | DOLLAR int
+    | DOLLAR int { $$ = doGetArgument($2, 0, 1); }
     | plus_or_minus DOLLAR LBRACE id RBRACE { log_debug("doGetVariableAddress(%d, %s)", $1, $4); $$ = doGetVariableAddress($4, $1 == MINUS_OPE, 1); if(HAS_ERROR()) YYABORT ; }
     | plus_or_minus DOLLAR RBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($4, $6, $1 == MINUS_OPE, 1); if(HAS_ERROR()) YYABORT ; }
-    | plus_or_minus DOLLAR int
+    | plus_or_minus DOLLAR int { $$ = doGetArgument($2, $1 == MINUS_OPE, 1); }
     | int
     | plus_or_minus int { $$ = doUnaryCheck($2, $1 == MINUS_OPE); if(HAS_ERROR()) YYABORT ; }
     | LPAREN sum_int RPAREN { $$ = $2; }

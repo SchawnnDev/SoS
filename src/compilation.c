@@ -1591,25 +1591,35 @@ int doFunctionCall(char* id, MemorySlotList list)
         return RETURN_FAILURE;
     }
 
-    int count = 0;
-
-    do
-    {
-        count++;
-        list = list->next;
-    } while (list != NULL);
-
-    if(count != identifier->size) {
+    if(list == NULL && identifier->size > 0) {
         log_error("Function call %s requires exactly %d arguments", id, identifier->size);
+        free(id);
         return RETURN_FAILURE;
     }
-    // TODO:
-    asm_code_printf("\t\n")
 
-    do
+    int count = 0;
+
+    if(list != NULL)
     {
-        list = list->next;
-    } while (list != NULL);
+        do
+        {
+            count++;
+            list = list->next;
+        } while (list != NULL);
+
+        if(count != identifier->size) {
+            log_error("Function call %s requires exactly %d arguments", id, identifier->size);
+            return RETURN_FAILURE;
+        }
+        // TODO:
+        asm_code_printf("\t\n")
+
+        do
+        {
+            list = list->next;
+        } while (list != NULL);
+
+    }
 
     asm_code_printf("\tjal start_%s\n", id)
     free(id);
@@ -1620,7 +1630,7 @@ int doFunctionCall(char* id, MemorySlotList list)
     return RETURN_SUCCESS;
 }
 
-MemorySlot doGetArgument(MemorySlot slot)
+MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 {
     if(slot == NULL || slot->value == NULL)
         return NULL;
@@ -1659,6 +1669,22 @@ MemorySlot doGetArgument(MemorySlot slot)
 
     asm_code_printf("\tlw $t1, 0($t2)\n")
     asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+
+    if(isOperandInt)
+    {
+        // convert string to int (variables contains numbers as chars)
+        asm_useAtoiFunction("$t1", "$t3");
+
+        if(negative) {
+            asm_code_printf("\tli $t4, -1\n")
+            asm_code_printf("\tmul $t3, $t3, $t4\n")
+        }
+
+        asm_code_printf("\tsw $t3, 0($t2)\n")
+
+        return slot;
+    }
+
     asm_code_printf("\tsw $t1, 0($t2)\n")
 
     return slot;

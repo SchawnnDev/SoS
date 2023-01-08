@@ -263,7 +263,7 @@ MemorySlot convertIntToString(MemorySlot slot);
  * @param slot
  * @return
  */
-MemorySlot doGetArgument(MemorySlot slot);
+MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt);
 
 /**
  *
