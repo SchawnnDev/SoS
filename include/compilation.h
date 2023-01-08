@@ -130,7 +130,7 @@ int doMarkerTestFor();
 
 int doMarkerFor();
 
-int doForIdAssign(char *name);
+int doForIdAssign(Marker mark);
 
 int doMarkerEndLoop();
 
@@ -271,5 +271,12 @@ MemorySlot doGetArgument(MemorySlot slot);
  * @return
  */
 int doReturn(MemorySlot slot);
+
+/**
+ *
+ * @param id
+ * @return
+ */
+Marker getOrCreateForIdMarker(char* id);
 
 #endif //SOS_COMPILATION_H

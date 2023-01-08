@@ -487,12 +487,12 @@ int doMarkerFor()
     return RETURN_SUCCESS;
 }
 
-int doForIdAssign(char *name)
+int doForIdAssign(Marker mark)
 {
     asm_code_printf("\n\t %s:\n",getForLabel())
 
-    asm_code_printf("\n\t# assign of %s\n", name)
-    Identifier iden = getIdentifier(name, true, false);
+    asm_code_printf("\n\t# assign of %s\n", mark->lbl)
+    Identifier iden = getIdentifier(mark->lbl, true, false);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     MemorySlot slot = iden->memory;
     if (slot == NULL) return RETURN_FAILURE;
@@ -512,6 +512,7 @@ int doForIdAssign(char *name)
 
     asm_code_printf("\n\tj %s_\n",createNewForLabel())
 
+    destroyMarker(mark);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
@@ -1614,4 +1615,15 @@ MemorySlot doGetArgument(MemorySlot slot)
 int doReturn(MemorySlot slot)
 {
     return RETURN_SUCCESS;
+}
+
+Marker getOrCreateForIdMarker(char* id)
+{
+    Identifier identifier = getIdentifier(id, true, false);
+    Marker mark = newMarker();
+    CHECK_ERROR_RETURN(NULL)
+
+    mark->lbl = id;
+
+    return mark;
 }
