@@ -480,7 +480,7 @@ int doMarkerTestFor()
 
 int doMarkerFor()
 {
-    asm_code_printf("\n\tli $t0, $zero\n")
+    asm_code_printf("\n\tli $t0, 0\n")
     asm_readFromStack("$t1", 0);
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
