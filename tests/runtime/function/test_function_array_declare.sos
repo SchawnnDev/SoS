@@ -1,0 +1,13 @@
+test_function()
+{
+    declare array[10];
+    array[0] = 0;
+    val_array=${array[0]};
+    echo "array[0] = " ${val_array} "\n";
+    array[1] = 68
+} ;
+
+test_function;
+echo "array[1] = " ${array[1]} "\n";
+
+exit
