@@ -467,6 +467,11 @@ int doMarkerLoop(int blockType)
     return RETURN_SUCCESS;
 }
 
+int DoMarkerMainArg()
+{
+    asm_code_printf("\tlw $t1, %s\n", ASM_VAR_ARGC)
+}
+
 int doMarkerTestFor()
 {
     const char * forLabel = createNewForLabel();
@@ -513,6 +518,50 @@ int doForIdAssign(Marker mark)
     destroyMarker(mark);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
+}
+
+int doForIdAssignArg(Marker mark)
+{
+    asm_code_printf("\t %s:\n",getForLabel())
+
+    asm_code_printf("\n\t# assign of %s\n", mark->lbl)
+    Identifier iden = getIdentifier(mark->lbl, true, false);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    MemorySlot slot = iden->memory;
+    if (slot == NULL) return RETURN_FAILURE;
+
+    //asm_code_printf("\tli $s7, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+
+    if(slot->label == NULL)
+    {
+        asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
+        slot->used = false;
+    } else {
+        asm_loadLabelAddressIntoRegister(slot->label, "$t2");
+    }
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    RangeVariable rangeVariable = getLastBlockFunction();
+    if(rangeVariable == NULL){
+        asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
+        asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+    }
+}
+
+RangeVariable getLastBlockFunction()
+{
+    CHECKPOINTER(listRangeVariable)
+    CHECK_ERROR_RETURN(NULL)
+
+    RangeVariable tmp = listRangeVariable->cursor;
+    while((tmp->previousLevel != NULL) && (tmp->blockType != FUNCTION)){
+        tmp = tmp->previousLevel;
+    }
+
+    if(tmp->blockType == FUNCTION){
+        return tmp;
+    } else {
+        return NULL;
+    }
 }
 
 int doMarkerEndLoop()
@@ -606,6 +655,7 @@ Marker doMarkerForList(MemorySlotList list)
     destroyMemoryList(first);
 
     //asm_code_printf("\tli $s7, 0\n")
+    asm_code_printf("\n\tli $s0, %d\n", 0)
     asm_code_printf("\n\tli $s1, %d\n", finalC)
 
     asm_code_printf("\n\t# End do marker for list section\n\n")

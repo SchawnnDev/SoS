@@ -134,6 +134,8 @@ int doMarkerEndLoop();
 
 int doMarkerDone();
 
+RangeVariable getLastBlockFunction();
+
 /**
  *
  * @param list
