@@ -475,6 +475,8 @@ int DoMarkerMainArg()
 int doMarkerTestFor()
 {
     const char * forLabel = createNewForLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_code_printf("\tblt $s0, $s1, %s",forLabel);
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
@@ -504,7 +506,6 @@ int doForIdAssign(Marker mark)
     } else {
         asm_loadLabelAddressIntoRegister(slot->label, "$t2");
     }
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
     asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
@@ -540,11 +541,14 @@ int doForIdAssignArg(Marker mark)
         asm_loadLabelAddressIntoRegister(slot->label, "$t2");
     }
     CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     RangeVariable rangeVariable = getLastBlockFunction();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     if(rangeVariable == NULL){
         asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
         asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
     }
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 }
 
 RangeVariable getLastBlockFunction()
@@ -567,6 +571,8 @@ RangeVariable getLastBlockFunction()
 int doMarkerEndLoop()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     asm_code_printf("\t%s:\n",then)
     completeFalseList(listInstruction,then);
     completeUnDefineGoto(listInstruction,then);
@@ -579,6 +585,8 @@ int doMarkerEndLoop()
 int doMarkerDone()
 {
     char* then = (char*)createNewLabel();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     deleteRangeVariable(listRangeVariable);
     completeUnDefineGoto(listInstruction,then);
     asm_code_printf("\n\tj %s\n",then)
@@ -669,7 +677,9 @@ int doDeleteLocalOffset(Marker mark)
     // mark contains only int for number of elements on stack
     //asm_subtractInternalOffset(mark->index);
     destroyMarker(mark);
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     asm_loadRegistersFromStack();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -1529,6 +1539,8 @@ int doDeclareFunction(Marker mark)
     // TODO: handle returns
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     // asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
     asm_code_printf("\tjr $ra\n")
     asm_code_printf("\tend_%s:\n", mark->lbl)
@@ -1580,6 +1592,7 @@ int doFunctionCall(char* id, MemorySlotList list)
     if(identifier == NULL)
     {
         log_error("Function you trying to call is not existing.")
+        setErrorFailure();
         free(id);
         return RETURN_FAILURE;
     }
@@ -1587,12 +1600,14 @@ int doFunctionCall(char* id, MemorySlotList list)
     if(identifier->type != FUNCTION)
     {
         log_error("The variable you trying to call is not a function.")
+        setErrorFailure();
         free(id);
         return RETURN_FAILURE;
     }
 
     if(list == NULL && identifier->size > 0) {
-        log_error("Function call %s requires exactly %d arguments", id, identifier->size);
+        log_error("Function call %s requires exactly %d arguments", id, identifier->size)
+        setErrorFailure();
         free(id);
         return RETURN_FAILURE;
     }
@@ -1608,7 +1623,8 @@ int doFunctionCall(char* id, MemorySlotList list)
         } while (list != NULL);
 
         if(count != identifier->size) {
-            log_error("Function call %s requires exactly %d arguments", id, identifier->size);
+            log_error("Function call %s requires exactly %d arguments", id, identifier->size)
+            setErrorFailure();
             return RETURN_FAILURE;
         }
         // TODO:
@@ -1641,6 +1657,7 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 
     if(val < 1) {
         log_error("Arguments are starting at index 1")
+        setErrorFailure();
         return NULL;
     }
     RangeVariable currCursor = listRangeVariable->cursor;
@@ -1687,6 +1704,7 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 
     asm_code_printf("\tsw $t1, 0($t2)\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return slot;
 }
 

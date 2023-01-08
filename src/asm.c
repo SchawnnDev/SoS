@@ -101,6 +101,8 @@ int asm_allocateMemoryOnStack(int words)
 int asm_freeMemoryOnStack(int words)
 {
     asm_code_printf("\taddi $sp, $sp, %d\n", words * ASM_INTEGER_SIZE)
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 

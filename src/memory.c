@@ -8,9 +8,9 @@ MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
     if (memory == NULL)
     {
         memory = newMemorySlot(memoryCurrentStackOffset);
+        CHECK_ERROR_RETURN(NULL)
         memory->offset = 0;
         *memoryCurrentStackOffset = 0;
-        CHECK_ERROR_RETURN(NULL)
         memory->used = true;
         return memory;
     }
