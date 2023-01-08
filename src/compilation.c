@@ -1494,5 +1494,22 @@ int doFunctionCall(char* id, MemorySlotList list)
 
 MemorySlot doGetArgument(MemorySlot slot)
 {
+    if(slot == NULL)
+        return NULL;
+
+    if(listRangeVariable->cursor->blockType == BLOCK_FUNCTION)
+    {
+
+    } else {
+        asm_code_printf("\tlw %s\n", ASM_VAR_ARGC);
+    }
+
+
+
     return 0;
+}
+
+int doReturn(MemorySlot slot)
+{
+    return RETURN_SUCCESS;
 }

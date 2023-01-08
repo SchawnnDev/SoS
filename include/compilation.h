@@ -259,5 +259,11 @@ MemorySlot convertIntToString(MemorySlot slot);
  */
 MemorySlot doGetArgument(MemorySlot slot);
 
+/**
+ *
+ * @param slot
+ * @return
+ */
+int doReturn(MemorySlot slot);
 
 #endif //SOS_COMPILATION_H
