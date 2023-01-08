@@ -502,7 +502,6 @@ int doForIdAssign(Marker mark)
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
-    asm_code_printf("\taddi $t3, $t3, %d\n", ASM_INTEGER_SIZE) // + 4 because 0 number of args
     asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
     asm_code_printf("\tadd $t3, $t3, $sp\n") // dont forget to add sp
     asm_code_printf("\taddi $t3, $t3, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
