@@ -482,9 +482,6 @@ int doMarkerTestFor()
 
 int doMarkerFor()
 {
-    asm_code_printf("\n\tli $s0, 0\n")
-    asm_readFromStack("$t1", 0);
-
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
@@ -616,6 +613,8 @@ Marker doMarkerForList(MemorySlotList list)
     destroyMemoryList(first);
 
     //asm_code_printf("\tli $s7, 0\n")
+    asm_code_printf("\n\tli $s1, %d\n", count)
+
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     CHECK_ERROR_RETURN(NULL)
