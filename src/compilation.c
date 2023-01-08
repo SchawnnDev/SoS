@@ -501,7 +501,7 @@ int doForIdAssign(Marker mark)
     MemorySlot slot = iden->memory;
     if (slot == NULL) return RETURN_FAILURE;
 
-    asm_code_printf("\tli $s7, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+    //asm_code_printf("\tli $s7, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
 
     if(slot->label == NULL)
     {
@@ -516,6 +516,7 @@ int doForIdAssign(Marker mark)
     asm_code_printf("\taddi $t3, $t3, %d\n", ASM_INTEGER_SIZE) // + 4 because 0 number of args
     asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
     asm_code_printf("\tadd $t3, $t3, $sp\n") // dont forget to add sp
+    asm_code_printf("\taddi $t3, $t3, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
     asm_code_printf("\tlw $t4, 0($t3)\n")
     asm_code_printf("\tsw $t4, 0($t2)\n")
 

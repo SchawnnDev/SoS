@@ -1,14 +1,5 @@
-ite=0;
-while test ${ite} -lt 5 do
-    echo ${ite} "\n";
-
-    ite_bis=0;
-    while test ${ite_bis} -lt 2 do
-        echo ${ite} ${ite_bis} "\n";
-        ite_bis = $( expr ${ite_bis} + 1 )
-    done;
-
-    ite = $( expr ${ite} + 1 )
-done;
-echo ${ite_bis} "\n";
+for mot in "salut" "Hello" "Test" do
+  echo ${mot};
+  echo 10
+done ;
 exit
