@@ -550,6 +550,7 @@ int doForIdAssignArg(Marker mark)
 
     RangeVariable rangeVariable = getLastBlockFunction();
     if(rangeVariable == NULL){
+<<<<<<< HEAD
         asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
         asm_code_printf("\tlw $t4, %s\n", ASM_VAR_ARGV_START)
         asm_code_printf("\tadd $t4, $t4, $t3\n")
@@ -560,6 +561,11 @@ int doForIdAssignArg(Marker mark)
     asm_code_printf("\n\tj %s_\n",getForLabel())
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
+=======
+        asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
+        //asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+    }
+>>>>>>> 25a4b8c07e626cffcd18d40b68d2a12581a9f121
     return RETURN_SUCCESS;
 }
 
@@ -1617,23 +1623,44 @@ int doFunctionCall(char* id, MemorySlotList list)
 
     if(list != NULL)
     {
+
+        MemorySlotList first = firstMemorySlotList(list);
+        MemorySlotList temp = first;
+
         do
         {
             count++;
-            list = list->next;
-        } while (list != NULL);
+            temp = temp->next;
+        } while (temp != NULL);
 
         if(count != identifier->size) {
             log_error("Function call %s requires exactly %d arguments", id, identifier->size);
             return RETURN_FAILURE;
         }
-        // TODO:
-        asm_code_printf("\t\n")
 
-        do
-        {
-            list = list->next;
-        } while (list != NULL);
+        temp = lastMemorySlotList(list);
+        asm_code_printf("\taddi $sp, $sp, -%d\n", count * ASM_INTEGER_SIZE)
+        asm_code_printf("\taddi $s7, $s7, %d\n", count * ASM_INTEGER_SIZE)
+
+        const int finalC = count;
+        count = 0;
+
+        do {
+
+            count += ASM_INTEGER_SIZE;
+
+            if(list->slot->label == NULL)
+            {
+                asm_readFromStack("$a0", CALCULATE_OFFSET(list->slot));
+                freeMemory(list->slot);
+            } else {
+                asm_loadLabelIntoRegister(list->slot->label, "$a0");
+            }
+
+            asm_code_printf("\tsw $a0, %d($sp)\n", count)
+
+            list = list->previous;
+        } while(list != NULL);
 
     }
 
@@ -1670,10 +1697,11 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
                 currCursor->currentFunction->size = val;
         }
 
-        asm_code_printf("\tadd $t2, $sp, $s7\n")
-        if((val - 1) > 0)
+        asm_code_printf("\tadd $t2, $sp, $s7\n") //
+        asm_code_printf("\tadd $t2, $t2, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+        if(val > 0)
         {
-            asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+            asm_code_printf("\taddi $t2, $t2, %d\n", val * ASM_INTEGER_SIZE)
         }
     } else {
         asm_code_printf("\tli $t0, %d\n", val)
