@@ -459,7 +459,7 @@ int doMarkerLoop(int blockType)
 {
     asm_code_printf("\n\t# Start of Test block of LOOP\n")
     addIntoUnDefineGoto(listInstruction,"\t");
-    asm_code_printf("\n")
+    asm_code_printf("\n\taddi $s0, $s0, 1\n")
     addRangeVariable(listRangeVariable, blockType);
     asm_code_printf("\n")
 
@@ -470,19 +470,12 @@ int doMarkerLoop(int blockType)
 int doMarkerTestFor()
 {
     const char * forLabel = createNewForLabel();
-    asm_code_printf("\tblt $s0, $t1, %s",forLabel);
+    asm_code_printf("\tblt $s0, $s1, %s",forLabel);
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
 
     asm_code_printf("\n\t %s_:\n",getForLabel())
-    asm_code_printf("\taddi $s0, $s0, 1\n")
 
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
-    return RETURN_SUCCESS;
-}
-
-int doMarkerFor()
-{
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
@@ -509,7 +502,6 @@ int doForIdAssign(Marker mark)
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
-    asm_code_printf("\taddi $t3, $t3, %d\n", ASM_INTEGER_SIZE) // + 4 because 0 number of args
     asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
     asm_code_printf("\tadd $t3, $t3, $sp\n") // dont forget to add sp
     asm_code_printf("\taddi $t3, $t3, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)

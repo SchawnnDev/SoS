@@ -207,7 +207,7 @@ marker_loop : {$$ = ""; addBlock(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; d
 
 marker_for : {$$ = ""; addBlock(BLOCK_FOR);}
 
-marker_do : {$$ = ""; doMarkerFor(); doMarkerLoop(BLOCK_FOR); doMarkerTestFor();}
+marker_do : {$$ = ""; doMarkerLoop(BLOCK_FOR); doMarkerTestFor();}
 
 marker_done : {$$ = ""; doMarkerDone(); if(HAS_ERROR()) YYABORT ; }
 
