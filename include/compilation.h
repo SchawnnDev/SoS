@@ -90,7 +90,7 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
  * @param val
  * @return
  */
-MemorySlot doWriteInt(const char *val);
+MemorySlot doWriteInt(char *val);
 
 /**
  *

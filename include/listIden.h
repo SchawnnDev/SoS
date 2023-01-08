@@ -8,7 +8,7 @@
 typedef struct {
     char * name;
     int type;
-    int arraySize;
+    int size;
     MemorySlot memory;
 } identifier_t, *Identifier;
 

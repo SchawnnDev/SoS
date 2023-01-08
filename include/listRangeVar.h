@@ -11,6 +11,7 @@ typedef struct rangeVariable_t{
     int blockType;
     MemorySlot memorySlot;
     int* memoryCurrentStackOffset;
+    Identifier currentFunction;
 
     struct rangeVariable_t* nextLevel;
     struct rangeVariable_t* previousLevel;

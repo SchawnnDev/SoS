@@ -28,6 +28,8 @@ initRangeVariable(int rangeLevel, int blockType, RangeVariable previousLevel)
     addr->previousLevel = previousLevel;
     addr->nextLevel = NULL;
 
+    addr->currentFunction = NULL;
+
     return addr;
 }
 

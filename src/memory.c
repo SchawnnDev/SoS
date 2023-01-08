@@ -43,6 +43,7 @@ MemorySlot newMemorySlot(int *memoryCurrentStackOffset)
     space->offset = *memoryCurrentStackOffset;
     space->next = NULL;
     space->label = NULL;
+    space->value = NULL;
     *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
@@ -80,6 +81,11 @@ void destroyMemorySlot(MemorySlot memory)
 void freeMemory(MemorySlot mem)
 {
     if (mem == NULL) return;
+    if(mem->value != NULL)
+    {
+        free(mem->value);
+        mem->value = NULL;
+    }
     mem->used = false;
 }
 
