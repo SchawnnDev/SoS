@@ -11,6 +11,8 @@ int asm_writeLoadRegistersFromStackFunction()
     asm_code_printf("\t%s:\n", ASM_LOAD_REGISTERS_FROM_STACK_FUNCTION_NAME)
     int count = 0;
 
+    asm_code_printf("\t\taddi $sp, $sp, %d\n", ASM_INTEGER_SIZE)
+
     const int tempRegisters = 8;
     const int savedRegisters = 8;
 

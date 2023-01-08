@@ -1,5 +1,4 @@
-echo $1;
-#for mot in "salut" "Hello" "Test" do
-#  echo ${mot}
-# done ;
+for mot in "salut" "Hello" "Test" do
+  echo ${mot}
+done ;
 exit

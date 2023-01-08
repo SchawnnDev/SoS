@@ -143,8 +143,8 @@ int addRangeVariable(ListRangeVariable addr, int blockType)
     addr->cursor = newCursor;
 
     asm_writeRegistersToStack();
-    asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
-
+    // asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    asm_code_printf("\tli $s7, 0\n")
     return RETURN_SUCCESS;
 }
 
@@ -174,7 +174,7 @@ int deleteRangeVariable(ListRangeVariable addr)
     addr->cursor = tmp->previousLevel;
     addr->cursor->nextLevel = NULL;
     cleanRangeVariable(tmp);
-    asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    //asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
     asm_loadRegistersFromStack();
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -386,10 +386,6 @@ MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
     MemorySlot mem = reserveMemorySlot(addr->cursor->memorySlot,
                                        addr->cursor->memoryCurrentStackOffset);
     CHECK_ERROR_RETURN(NULL)
-
-    // to get args
-    if(addr->cursor->blockType == BLOCK_FOR)
-        asm_code_printf("\taddi $s7, $s7, 1\n")
 
     if (addr->cursor->memorySlot == NULL)
     {

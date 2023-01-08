@@ -81,8 +81,8 @@ int asm_readFromStack(const char *into, int offset) {
 }
 
 int asm_getStackAddress(const char *into, int offset) {
-    asm_code_printf("\tlw %s, _offset\n", into)
-    asm_code_printf("\tadd %s, $sp, %s\n", into, into)
+    // asm_code_printf("\tlw %s, %s\n", into, ASM_VAR_OFFSET_NAME)
+    asm_code_printf("\tadd %s, $sp, $s7\n", into)
     asm_code_printf("\taddi %s, %s, %d\n", into, into, offset)
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)

@@ -8,6 +8,8 @@ MemorySlot reserveMemorySlot(MemorySlot memory, int *memoryCurrentStackOffset)
     if (memory == NULL)
     {
         memory = newMemorySlot(memoryCurrentStackOffset);
+        memory->offset = 0;
+        *memoryCurrentStackOffset = 0;
         CHECK_ERROR_RETURN(NULL)
         memory->used = true;
         return memory;
@@ -37,14 +39,16 @@ MemorySlot newMemorySlot(int *memoryCurrentStackOffset)
     CHECKPOINTER(space = malloc(sizeof(struct memory_space_t)))
     CHECK_ERROR_RETURN(NULL)
     asm_allocateMemoryOnStack(1);
+    asm_code_printf("\taddi $s7, $s7, %d\n", ASM_INTEGER_SIZE)
     CHECK_ERROR_RETURN(NULL)
+
+    *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     space->used = false;
     space->offset = *memoryCurrentStackOffset;
     space->next = NULL;
     space->label = NULL;
     space->value = NULL;
-    *memoryCurrentStackOffset += ASM_INTEGER_SIZE;
 
     return space;
 }
@@ -55,7 +59,7 @@ int getMipsOffset(MemorySlot space, int memoryCurrentStackOffset) {
         setErrorFailure();
         return RETURN_FAILURE;
     }
-    return memoryCurrentStackOffset - space->offset;
+    return -space->offset;
 }
 
 void destroyMemorySlot(MemorySlot memory)

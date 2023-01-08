@@ -80,6 +80,7 @@ int compile(FILE *inputFile, FILE *outputFile)
     asm_code_printf("# Start of main code section\n")
     asm_code_printf("\n")
     asm_code_printf("_main:\n")
+    asm_code_printf("\tli $s7, 0\n")
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     // Parse
@@ -469,13 +470,13 @@ int doMarkerLoop(int blockType)
 int doMarkerTestFor()
 {
     const char * forLabel = createNewForLabel();
-    asm_code_printf("\tblt $t0, $t1, %s",forLabel);
+    asm_code_printf("\tblt $s0, $t1, %s",forLabel);
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
 
     asm_code_printf("\n\tj %s\n",forLabel)
     asm_code_printf("\t %s_:\n",getForLabel())
-    asm_code_printf("\taddi $t0, $t0, 1\n")
+    asm_code_printf("\taddi $s0, $s0, 1\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -483,7 +484,7 @@ int doMarkerTestFor()
 
 int doMarkerFor()
 {
-    asm_code_printf("\n\tli $t0, 0\n")
+    asm_code_printf("\n\tli $s0, 0\n")
     asm_readFromStack("$t1", 0);
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -500,6 +501,8 @@ int doForIdAssign(Marker mark)
     MemorySlot slot = iden->memory;
     if (slot == NULL) return RETURN_FAILURE;
 
+    asm_code_printf("\tli $s7, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+
     if(slot->label == NULL)
     {
         asm_getStackAddress("$t2", CALCULATE_OFFSET(slot));
@@ -509,7 +512,10 @@ int doForIdAssign(Marker mark)
     }
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
-    asm_code_printf("\tmul $t3, $t0, %d\n", ASM_INTEGER_SIZE)
+    asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
+    asm_code_printf("\taddi $t3, $t3, %d\n", ASM_INTEGER_SIZE) // + 4 because 0 number of args
+    asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
+    asm_code_printf("\tadd $t3, $t3, $sp\n") // dont forget to add sp
     asm_code_printf("\tlw $t4, 0($t3)\n")
     asm_code_printf("\tsw $t4, 0($t2)\n")
 
@@ -577,7 +583,8 @@ Marker doMarkerForList(MemorySlotList list)
     } while (list != NULL);
 
     asm_code_printf("\taddi $sp, $sp, -%d\n", count * ASM_INTEGER_SIZE)
-    asm_appendInternalOffset(count);
+    asm_code_printf("\taddi $s7, $s7, %d\n", count * ASM_INTEGER_SIZE)
+    //asm_appendInternalOffset(count);
 
     list = first;
 
@@ -609,7 +616,7 @@ Marker doMarkerForList(MemorySlotList list)
 
     destroyMemoryList(first);
 
-    asm_code_printf("\tli $s7, 0\n")
+    //asm_code_printf("\tli $s7, 0\n")
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     CHECK_ERROR_RETURN(NULL)
@@ -619,7 +626,7 @@ Marker doMarkerForList(MemorySlotList list)
 int doDeleteLocalOffset(Marker mark)
 {
     // mark contains only int for number of elements on stack
-    asm_subtractInternalOffset(mark->index);
+    //asm_subtractInternalOffset(mark->index);
     destroyMarker(mark);
     asm_loadRegistersFromStack();
     return RETURN_SUCCESS;
@@ -1481,7 +1488,7 @@ int doDeclareFunction(Marker mark)
     // TODO: handle returns
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
-    asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
+    // asm_subtractInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
     asm_code_printf("\tjr $ra\n")
     asm_code_printf("\tend_%s:\n", mark->lbl)
 
