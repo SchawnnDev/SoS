@@ -467,9 +467,16 @@ int doMarkerLoop(int blockType)
     return RETURN_SUCCESS;
 }
 
-int DoMarkerMainArg()
+int DoMarkerArg()
 {
-    asm_code_printf("\tlw $t1, %s\n", ASM_VAR_ARGC)
+    asm_code_printf("\n\tli $s0, %d\n", -1)
+    RangeVariable rangeVariable = getLastBlockFunction();
+    if(rangeVariable == NULL){
+        asm_code_printf("\tlw $s1, %s\n", ASM_VAR_ARGC)
+    }
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
 }
 
 int doMarkerTestFor()
@@ -540,11 +547,20 @@ int doForIdAssignArg(Marker mark)
         asm_loadLabelAddressIntoRegister(slot->label, "$t2");
     }
     CHECK_ERROR_RETURN(RETURN_FAILURE)
+
     RangeVariable rangeVariable = getLastBlockFunction();
     if(rangeVariable == NULL){
-        asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
-        asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+        asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
+        asm_code_printf("\tlw $t4, %s\n", ASM_VAR_ARGV_START)
+        asm_code_printf("\tadd $t4, $t4, $t3\n")
+        asm_code_printf("\tlw $t5, 0($t4)\n")
+        asm_code_printf("\tsw $t5, 0($t2)\n")
     }
+
+    asm_code_printf("\n\tj %s_\n",getForLabel())
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
 }
 
 RangeVariable getLastBlockFunction()
@@ -669,7 +685,7 @@ int doDeleteLocalOffset(Marker mark)
     // mark contains only int for number of elements on stack
     //asm_subtractInternalOffset(mark->index);
     destroyMarker(mark);
-    asm_loadRegistersFromStack();
+    //asm_loadRegistersFromStack();
     return RETURN_SUCCESS;
 }
 
