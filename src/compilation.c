@@ -474,6 +474,7 @@ int DoMarkerArg()
 {
     asm_code_printf("\n\tli $s0, %d\n", -1)
     RangeVariable rangeVariable = getLastBlockFunction();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     if(rangeVariable == NULL){
         asm_code_printf("\tlw $s1, %s\n", ASM_VAR_ARGC)
     }
@@ -1755,10 +1756,12 @@ int doReturn(MemorySlot slot)
 {
 
     RangeVariable rg = getLastBlockFunction();
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     if(rg == NULL)
     {
         log_error("Could not return in this context (not in a function)")
+        setErrorFailure();
         return RETURN_FAILURE;
     }
 
@@ -1775,6 +1778,7 @@ int doReturn(MemorySlot slot)
     asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
     asm_code_printf("\t\tsw $t1, 0($t0)\n")
 
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -1792,6 +1796,7 @@ Marker getOrCreateForIdMarker(char* id)
 MemorySlot doGetLastStatus()
 {
     MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
+    CHECK_ERROR_RETURN(NULL)
 
     asm_loadLabelAddressIntoRegister(ASM_VAR_FCT_RETURN_STATUS, "$t0");
     asm_useIntToStringFunction("$t0", "$t1");
@@ -1799,5 +1804,6 @@ MemorySlot doGetLastStatus()
     asm_getStackAddress("$t2", CALCULATE_OFFSET(mem));
     asm_code_printf("\tsw $t1, 0($t2)\n")
 
+    CHECK_ERROR_RETURN(NULL)
     return mem;
 }
