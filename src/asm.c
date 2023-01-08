@@ -101,6 +101,8 @@ int asm_allocateMemoryOnStack(int words)
 int asm_freeMemoryOnStack(int words)
 {
     asm_code_printf("\taddi $sp, $sp, %d\n", words * ASM_INTEGER_SIZE)
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
@@ -224,6 +226,16 @@ int asm_allocateOnHeap(const char* into, int size)
     asm_code_printf("\tmove %s, $v0\n", into)
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
+    return RETURN_SUCCESS;
+}
+
+int asm_writeEmptyCharToLastEcho()
+{
+    asm_loadLabelIntoRegister(ASM_VAR_FCT_RETURN_VALUE, "$t0");
+    asm_code_printf("\tli $a0, 1\n")
+    asm_syscall(SBRK);
+    asm_code_printf("\tsw $zero, 0($v0)\n")
+    asm_code_printf("\tsw $v0, 0($t1)\n")
     return RETURN_SUCCESS;
 }
 

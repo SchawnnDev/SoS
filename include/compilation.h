@@ -274,6 +274,12 @@ int doReturn(MemorySlot slot);
 
 /**
  *
+ * @return
+ */
+MemorySlot doGetLastStatus();
+
+/**
+ *
  * @param id
  * @return
  */

@@ -145,6 +145,8 @@ int addRangeVariable(ListRangeVariable addr, int blockType)
     asm_writeRegistersToStack();
     // asm_appendInternalOffset(ASM_VAR_REGISTERS_CACHE_COUNT); // +1 is $ra
     asm_code_printf("\tli $s7, 0\n")
+
+    CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
