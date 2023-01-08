@@ -91,11 +91,6 @@ int handle_args(int argc, char **argv)
         goto exit;
     }
 
-    if (tos->count > 0)
-    {
-        printf("Table of symbols...\n");
-        goto exit;
-    }
 
     FILE *inputFile = NULL;
     FILE *outputFile = NULL;
@@ -135,9 +130,17 @@ int handle_args(int argc, char **argv)
         log_debug("No output file : defaulting output to stdout")
     }
 
-    if ((exitcode = compile(inputFile, outputFile)) != 0)
+    if ((exitcode = compile(inputFile, outputFile)) == RETURN_FAILURE)
     {
         printf("An error occurred.\n");
+
+        if (inputFile != NULL)
+            fclose(inputFile);
+
+        if (outputFile != NULL)
+            fclose(outputFile);
+
+        goto exit;
     }
 
     if (inputFile != NULL)
@@ -145,6 +148,14 @@ int handle_args(int argc, char **argv)
 
     if (outputFile != NULL)
         fclose(outputFile);
+
+    if (tos->count > 0)
+    {
+        printf("Table of symbols:\n");
+        printSymbolTable();
+    }
+
+    freeStruct();
 
     exit:
     /* deallocate each non-null entry in argtable[] */

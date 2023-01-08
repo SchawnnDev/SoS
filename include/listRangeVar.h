@@ -181,6 +181,16 @@ int setArraySize(ListRangeVariable addr, char* name, int arraySize);
 int printIdentifierFromListRange(ListRangeVariable addr,char* name);
 
 /*!
+ * \fn int printIdentifierFromListRange(ListRangeVariable addr,char* name)
+ * \brief Fonction affiche l'état actuelle d'un identificateur
+ *
+ * \param addr : ListRangeVariable, la liste de structure de portée de variable
+ *
+ * \return int, un entier permettant de connaitre l'état de sortie du programme
+*/
+int printAllIdentifier(ListRangeVariable addr);
+
+/**
  * \fn MemorySlot reserveBlockMemorySlot(ListRangeVariable addr)
  * \brief Réserve un memorySlot
  *

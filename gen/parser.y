@@ -30,7 +30,7 @@
 %type <strval> LBRACKET RBRACKET LPAREN RPAREN LBRACE RBRACE QUOTE APOSTROPHE
 %type <strval> QUOTED_STRING APOSTROPHED_STRING
 %type <strval> id
-%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for marker_do
+%type <strval> marker marker_test marker_else marker_end_instruction marker_loop marker_done marker_if marker_until marker_for marker_do marker_for_arg
 %type <memval> operand operand_int int sum_int mult_int final_concatenation test_block test_expr test_expr2 test_expr3 test_instruction function_call
 %type <memlistval> list_operand concatenation
 %type <intval> plus_or_minus mult_div_mod table_int
@@ -50,7 +50,7 @@ instructions : id ASSIGN final_concatenation {log_debug("instructions: (%s, %s, 
     | id LBRACKET operand_int RBRACKET ASSIGN final_concatenation {log_debug("tab: (%s, %s, %s)", $1,$3,$6); assignArrayValue($1, $3, $6); if(HAS_ERROR()) YYABORT ; }
     | DECLARE id LBRACKET table_int RBRACKET { doDeclareStaticArray($2, $4); if(HAS_ERROR()) YYABORT ; }
     | IF marker_if test_block marker_test THEN list_instructions marker_end_instruction else_part FI { doMarkerFi(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
-    | marker_for_header marker_do DO list_instructions marker_done DONE { doForIdAssignArg($1); if(HAS_ERROR()) YYABORT ; doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ;}
+    | marker_for_header marker_for_arg marker_do DO list_instructions marker_done DONE { doForIdAssignArg($1); if(HAS_ERROR()) YYABORT ; doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ;}
     | marker_for_header IN marker_for_list marker_do DO list_instructions marker_done DONE {doForIdAssign($1); if(HAS_ERROR()) YYABORT ; doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; doDeleteLocalOffset($3); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ;}
     | WHILE marker_loop test_block marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
     | UNTIL marker_loop test_block marker_until marker_test DO list_instructions marker_done DONE { doMarkerEndLoop(); if(HAS_ERROR()) YYABORT ; deleteBlock(); if(HAS_ERROR()) YYABORT ; }
@@ -207,7 +207,7 @@ marker_loop : {$$ = ""; addBlock(BLOCK_WHILE_UNTIL); if(HAS_ERROR()) YYABORT ; d
 
 marker_for : {$$ = ""; addBlock(BLOCK_FOR); if(HAS_ERROR()) YYABORT ; }
 
-marker_do : {$$ = ""; DoMarkerArg(); if(HAS_ERROR()) YYABORT ; doMarkerLoop(BLOCK_FOR); if(HAS_ERROR()) YYABORT ; doMarkerTestFor(); if(HAS_ERROR()) YYABORT ; }
+marker_do : {$$ = ""; if(HAS_ERROR()) YYABORT ; doMarkerLoop(BLOCK_FOR); if(HAS_ERROR()) YYABORT ; doMarkerTestFor(); if(HAS_ERROR()) YYABORT ; }
 
 marker_done : {$$ = ""; doMarkerDone(); if(HAS_ERROR()) YYABORT ; }
 
@@ -218,6 +218,8 @@ marker_until : { $$ = ""; doNegBoolExpression(); if(HAS_ERROR()) YYABORT ; }
 marker_for_list : list_operand { $$ = doMarkerForList($1); if(HAS_ERROR()) YYABORT ; }
 
 marker_for_header : FOR marker_for id { $$ = getOrCreateForIdMarker($3); if(HAS_ERROR()) YYABORT ; }
+
+marker_for_arg : { $$ = ""; DoMarkerArg(); if(HAS_ERROR()) YYABORT ; }
 ;
 
 %%
