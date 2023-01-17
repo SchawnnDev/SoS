@@ -1,0 +1,1 @@
+/usr/bin/cc  -Wall -Wextra -Wunused   CMakeFiles/listIden-test.dir/listIden-test.c.o  -o listIden-test  ../liblibsos.a ../lib/argtable3/src/libargtable3_static.a ../lib/liblogc.a 

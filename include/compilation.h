@@ -137,7 +137,9 @@ int doMarkerFi();
 
 int doMarkerEndInstruction();
 
-int doMarkerLoop(int blockType);
+int doMarkerLoop(int blockType, Marker mark);
+
+Marker doMarkerArg();
 
 int doMarkerTestFor();
 

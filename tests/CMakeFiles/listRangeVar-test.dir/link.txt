@@ -1,0 +1,1 @@
+/usr/bin/cc  -Wall -Wextra -Wunused   CMakeFiles/listRangeVar-test.dir/listRangeVar-test.c.o  -o listRangeVar-test  ../liblibsos.a ../lib/argtable3/src/libargtable3_static.a ../lib/liblogc.a 

@@ -465,30 +465,46 @@ int doMarkerEndInstruction()
     return RETURN_SUCCESS;
 }
 
-int doMarkerLoop(int blockType)
+int doMarkerLoop(int blockType, Marker mark)
 {
     asm_code_printf("\n\t# Start of Test block of LOOP\n")
     addIntoUnDefineGoto(listInstruction,"\t");
-    asm_code_printf("\n\taddi $s0, $s0, 1\n")
-    addRangeVariable(listRangeVariable, blockType);
     asm_code_printf("\n")
+
+    if(mark != NULL){
+        asm_loadLabelAddressIntoRegister(mark->lbl, "$s2");
+        asm_code_printf("\tlw $s0, 0($s2)\n");
+        asm_loadLabelIntoRegister(mark->lbl1, "$s1");
+        asm_code_printf("\taddi $s0, $s0, 1\n")
+        asm_code_printf("\tsw $s0, 0($s2)\n")
+        asm_code_printf("\n")
+    }
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
 }
 
-int DoMarkerArg()
+Marker doMarkerArg()
 {
-    asm_code_printf("\n\tli $s0, %d\n", -1)
+    Marker mark = newMarker();
+    mark->lbl = (char *)createNewLabel();
+    mark->lbl1 = (char *)createNewLabel();
+
+    asm_data_printf("\t%s: .word -1\n",mark->lbl)
+
     RangeVariable rangeVariable = getLastBlockFunction();
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECK_ERROR_RETURN(NULL)
     if(rangeVariable == NULL){
+        asm_data_printf("\t%s: .word 0\n",mark->lbl1)
         asm_code_printf("\tlw $s1, %s\n", ASM_VAR_ARGC)
+        asm_loadLabelAddressIntoRegister(mark->lbl1, "$s2");
+        asm_code_printf("\tsw $s1, 0($s2)")
+
     } else {
-        asm_code_printf("\tli $s1, %d\n", rangeVariable->currentFunction->size);
+        asm_data_printf("\t%s: .word %d\n",mark->lbl1,rangeVariable->currentFunction->size)
     }
 
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
+    CHECK_ERROR_RETURN(NULL)
     return RETURN_SUCCESS;
 }
 
@@ -623,7 +639,7 @@ int doMarkerDone()
     char* then = (char*)createNewLabel();
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
-    deleteRangeVariable(listRangeVariable);
+    //deleteRangeVariable(listRangeVariable);
     completeUnDefineGoto(listInstruction,then);
     asm_code_printf("\n\tj %s\n",then)
 
@@ -699,8 +715,12 @@ Marker doMarkerForList(MemorySlotList list)
     destroyMemoryList(first);
 
     //asm_code_printf("\tli $s7, 0\n")
-    asm_code_printf("\n\tli $s0, %d\n", 0)
-    asm_code_printf("\n\tli $s1, %d\n", finalC)
+
+    mark->lbl = (char *)createNewLabel();
+    mark->lbl1 = (char *)createNewLabel();
+
+    asm_data_printf("\t%s: .word 0\n",mark->lbl)
+    asm_data_printf("\t%s: .word %d\n",mark->lbl1,finalC)
 
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
@@ -720,7 +740,7 @@ int doDeleteLocalOffset(Marker mark)
 int addBlock(int blockType)
 {
     int returnValue;
-    //returnValue = addRangeVariable(listRangeVariable, blockType);
+    returnValue = addRangeVariable(listRangeVariable, blockType);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     returnValue = addStructListGoTo(listInstruction);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -731,7 +751,7 @@ int addBlock(int blockType)
 int deleteBlock()
 {
     int returnValue;
-    //returnValue = deleteRangeVariable(listRangeVariable);
+    returnValue = deleteRangeVariable(listRangeVariable);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     returnValue = deleteStructListGoTo(listInstruction);
     CHECK_ERROR_RETURN(RETURN_FAILURE)

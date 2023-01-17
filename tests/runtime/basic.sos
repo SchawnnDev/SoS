@@ -1,7 +1,18 @@
-for mot in "salut" "Hello" "Test" do
-  echo ${mot};
-  echo 10
-done ;
-testfr = 2;
-test2fr = 3;
+ite=0;
+ite_bis=0;
+
+test_function()
+{
+    while test ${ite_bis} -le 1 do
+        ite_bis = $( expr ${ite_bis} + 1 )
+    done;
+    echo ite_bis
+} ;
+
+while test ${ite} -lt 5 do
+    echo "ite: " ${ite};
+    res=$(test_function);
+    echo "ite_bis: " ${res}
+done;
+
 exit

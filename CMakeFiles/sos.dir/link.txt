@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/sos.dir/main.c.o  -o sos  liblibsos.a lib/argtable3/src/libargtable3_static.a lib/liblogc.a 
