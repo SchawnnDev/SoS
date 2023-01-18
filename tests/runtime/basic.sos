@@ -1,18 +1,14 @@
-ite=0;
-ite_bis=0;
-
-test_function()
-{
-    while test ${ite_bis} -le 1 do
-        ite_bis = $( expr ${ite_bis} + 1 )
-    done;
-    echo ite_bis
-} ;
-
-while test ${ite} -lt 5 do
-    echo "ite: " ${ite};
-    res=$(test_function);
-    echo "ite_bis: " ${res}
+for te in "hello" "how" "do" "you" "do" do
+    echo ${te} "\n"
 done;
 
+fact () { # n
+    for te in "hello" "how" "do" "you" "do" do
+        echo ${te} "\n";
+            for te in "BARA" "BARA" "BERE" "BARA" "BARA" "BERE" do
+                echo ${te}
+            done
+    done
+} ;
+fact;
 exit

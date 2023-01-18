@@ -523,7 +523,7 @@ int doMarkerTestFor()
     return RETURN_SUCCESS;
 }
 
-int doForIdAssign(Marker mark)
+int doForIdAssign(Marker mark, Marker tempValues)
 {
     asm_code_printf("\t %s:\n",getForLabel())
 
@@ -543,14 +543,16 @@ int doForIdAssign(Marker mark)
         asm_loadLabelAddressIntoRegister(slot->label, "$t2");
     }
 
-    asm_code_printf("\tmul $t3, $s0, %d\n", ASM_INTEGER_SIZE)
+    asm_loadLabelIntoRegister(tempValues->lbl, "$s0");
+    asm_code_printf("\tsubi $s0, $s0, 1\n")
+    asm_code_printf("\tmul $t3, $s0, %d\n", -ASM_INTEGER_SIZE)
     asm_code_printf("\tadd $t3, $t3, $s7\n") // Add local offset
-    asm_code_printf("\tadd $t3, $t3, $sp\n") // dont forget to add sp
-    asm_code_printf("\taddi $t3, $t3, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+    asm_code_printf("\tadd $t3, $t3, $sp\n") // don't forget to add sp
     asm_code_printf("\tlw $t4, 0($t3)\n")
     asm_code_printf("\tsw $t4, 0($t2)\n")
 
     asm_code_printf("\n\tj %s_\n",getForLabel())
+
 
     destroyMarker(mark);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -725,6 +727,9 @@ Marker doMarkerForList(MemorySlotList list)
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     CHECK_ERROR_RETURN(NULL)
+
+    doMarkerLoop(BLOCK_FOR,mark);
+
     return mark;
 }
 
