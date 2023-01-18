@@ -1,1 +1,0 @@
-/usr/bin/cc  -Wall -Wextra -Wunused   CMakeFiles/listInstructionMips-test.dir/listInstructionMips-test.c.o  -o listInstructionMips-test  ../liblibsos.a ../lib/argtable3/src/libargtable3_static.a ../lib/liblogc.a 

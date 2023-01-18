@@ -1,1 +1,0 @@
-/usr/bin/cc  -Wall -Wextra -Wunused   CMakeFiles/compilation-test.dir/compilation-test.c.o  -o compilation-test  ../liblibsos.a ../lib/argtable3/src/libargtable3_static.a ../lib/liblogc.a 
