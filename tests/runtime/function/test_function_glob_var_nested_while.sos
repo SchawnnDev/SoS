@@ -15,6 +15,6 @@ test_function()
 } ;
 
 res=$(test_function);
-echo "Res= " ${res};
+echo "Res=" ${res};
 
 exit

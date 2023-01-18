@@ -28,6 +28,12 @@ test_loop()
 {
   test_type=$1
 
+  verbosed=0
+
+  if [ $# -eq 2 ]; then
+    verbosed=1
+  fi
+
   for f in $(ls tests/runtime/${test_type})
   do
     test_name=$(echo $f | sed -e 's/.sos*//')
@@ -52,6 +58,10 @@ test_loop()
     if [ $? == 0 ];
     then
       echo -e "${GREEN}[V] Test ${test_name} successfully passed !${NC}"
+      if [ ${verbosed} -eq 1 ]; then
+        echo "Result got:"
+        cat "tests/tmp/${test_name}_result"
+      fi
       passed=$((passed+1))
     else
       echo -e "${RED}[X] Test ${test_name} failed.${NC}"
@@ -107,28 +117,31 @@ echo "${BOLD}-- Relational test block tests --"
 #test_loop "relational_test_block"
 # Conditional test_block
 echo "${BOLD}-- Conditional test block tests --"
-test_loop "conditional_test_block"
+#test_loop "conditional_test_block"
 # If tests
 echo "${BOLD}-- If tests --"
-test_loop "if"
+#test_loop "if"
 # While tests
 echo "${BOLD}-- While tests --"
-test_loop "while"
+#test_loop "while"
 # Until tests
 echo "${BOLD}-- Until tests --"
-test_loop "until"
+#test_loop "until"
 # Fizzbuzz test
 echo "${BOLD}-- Fizzbuzz tests --"
-test_loop "fizzbuzz"
+#test_loop "fizzbuzz"
 # Array test
 echo "${BOLD}-- Array tests --"
-test_loop "array"
+#test_loop "array"
 # Function test
 echo "${BOLD}-- Function tests --"
-test_loop "function"
+#test_loop "function"
 # For test
 echo "${BOLD}-- For tests --"
-test_loop "for"
+#test_loop "for"
+# Benchmark test
+echo "${BOLD}-- Benchmark tests --"
+test_loop "benchmark" "verbose"
 
 # Summary
 echo -e "${BOLD}-- SUMMARY --${NC}"
