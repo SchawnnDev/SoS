@@ -494,22 +494,39 @@ int completeTrueList(ListInstruction addr, char *code)
         return RETURN_FAILURE;
     }
 
-    tmp->numberTrue--;
     char * newCode;
     int size2 = strlen(code)+1;
     int size1 = strlen(tmpCode->lineCode[index]);
-    if(size2 == 1){
-        log_info("completeTrueList : code is empty")
-        return RETURN_FAILURE;
-    }
-    size1 = size1 + size2 + 2;
 
-    CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
-    CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
-    CHECKPOINTER(strcat(newCode," "))
-    CHECKPOINTER(strcat(newCode,code))
+    if(size1 >= 2){
+        if(size2 == 1){
+            log_info("completeTrueList : code is empty")
+            return RETURN_FAILURE;
+        }
+        tmp->numberTrue--;
+        size1 = size1 + size2 + 2;
+
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
+        CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
+        CHECKPOINTER(strcat(newCode," "))
+        CHECKPOINTER(strcat(newCode,code))
+    } else {
+        tmp->numberTrue--;
+        if(size2 == 1){
+            log_info("completeTrueList : code is empty")
+            return RETURN_FAILURE;
+        }
+        size1 = size2 + 4;
+
+        CHECKPOINTER(newCode = (char*) malloc(sizeof (char) * size1))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
+        CHECK(sprintf(newCode,"%s", tmpCode->lineCode[index]))
+        CHECK_ERROR_RETURN(RETURN_FAILURE)
+        CHECKPOINTER(strcat(newCode,code))
+        CHECKPOINTER(strcat(newCode,":"))
+    }
 
     free(tmpCode->lineCode[index]);
     tmpCode->lineCode[index] = newCode;
