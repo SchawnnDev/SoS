@@ -189,7 +189,7 @@ int doDeclareFunction(Marker marker);
  * @param list
  * @return
  */
-int doFunctionCall(char* id, MemorySlotList list);
+MemorySlot doFunctionCall(char* id, MemorySlotList list);
 
 /**
  *
@@ -299,6 +299,12 @@ MemorySlot doGetLastStatus();
  * @return
  */
 Marker getOrCreateForIdMarker(char* id);
+
+/**
+ *
+ * @return
+ */
+MemorySlot doGetAllArguments();
 
 /**
  *

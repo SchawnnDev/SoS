@@ -123,7 +123,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | DOLLAR LBRACE id LBRACKET operand_int RBRACKET RBRACE { $$ = doGetArrayAddress($3, $5, 0, 0); if(HAS_ERROR()) YYABORT ; }
     | WORD { log_debug("operand : WORD (%s)", $1); $$ = addWordToMemory($1); if(HAS_ERROR()) YYABORT ;}
     | DOLLAR int { $$ = doGetArgument($2, 0, 0); if(HAS_ERROR()) YYABORT ; /* TODO */}
-    | DOLLAR MULT
+    | DOLLAR MULT { $$ = doGetAllArguments(); if(HAS_ERROR()) YYABORT ; }
     | DOLLAR QMARK { $$ = doGetLastStatus(); }
     | QUOTED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | APOSTROPHED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }

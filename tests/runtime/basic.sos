@@ -1,14 +1,7 @@
-for te in "hello" "how" "do" "you" "do" do
-    echo ${te} "\n"
-done;
-
-fact () { # n
-    for te in "hello" "how" "do" "you" "do" do
-        echo ${te} "\n";
-            for te in "BARA" "BARA" "BERE" "BARA" "BARA" "BERE" do
-                echo ${te}
-            done
-    done
-} ;
-fact;
+fc() {
+    #echo $1 $2 $3 $4 $5 $6;
+    echo "\n\n";
+    echo $*
+};
+fc;
 exit
