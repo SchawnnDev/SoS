@@ -516,14 +516,13 @@ Marker doMarkerArg()
 
 int doMarkerTestFor()
 {
-    const char * forLabel = createNewForLabel();
-    CHECK_ERROR_RETURN(RETURN_FAILURE)
-
-    asm_code_printf("\tblt $s0, $s1, %s",forLabel);
+    addIntoTrueList(listInstruction, "\tblt $s0, $s1,");
     addIntoFalseList(listInstruction,"\n\tj");
     asm_code_printf("\n")
 
-    asm_code_printf("\n\t %s_:\n",getForLabel())
+    //asm_code_printf("\n\t %s_:\n",getForLabel())
+    addIntoTrueList(listInstruction,"\t");
+    asm_code_printf("\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -531,7 +530,7 @@ int doMarkerTestFor()
 
 int doForIdAssign(Marker mark, Marker tempValues)
 {
-    asm_code_printf("\t %s:\n",getForLabel())
+    asm_code_printf("\t %s:\n",createNewForLabel())
 
     asm_code_printf("\n\t# assign of %s\n", mark->lbl)
     Identifier iden = getIdentifier(mark->lbl, true, false);
@@ -557,9 +556,11 @@ int doForIdAssign(Marker mark, Marker tempValues)
     asm_code_printf("\tlw $t4, 0($t3)\n")
     asm_code_printf("\tsw $t4, 0($t2)\n")
 
-    asm_code_printf("\n\tj %s_\n",getForLabel())
-
-
+    char * tmp = (char*)getForLabel();
+    char * tmp1 = (char*)createNewForLabel();
+    completeTrueList(listInstruction,tmp1);
+    asm_code_printf("\n\tj %s\n",tmp1)
+    completeTrueList(listInstruction,tmp);
     destroyMarker(mark);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
@@ -567,7 +568,7 @@ int doForIdAssign(Marker mark, Marker tempValues)
 
 int doForIdAssignArg(Marker mark)
 {
-    asm_code_printf("\t %s:\n",getForLabel())
+    asm_code_printf("\t %s:\n",createNewForLabel())
 
     asm_code_printf("\n\t# assign of %s\n", mark->lbl)
     Identifier iden = getIdentifier(mark->lbl, true, false);
@@ -605,7 +606,11 @@ int doForIdAssignArg(Marker mark)
         asm_code_printf("\tsw $t5, 0($t2)\n")
     }
 
-    asm_code_printf("\n\tj %s_\n",getForLabel())
+    char * tmp = (char*)getForLabel();
+    char * tmp1 = (char*)createNewForLabel();
+    completeTrueList(listInstruction,tmp1);
+    asm_code_printf("\n\tj %s\n",tmp1)
+    completeTrueList(listInstruction,tmp);
     CHECK_ERROR_RETURN(RETURN_FAILURE)
 
     return RETURN_SUCCESS;
