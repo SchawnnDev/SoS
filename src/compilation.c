@@ -1655,6 +1655,7 @@ Marker doFunctionStartMarker(char* id)
     addRangeVariable(listRangeVariable, BLOCK_FUNCTION);
     listRangeVariable->cursor->currentFunction = identifier;
     listRangeVariable->cursor->currentFunction->size = 0;
+    asm_code_printf("\tadd $fp, $sp, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
 
     CHECK_ERROR_RETURN(NULL)
     return mark;
@@ -1742,57 +1743,70 @@ MemorySlot doFunctionCall(char* id, MemorySlotList list)
 
     asm_code_printf("\tjal start_%s\n", id)
 
+    // set last pointer to memoryslot
+    asm_getStackAddress("$t1", CALCULATE_OFFSET(returnEchoSlot));
+    asm_code_printf("\tlw $t3, 0($sp)\n")
+    asm_code_printf("\tsw $t3, 0($t1)\n")
+
     asm_code_printf("\t# End function call for %s\n\n", id)
     free(id);
 
     destroyMemoryList(list);
 
     CHECK_ERROR_RETURN(NULL)
-    return slot;
+    return returnEchoSlot;
 }
 
 MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 {
-    if(slot == NULL || slot->value == NULL)
+    if(slot == NULL)
         return NULL;
 
-    int err;
-    int val = parseInt32(slot->value, &err);
-    if (err == RETURN_FAILURE) return NULL;
-
-    if(val < 1) {
-        log_error("Arguments are starting at index 1")
-        setErrorFailure();
-        return NULL;
-    }
-    asm_code_printf("\t# Get argument: %d\n", val)
     RangeVariable currCursor = getLastBlockFunction();
     bool function = false;
 
     if(currCursor == NULL) currCursor = listRangeVariable->cursor;
     else function = true;
 
+    asm_readFromStack("$t0", CALCULATE_OFFSET(slot));
+
     if(function)
     {
         // Set argument count
         if(currCursor->currentFunction != NULL)
         {
+            int err;
+            int val = parseInt32(slot->value, &err);
+            if (err == RETURN_FAILURE) return NULL;
+
+            if(val < 1) {
+                log_error("Arguments are starting at index 1")
+                setErrorFailure();
+                return NULL;
+            }
+
             if(currCursor->currentFunction->size < val)
                 currCursor->currentFunction->size = val;
         }
 
-        asm_code_printf("\tadd $t2, $sp, $s7\n") //
-        asm_code_printf("\tadd $t2, $t2, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
-        if(val > 0)
-        {
-            asm_code_printf("\taddi $t2, $t2, %d\n", val * ASM_INTEGER_SIZE)
-        }
+        asm_code_printf("\tblt $t0, $zero, %s\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
+        asm_code_printf("\tbeq $t0, $zero, %s\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
+        asm_code_printf("\tmove $t2, $fp\n") //
+        asm_code_printf("\taddi $t2, $t2, %d\n", ASM_INTEGER_SIZE) // return slot
+        asm_code_printf("\tli $t1, %d\n", ASM_INTEGER_SIZE)
+        asm_code_printf("\tmul $t3, $t0, $t1\n")
+        asm_code_printf("\tadd $t2, $t2, $t3\n")
     } else {
-        asm_code_printf("\tli $t0, %d\n", val)
         asm_code_printf("\tlw $t1, %s\n", ASM_VAR_ARGC)
+        asm_code_printf("\tblt $t0, $zero, %s\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
+        asm_code_printf("\tbeq $t0, $zero, %s\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
         asm_code_printf("\tbgt $t0, $t1, %s\n", ASM_NON_EXISTENT_ARGUMENT_ERROR_FUNCTION_NAME)
         asm_code_printf("\tlw $t2, %s\n", ASM_VAR_ARGV_START)
-        asm_code_printf("\taddi $t2, $t2, %d\n", (val - 1) * ASM_INTEGER_SIZE)
+        //
+        asm_code_printf("\taddi $t3, $t0, -1\n")
+        asm_code_printf("\tli $t1, %d\n", ASM_INTEGER_SIZE)
+        asm_code_printf("\tmul $t3, $t3, $t1\n")
+        asm_code_printf("\tadd $t2, $t2, $t3\n")
     }
 
     asm_code_printf("\tlw $t1, 0($t2)\n")
@@ -1810,14 +1824,10 @@ MemorySlot doGetArgument(MemorySlot slot, bool negative, bool isOperandInt)
 
         asm_code_printf("\tsw $t3, 0($t2)\n")
 
-        asm_code_printf("\t# End get argument: %d\n", val)
-
         return slot;
     }
 
     asm_code_printf("\tsw $t1, 0($t2)\n")
-
-    asm_code_printf("\t# End get argument: %d\n", val)
 
     CHECK_ERROR_RETURN(NULL)
     return slot;
@@ -1837,10 +1847,10 @@ MemorySlot doGetAllArguments()
     {
         const int argc = currCursor->currentFunction->size;
 
-
         asm_code_printf("\tli $t0, %d\n", argc == 0 ? 1 : argc);
-        asm_code_printf("\tadd $s4, $sp, $s7\n") //
-        asm_code_printf("\tadd $s4, $s4, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+        asm_code_printf("\tmove $s4, $fp\n") //
+        asm_code_printf("\tadd $s4, $s4, %d\n", ASM_INTEGER_SIZE)
+        // <-  + ASM_INTEGER_SIZE => return echo
         for (int i = 0; i < argc; ++i)
         {
             asm_code_printf("\taddi $s4, $s4, %d\n", ASM_INTEGER_SIZE)
@@ -1857,7 +1867,8 @@ MemorySlot doGetAllArguments()
         asm_code_printf("\tsw $t0, 0($t1)\n")
 
         asm_code_printf("\tadd $s4, $sp, $s7\n") //
-        asm_code_printf("\tadd $s4, $s4, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+        asm_code_printf("\tadd $s4, $s4, %d\n", ASM_VAR_REGISTERS_CACHE_SIZE + ASM_INTEGER_SIZE)
+        // <-  + ASM_INTEGER_SIZE => return echo
 
         for (int i = 0; i < argc; ++i)
         {

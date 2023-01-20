@@ -1,7 +1,12 @@
 fc() {
-    #echo $1 $2 $3 $4 $5 $6;
+
+    for bla in "tes" "fra" "bruh" do
+        echo $1 $2 $3 $4 $5 $6
+    done;
+
+    echo $1 $2 $3 $4 $5 $6;
     echo "\n\n";
     echo $*
 };
-fc;
+fc "test" "deux" "3" "4" 4 6;
 exit

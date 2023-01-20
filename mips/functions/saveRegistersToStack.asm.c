@@ -12,7 +12,7 @@ int asm_writeSaveRegistersToStackFunction()
     const int savedRegisters = 8;
 
     asm_code_printf("\t%s:\n", ASM_SAVE_REGISTERS_TO_STACK_FUNCTION_NAME)
-    asm_code_printf("\t\taddi $sp, $sp, -%d\n", (tempRegisters + savedRegisters) * ASM_INTEGER_SIZE)
+    asm_code_printf("\t\taddi $sp, $sp, -%d\n", (tempRegisters + savedRegisters + 1) * ASM_INTEGER_SIZE)
 
     int count = 0;
 
@@ -27,6 +27,8 @@ int asm_writeSaveRegistersToStackFunction()
         asm_code_printf("\t\tsw $s%d, %d($sp)\n", i, count)
         count += 4;
     }
+
+    asm_code_printf("\t\tsw $fp, %d($sp)\n", count);
 
     asm_code_printf("\t\taddi $sp, $sp, -%d\n", ASM_INTEGER_SIZE)
 

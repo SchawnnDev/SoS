@@ -28,7 +28,9 @@ int asm_writeLoadRegistersFromStackFunction()
         count += 4;
     }
 
-    asm_code_printf("\t\taddi $sp, $sp, %d\n", (tempRegisters + savedRegisters) * ASM_INTEGER_SIZE)
+    asm_code_printf("\t\tlw $fp, %d($sp)\n", count);
+
+    asm_code_printf("\t\taddi $sp, $sp, %d\n", (tempRegisters + savedRegisters + 1) * ASM_INTEGER_SIZE)
     asm_code_printf("\t\tjr $ra\n")
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
