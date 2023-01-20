@@ -1413,6 +1413,17 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
     return offset;
 }
 
+MemorySlotList doArrayToListOperand(char* id)
+{
+    MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
+    MemorySlotList list = newMemorySlotList(mem);
+
+    // TODO
+    // if -1 => change to ""
+
+    return list;
+}
+
 // Utils
 int parseInt32(const char *word, int *err)
 {

@@ -100,6 +100,13 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
 /**
  *
+ * @param id
+ * @return
+ */
+MemorySlotList doArrayToListOperand(char* id);
+
+/**
+ *
  * @param val
  * @return
  */
