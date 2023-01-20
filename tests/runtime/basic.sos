@@ -1,5 +1,5 @@
 fc() {
-    echo "resultat= " $(expr $1 + $2)
+    echo "resultat= " $(expr $1 + $2) "\n"
 };
 #fc "test" "deux" "3" "4" 4 6;
 echo $(fc 1 1);

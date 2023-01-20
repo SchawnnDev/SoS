@@ -86,7 +86,7 @@ filter : WORD
 
 list_operand : list_operand operand { $$ = appendMemorySlot($1, $2); if(HAS_ERROR()) YYABORT ; }
     | operand { $$ = newMemorySlotList($1); if(HAS_ERROR()) YYABORT ; }
-    | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE
+    | DOLLAR LBRACE id LBRACKET MULT RBRACKET RBRACE { $$ = doArrayToListOperand($3); }
     ;
 
 final_concatenation : concatenation { $$ = doConcatenation($1); if(HAS_ERROR()) YYABORT ; }

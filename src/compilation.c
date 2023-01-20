@@ -378,6 +378,7 @@ int doEcho(MemorySlotList list)
     }
     MemorySlotList first = list;
     bool isFirst = true;
+    bool function = getLastBlockFunction() != NULL;
 
     do {
         if(list->slot == NULL) {
@@ -398,7 +399,9 @@ int doEcho(MemorySlotList list)
         if(list->slot->label == NULL)
         {
             asm_readFromStack("$a0", CALCULATE_OFFSET(list->slot));
-            freeMemory(list->slot);
+            if(!function) {
+                freeMemory(list->slot);
+            }
         } else {
             asm_loadLabelIntoRegister(list->slot->label, "$a0");
         }
