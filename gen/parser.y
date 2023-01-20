@@ -128,7 +128,7 @@ operand : DOLLAR LBRACE id RBRACE { log_debug("DOLLAR LBRACE %s RBRACE", $3); $$
     | QUOTED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | APOSTROPHED_STRING { $$ = addStringToMemory($1); if(HAS_ERROR()) YYABORT ; }
     | DOLLAR LPAREN EXPR sum_int RPAREN { $$ = convertIntToString($4); if(HAS_ERROR()) YYABORT ; }
-    | DOLLAR LPAREN function_call RPAREN { $$ = doGetLastEchoCall(); }
+    | DOLLAR LPAREN function_call RPAREN { $$ = $3; }
     ;
 
 operator1 : ARG_N { $$ = NOT_EMPTY; }

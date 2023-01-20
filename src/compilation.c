@@ -408,6 +408,17 @@ int doEcho(MemorySlotList list)
         list = list->next;
     } while(list != NULL);
 
+    if(getLastBlockFunction() != NULL)
+    {
+        asm_code_printf("\t# Echo: write to function\n")
+
+        MemorySlot slot = doConcatenation(first);
+        asm_readFromStack("$a0", CALCULATE_OFFSET(slot));
+        asm_code_printf("\tsw $a0, 4($fp)\n")
+
+        asm_code_printf("\t# Echo: end write to function\n")
+    }
+
     destroyMemoryList(first);
 
     asm_code_printf("\n\t# End do echo section\n\n")
@@ -1079,6 +1090,7 @@ int doDeclareStaticArray(char *id, int size)
 }
 
 MemorySlot addStringToMemory(const char *str) {
+    log_trace("addStringToMemory(%s)", str)
     char *copy;
     unsigned int len = strlen(str) - 1;
 
@@ -1745,7 +1757,7 @@ MemorySlot doFunctionCall(char* id, MemorySlotList list)
 
     // set last pointer to memoryslot
     asm_getStackAddress("$t1", CALCULATE_OFFSET(returnEchoSlot));
-    asm_code_printf("\tlw $t3, 0($sp)\n")
+    asm_code_printf("\tlw $t3, 4($sp)\n")
     asm_code_printf("\tsw $t3, 0($t1)\n")
 
     asm_code_printf("\t# End function call for %s\n\n", id)
