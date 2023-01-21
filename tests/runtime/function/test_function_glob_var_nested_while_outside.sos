@@ -9,6 +9,10 @@ test_function()
     echo ite_bis
 } ;
 
-test_function;
+while test ${ite} -lt 5 do
+    echo "ite:" ${ite};
+    res=$(test_function);
+    echo "ite_bis:" ${res}
+done;
 
 exit
