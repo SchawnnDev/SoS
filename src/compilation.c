@@ -1415,11 +1415,77 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
 MemorySlotList doArrayToListOperand(char* id)
 {
+    log_trace("doArrayToListOperand(%s)", id)
+    Identifier iden = getIdentifier(id, false, false);
+    CHECK_ERROR_RETURN(NULL)
+
+    if (iden == NULL)
+    {
+        log_error("Array %s was not set, cant assign.", id)
+        setErrorFailure();
+        return NULL;
+    }
+
+    if(iden->type != ARRAY)
+    {
+        log_error("Can't access to a non array variable (%s).", id)
+        setErrorFailure();
+        return NULL;
+    }
+
+    // slot -> address of table
+    MemorySlot slot = iden->memory;
+    CHECK_ERROR_RETURN(NULL)
+
     MemorySlot mem = reserveBlockMemorySlot(listRangeVariable);
     MemorySlotList list = newMemorySlotList(mem);
 
+    // load address of table
+    if(slot->label == NULL)
+    {
+        asm_readFromStack("$t0", CALCULATE_OFFSET(slot));
+    } else {
+        asm_loadLabelIntoRegister(slot->label, "$t0");
+    }
+
     // TODO
     // if -1 => change to ""
+    for (int i = 0; i < iden->size; ++i)
+    {
+
+        if(i != 0)
+        {
+            mem = reserveBlockMemorySlot(listRangeVariable);
+        }
+
+        asm_getStackAddress("$t3", CALCULATE_OFFSET(mem));
+
+        // access to $t0[i]
+        asm_code_printf("\tlw $t1, %d($t0)\n", i * ASM_INTEGER_SIZE)
+
+        char* lbl = (char*) createNewLabel();
+        char* lbl2 = (char*) createNewLabel();
+
+        asm_code_printf("\tbgt $t1, $zero, %s\n", lbl)
+
+        asm_code_printf("\tli $a0, 1\n")
+        asm_syscall(SBRK);
+        asm_code_printf("\tsb $zero, 0($v0)\n")
+        asm_code_printf("\tsw $v0, 0($t3)\n") // move start address to v0
+        asm_code_printf("\tj %s\n", lbl2)
+        asm_code_printf("\t%s:\n", lbl)
+        asm_code_printf("\tsw $t1, 0($t3)\n")
+        asm_code_printf("\t%s:\n", lbl2)
+
+        free(lbl);
+        free(lbl2);
+
+        if(i != 0)
+        {
+            list = appendMemorySlot(list, mem);
+        }
+
+    }
 
     return list;
 }

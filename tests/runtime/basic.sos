@@ -1,6 +1,7 @@
-fc() {
-    echo "resultat= " $(expr $1 + $2) "\n"
-};
-#fc "test" "deux" "3" "4" 4 6;
-echo $(fc 1 1);
+declare te[4];
+te[0] = "Hello";
+te[1] = "Quentin";
+te[2] = "Matthieu";
+te[3] = "Axel";
+echo ${te[*]};
 exit
