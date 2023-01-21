@@ -10,6 +10,7 @@ struct marker_t {
     int index;
 
     char* lbl;
+    char* lbl1;
 };
 
 /**

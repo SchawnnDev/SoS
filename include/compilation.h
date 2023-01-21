@@ -100,6 +100,13 @@ MemorySlot doGetArrayAddress(char *id, MemorySlot offset, bool negative,
 
 /**
  *
+ * @param id
+ * @return
+ */
+MemorySlotList doArrayToListOperand(char* id);
+
+/**
+ *
  * @param val
  * @return
  */
@@ -137,11 +144,13 @@ int doMarkerFi();
 
 int doMarkerEndInstruction();
 
-int doMarkerLoop(int blockType);
+int doMarkerLoop(int blockType, Marker mark);
+
+Marker doMarkerArg();
 
 int doMarkerTestFor();
 
-int doForIdAssign(Marker mark);
+int doForIdAssign(Marker mark, Marker tempValues);
 
 int doMarkerEndLoop();
 
@@ -187,7 +196,7 @@ int doDeclareFunction(Marker marker);
  * @param list
  * @return
  */
-int doFunctionCall(char* id, MemorySlotList list);
+MemorySlot doFunctionCall(char* id, MemorySlotList list);
 
 /**
  *
@@ -297,6 +306,12 @@ MemorySlot doGetLastStatus();
  * @return
  */
 Marker getOrCreateForIdMarker(char* id);
+
+/**
+ *
+ * @return
+ */
+MemorySlot doGetAllArguments();
 
 /**
  *

@@ -1,4 +1,21 @@
-for mot in "salut" "Hello" "Test" do
-  echo ${mot}
-done ;
+fact () { # n
+    p = $(expr $1 + 1);
+    i = 2 ;
+    echo ${p};
+
+    if test ${p} -lt 5
+    then
+
+        if test ${p} -lt 2
+        then
+        fact 6;
+        echo "Bongjour" ${i}
+        fi;
+
+    fact ${p}
+
+    fi
+
+} ;
+fact 0;
 exit
