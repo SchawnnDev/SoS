@@ -258,7 +258,7 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
     if(offset->label == NULL)
     {
         asm_readFromStack("$t0", CALCULATE_OFFSET(offset));
-        freeMemory(offset);
+        //freeMemory(offset);
     } else {
         asm_loadLabelIntoRegister(offset->label, "$t0");
     }
@@ -284,7 +284,7 @@ int assignArrayValue(char *name, MemorySlot offset, MemorySlot concat)
     if(concat->label == NULL)
     {
         asm_readFromStack("$t5", CALCULATE_OFFSET(concat));
-        freeMemory(concat);
+        //freeMemory(concat);
     } else {
         asm_loadLabelIntoRegister(concat->label, "$t5");
     }
@@ -729,7 +729,7 @@ Marker doMarkerForList(MemorySlotList list)
         if(list->slot->label == NULL)
         {
             asm_readFromStack("$a0", CALCULATE_OFFSET(list->slot));
-            freeMemory(list->slot);
+           // freeMemory(list->slot);
         } else {
             asm_loadLabelIntoRegister(list->slot->label, "$a0");
         }
@@ -747,13 +747,13 @@ Marker doMarkerForList(MemorySlotList list)
     mark->lbl1 = (char *)createNewLabel();
 
     asm_data_printf("\t%s: .word 0\n",mark->lbl)
-    asm_data_printf("\t%s: .word %d\n",mark->lbl1,finalC)
+    asm_data_printf("\t%s: .word %d\n",mark->lbl1, finalC)
 
     asm_code_printf("\n\t# End do marker for list section\n\n")
 
     CHECK_ERROR_RETURN(NULL)
 
-    doMarkerLoop(BLOCK_FOR,mark);
+    doMarkerLoop(BLOCK_FOR, mark);
 
     return mark;
 }
@@ -1239,16 +1239,17 @@ MemorySlot doGetVariableAddress(char *id, bool negative, bool isOperandInt)
 {
     log_trace("doGetVariableAddress")
 
-    VariablePosition pos = searchIdentifierPosition(listRangeVariable, id);
+    Identifier iden = getIdentifier(id, false, false);
     CHECK_ERROR_RETURN(NULL)
 
-    if(pos->indexIdentifier == NOTFOUND) {
-        log_error("The variable was not found.")
+    if (iden == NULL)
+    {
+        log_error("The variable %s was not found.", id)
         setErrorFailure();
         return NULL;
     }
 
-    MemorySlot slot = getOffsetOfIdentifier(pos->rangePosition->listIdentifier, pos->indexIdentifier);
+    MemorySlot slot = iden->memory;
     CHECK_ERROR_RETURN(NULL)
 
     // convert to int
@@ -1702,7 +1703,8 @@ MemorySlot doUnaryCheck(MemorySlot slot, bool negative)
 
 int doDeclareFunction(Marker mark)
 {
-    // TODO: handle returns
+    asm_code_printf("\t%s_return_end:\n", mark->lbl)
+
     // from actual position to start position (mark)
     deleteRangeVariable(listRangeVariable); // delete one block
     CHECK_ERROR_RETURN(RETURN_FAILURE)
@@ -2014,6 +2016,25 @@ int doReturn(MemorySlot slot)
     // RETURN CODE: int
     asm_readFromStack("$t1", CALCULATE_OFFSET(slot));
     asm_code_printf("\t\tsw $t1, 0($t0)\n")
+
+/*    int blocks = 1;
+    RangeVariable tmp = listRangeVariable->cursor;
+    while ((tmp->previousLevel != NULL) && (tmp->blockType != FUNCTION))
+    {
+        tmp = tmp->previousLevel;
+        blocks++;
+    }
+
+    // curr fct
+    blocks -= 1;
+
+    for (int i = 0; i < blocks; ++i)
+        asm_loadRegistersFromStack();*/
+
+    asm_code_printf("\tadd $fp, $fp, -%d\n", ASM_VAR_REGISTERS_CACHE_SIZE)
+    asm_code_printf("\tmove $sp, $fp\n")
+    asm_code_printf("\tli $s7, 0\n")
+    asm_code_printf("\tj %s_return_end\n", rg->currentFunction->name)
 
     CHECK_ERROR_RETURN(RETURN_FAILURE)
     return RETURN_SUCCESS;
